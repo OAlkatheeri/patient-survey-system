@@ -185,19 +185,246 @@
             background: #fef2f2;
         }
 
-        .contact-preference-section {
-            background: #f0f9ff;
-            padding: 20px;
-            border-radius: 12px;
-            border-left: 4px solid #0ea5e9;
-            margin-top: 20px;
+        .contact-preferences-container {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 20px;
+            padding: 32px;
+            margin: 32px 0;
+            border: 2px solid #0ea5e9;
+            box-shadow: 0 8px 32px rgba(14, 165, 233, 0.1);
         }
 
-        .contact-preference-title {
-            font-weight: 600;
+        .contact-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .contact-title {
+            font-size: 24px;
+            font-weight: 700;
             color: #0c4a6e;
-            margin-bottom: 16px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .contact-subtitle {
             font-size: 16px;
+            color: #0369a1;
+            margin-bottom: 24px;
+        }
+
+        .contact-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .contact-option {
+            position: relative;
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            border: 3px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .contact-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(14, 165, 233, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .contact-option:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+            border-color: #0ea5e9;
+        }
+
+        .contact-option:hover::before {
+            opacity: 1;
+        }
+
+        .contact-option.selected {
+            border-color: #0ea5e9;
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(14, 165, 233, 0.2);
+        }
+
+        .contact-option.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+            border-color: #e5e7eb;
+            background: #f9fafb;
+            box-shadow: none !important;
+        }
+
+        .contact-option.disabled:hover {
+            transform: none;
+            border-color: #e5e7eb;
+        }
+
+        .contact-option.disabled .contact-icon {
+            filter: grayscale(100%);
+        }
+
+        .contact-checkbox {
+            display: none;
+        }
+
+        .contact-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .contact-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .contact-option:hover .contact-icon {
+            transform: scale(1.1);
+        }
+
+        .contact-option.selected .contact-icon {
+            transform: scale(1.15);
+            filter: drop-shadow(0 4px 8px rgba(14, 165, 233, 0.3));
+        }
+
+        .contact-label {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+            transition: color 0.3s ease;
+        }
+
+        .contact-option.selected .contact-label {
+            color: #0c4a6e;
+        }
+
+        .contact-description {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.5;
+            transition: color 0.3s ease;
+        }
+
+        .contact-option.selected .contact-description {
+            color: #0369a1;
+        }
+
+        .contact-checkmark {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #10b981;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .contact-option.selected .contact-checkmark {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .contact-exclusive {
+            border-color: #dc2626;
+        }
+
+        .contact-exclusive:hover {
+            border-color: #dc2626;
+        }
+
+        .contact-exclusive.selected {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border-color: #dc2626;
+            box-shadow: 0 8px 16px rgba(220, 38, 38, 0.2);
+        }
+
+        .contact-exclusive .contact-checkmark {
+            background: #dc2626;
+        }
+
+        .contact-exclusive.selected .contact-label {
+            color: #7f1d1d;
+        }
+
+        .contact-exclusive.selected .contact-description {
+            color: #991b1b;
+        }
+
+        .selected-summary {
+            margin-top: 24px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            border-left: 4px solid #10b981;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .selected-summary.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .summary-title {
+            font-weight: 600;
+            color: #065f46;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .summary-text {
+            color: #047857;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .contact-options {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .contact-option {
+                padding: 20px;
+            }
+            
+            .contact-icon {
+                font-size: 36px;
+            }
         }
 
         .privacy-section {
@@ -1001,6 +1228,56 @@
                 <textarea id="comments" name="comments" placeholder="Your feedback helps us improve our services. Please share any additional thoughts about your experience..."></textarea>
             </div>
 
+            <!-- Contact Preferences Section -->
+            <div class="contact-preferences-container">
+                <div class="contact-header">
+                    <div class="contact-title">
+                        <span>📞</span>
+                        Contact Preferences
+                    </div>
+                    <div class="contact-subtitle">
+                        How would you like us to reach you for follow-up?
+                    </div>
+                </div>
+
+                <div class="contact-options">
+                    <label class="contact-option" for="contact-email">
+                        <input type="checkbox" id="contact-email" name="contact_preference" value="email" class="contact-checkbox">
+                        <div class="contact-content">
+                            <span class="contact-icon">📧</span>
+                            <div class="contact-label">Email Contact</div>
+                            <div class="contact-description">We'll send follow-up information to your email address</div>
+                        </div>
+                        <div class="contact-checkmark">✓</div>
+                    </label>
+
+                    <label class="contact-option" for="contact-phone">
+                        <input type="checkbox" id="contact-phone" name="contact_preference" value="phone" class="contact-checkbox">
+                        <div class="contact-content">
+                            <span class="contact-icon">📱</span>
+                            <div class="contact-label">Phone Contact</div>
+                            <div class="contact-description">We'll call you for any necessary follow-up</div>
+                        </div>
+                        <div class="contact-checkmark">✓</div>
+                    </label>
+
+                    <label class="contact-option contact-exclusive" for="contact-none">
+                        <input type="checkbox" id="contact-none" name="contact_preference" value="no_contact" class="contact-checkbox">
+                        <div class="contact-content">
+                            <span class="contact-icon">🚫</span>
+                            <div class="contact-label">No Contact</div>
+                            <div class="contact-description">Please do not contact me regarding this feedback</div>
+                        </div>
+                        <div class="contact-checkmark">✓</div>
+                    </label>
+                </div>
+
+                <div class="selected-summary" id="contactSummary">
+                    <div class="summary-title">Your Contact Preference:</div>
+                    <div class="summary-text" id="summaryText">Please select how you'd like to be contacted</div>
+                </div>
+            </div>
+
             <!-- Privacy and Confidentiality -->
             <div class="privacy-section">
                 <div class="privacy-header">
@@ -1202,29 +1479,144 @@ ${response.overall_satisfaction <= 2 || response.had_issues === 'yes' ? '⚠️ 
             });
         });
 
-        // Handle "no contact" checkbox to uncheck others
-        document.querySelector('input[name="contact_preference"][value="no_contact"]').addEventListener('change', function() {
-            if (this.checked) {
-                // If "no contact" is selected, uncheck phone and email
-                document.querySelector('input[name="contact_preference"][value="email"]').checked = false;
-                document.querySelector('input[name="contact_preference"][value="phone"]').checked = false;
+        // Creative dynamic contact preferences handler
+        function updateContactPreferences() {
+            const emailCheckbox = document.getElementById('contact-email');
+            const phoneCheckbox = document.getElementById('contact-phone');
+            const noContactCheckbox = document.getElementById('contact-none');
+            const summary = document.getElementById('contactSummary');
+            const summaryText = document.getElementById('summaryText');
+            
+            if (!emailCheckbox || !phoneCheckbox || !noContactCheckbox) return;
+
+            const emailOption = emailCheckbox.closest('.contact-option');
+            const phoneOption = phoneCheckbox.closest('.contact-option');
+            const noContactOption = noContactCheckbox.closest('.contact-option');
+
+            // Check current state
+            const emailSelected = emailCheckbox.checked;
+            const phoneSelected = phoneCheckbox.checked;
+            const noContactSelected = noContactCheckbox.checked;
+
+            // Reset all states first
+            [emailOption, phoneOption, noContactOption].forEach(option => {
+                option.classList.remove('selected', 'disabled');
+            });
+
+            let summaryMessage = "Please select how you'd like to be contacted";
+            let showSummary = false;
+
+            if (noContactSelected) {
+                // No contact selected - disable others
+                emailCheckbox.checked = false;
+                phoneCheckbox.checked = false;
+                
+                noContactOption.classList.add('selected');
+                emailOption.classList.add('disabled');
+                phoneOption.classList.add('disabled');
+                
+                summaryMessage = "✅ You have chosen not to be contacted regarding this feedback";
+                showSummary = true;
+                
+            } else if (emailSelected && phoneSelected) {
+                // Both email and phone selected
+                noContactCheckbox.checked = false;
+                
+                emailOption.classList.add('selected');
+                phoneOption.classList.add('selected');
+                noContactOption.classList.add('disabled');
+                
+                summaryMessage = "✅ We'll contact you via both email and phone for follow-up";
+                showSummary = true;
+                
+            } else if (emailSelected) {
+                // Only email selected
+                noContactCheckbox.checked = false;
+                
+                emailOption.classList.add('selected');
+                noContactOption.classList.add('disabled');
+                
+                summaryMessage = "✅ We'll send follow-up information to your email address";
+                showSummary = true;
+                
+            } else if (phoneSelected) {
+                // Only phone selected
+                noContactCheckbox.checked = false;
+                
+                phoneOption.classList.add('selected');
+                noContactOption.classList.add('disabled');
+                
+                summaryMessage = "✅ We'll call you for any necessary follow-up";
+                showSummary = true;
+                
             }
+
+            // Update summary
+            summaryText.textContent = summaryMessage;
+            if (showSummary) {
+                summary.classList.add('show');
+            } else {
+                summary.classList.remove('show');
+            }
+
+            // Add click prevention for disabled options
+            const disabledOptions = document.querySelectorAll('.contact-option.disabled');
+            disabledOptions.forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+            
+            const enabledOptions = document.querySelectorAll('.contact-option:not(.disabled)');
+            enabledOptions.forEach(option => {
+                option.style.pointerEvents = 'auto';
+            });
+        }
+
+        // Initialize contact preferences when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click listeners to the contact option labels
+            const contactOptions = document.querySelectorAll('.contact-option');
+            
+            contactOptions.forEach(option => {
+                option.addEventListener('click', function(e) {
+                    // Prevent default if option is disabled
+                    if (this.classList.contains('disabled')) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return false;
+                    }
+                    
+                    const checkbox = this.querySelector('.contact-checkbox');
+                    if (checkbox && e.target !== checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                    }
+                    
+                    // Small delay to ensure checkbox state is updated
+                    setTimeout(updateContactPreferences, 10);
+                });
+            });
+
+            // Add change listeners to checkboxes
+            const contactCheckboxes = document.querySelectorAll('.contact-checkbox');
+            contactCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    setTimeout(updateContactPreferences, 10);
+                });
+            });
+            
+            // Set initial state
+            updateContactPreferences();
         });
 
-        // Handle phone and email checkboxes to uncheck "no contact"
-        document.querySelector('input[name="contact_preference"][value="email"]').addEventListener('change', function() {
-            if (this.checked) {
-                // If email is selected, uncheck "no contact"
-                document.querySelector('input[name="contact_preference"][value="no_contact"]').checked = false;
+        // Backup initialization with timeout
+        setTimeout(() => {
+            const contactCheckboxes = document.querySelectorAll('.contact-checkbox');
+            if (contactCheckboxes.length > 0) {
+                contactCheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', updateContactPreferences);
+                });
+                updateContactPreferences();
             }
-        });
-
-        document.querySelector('input[name="contact_preference"][value="phone"]').addEventListener('change', function() {
-            if (this.checked) {
-                // If phone is selected, uncheck "no contact"
-                document.querySelector('input[name="contact_preference"][value="no_contact"]').checked = false;
-            }
-        });
+        }, 200);
 
         // Add visual feedback when hovering over rating options
         document.querySelectorAll('.rating-option').forEach(option => {
