@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Survey Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
+            color: white;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #2c5aa0;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2c5aa0;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 12px 12px 0 0;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 16px 24px;
+            background: #f1f5f9;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            background: white;
+            border-bottom-color: #2c5aa0;
+            color: #2c5aa0;
+        }
+
+        .tab-content {
+            background: white;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            min-height: 400px;
+        }
+
+        .tab-panel {
+            display: none;
+            padding: 24px;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .response-card {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-left: 4px solid #10b981;
+        }
+
+        .response-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .response-id {
+            font-weight: 600;
+            color: #2c5aa0;
+            font-size: 14px;
+        }
+
+        .response-date {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .ratings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .rating-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rating-label {
+            font-size: 14px;
+            color: #475569;
+        }
+
+        .rating-value {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .rating-emoji {
+            font-size: 18px;
+        }
+
+        .comments {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            font-style: italic;
+            color: #475569;
+            margin-top: 12px;
+            border-left: 3px solid #e2e8f0;
+        }
+
+        .email-notification {
+            background: #fef3c7;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .email-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .email-subject {
+            font-weight: 600;
+            color: #92400e;
+        }
+
+        .email-date {
+            font-size: 12px;
+            color: #78716c;
+        }
+
+        .email-body {
+            background: white;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            white-space: pre-line;
+            color: #374151;
+        }
+
+        .refresh-btn {
+            background: #2c5aa0;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 24px;
+            transition: background 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: #1e3a8a;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #64748b;
+            padding: 48px 24px;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+        .export-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 12px;
+        }
+
+        .export-btn:hover {
+            background: #059669;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .ratings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Patient Survey Dashboard</h1>
+        <p>Monitor patient feedback and satisfaction scores in real-time</p>
+    </div>
+
+    <div class="container">
+        <!-- Statistics Overview -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalResponses">0</div>
+                <div class="stat-label">Total Responses</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgSatisfaction">-</div>
+                <div class="stat-label">Avg Overall Satisfaction</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgStaff">-</div>
+                <div class="stat-label">Avg Staff Rating</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="emailsSent">0</div>
+                <div class="stat-label">Email Notifications</div>
+            </div>
+        </div>
+
+        <button class="refresh-btn" onclick="loadDashboardData()">🔄 Refresh Data</button>
+        <button class="export-btn" onclick="exportData()">📊 Export CSV</button>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('responses')">Survey Responses</button>
+            <button class="tab" onclick="showTab('reports')">Full Reports</button>
+            <button class="tab" onclick="showTab('emails')">Email Notifications</button>
+            <button class="tab" onclick="showTab('analytics')">Analytics</button>
+        </div>
+
+        <div class="tab-content">
+            <!-- Survey Responses Tab -->
+            <div id="responses" class="tab-panel active">
+                <div style="margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                    <input type="text" id="searchInput" placeholder="Search by patient name or email..." 
+                           style="flex: 1; min-width: 250px; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 14px;">
+                    <select id="ratingFilter" style="padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 14px;">
+                        <option value="">All Ratings</option>
+                        <option value="5">5 Stars Only</option>
+                        <option value="4">4+ Stars</option>
+                        <option value="3">3+ Stars</option>
+                        <option value="low">Low Ratings (1-2)</option>
+                    </select>
+                    <button onclick="applyFilters()" style="padding: 10px 20px; background: #2c5aa0; color: white; border: none; border-radius: 6px; cursor: pointer;">Filter</button>
+                </div>
+                <div id="responsesContainer">
+                    <div class="empty-state">
+                        <h3>No survey responses yet</h3>
+                        <p>Patient responses will appear here once surveys are submitted</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Full Reports Tab -->
+            <div id="reports" class="tab-panel">
+                <div style="margin-bottom: 24px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                    <input type="date" id="startDate" style="padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px;">
+                    <span>to</span>
+                    <input type="date" id="endDate" style="padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px;">
+                    <button onclick="generateReport()" style="padding: 10px 20px; background: #2c5aa0; color: white; border: none; border-radius: 6px; cursor: pointer;">Generate Report</button>
+                    <button onclick="exportFullReport()" style="padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer;">Export Detailed CSV</button>
+                </div>
+                <div id="reportsContainer">
+                    <div class="empty-state">
+                        <h3>Patient Satisfaction Report</h3>
+                        <p>Select a date range and click "Generate Report" to view comprehensive analytics</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Notifications Tab -->
+            <div id="emails" class="tab-panel">
+                <div id="emailsContainer">
+                    <div class="empty-state">
+                        <h3>No email notifications yet</h3>
+                        <p>Email notifications will appear here when surveys are submitted</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="analytics" class="tab-panel">
+                <div id="analyticsContainer">
+                    <div class="empty-state">
+                        <h3>Analytics Dashboard</h3>
+                        <p>Detailed analytics will be available once you have survey data</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Emoji mapping for ratings
+        const emojiMap = {
+            1: '😞',
+            2: '😕', 
+            3: '😐',
+            4: '🙂',
+            5: '😄'
+        };
+
+        // Load and display dashboard data
+        function loadDashboardData() {
+            const responses = JSON.parse(sessionStorage.getItem('surveyResponses') || '[]');
+            const emails = JSON.parse(sessionStorage.getItem('emailNotifications') || '[]');
+
+            updateStatistics(responses, emails);
+            displayResponses(responses);
+            displayEmails(emails);
+            displayAnalytics(responses);
+        }
+
+        function updateStatistics(responses, emails) {
+            document.getElementById('totalResponses').textContent = responses.length;
+            document.getElementById('emailsSent').textContent = emails.length;
+
+            if (responses.length > 0) {
+                const avgSatisfaction = responses.reduce((sum, r) => sum + parseInt(r.overall_satisfaction), 0) / responses.length;
+                const avgStaff = responses.reduce((sum, r) => sum + parseInt(r.staff_professionalism), 0) / responses.length;
+                
+                document.getElementById('avgSatisfaction').textContent = avgSatisfaction.toFixed(1);
+                document.getElementById('avgStaff').textContent = avgStaff.toFixed(1);
+            } else {
+                document.getElementById('avgSatisfaction').textContent = '-';
+                document.getElementById('avgStaff').textContent = '-';
+            }
+        }
+
+        function displayResponses(responses) {
+            const container = document.getElementById('responsesContainer');
+            
+            if (responses.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No survey responses yet</h3>
+                        <p>Patient responses will appear here once surveys are submitted</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = responses.map(response => `
+                <div class="response-card">
+                    <div class="response-header">
+                        <div style="flex: 1;">
+                            <div class="response-id">Response ID: ${response.id}</div>
+                            <div style="margin-top: 8px;">
+                                <strong style="color: #1e293b; font-size: 16px;">${response.patient_name || 'Anonymous Patient'}</strong>
+                                <div style="font-size: 14px; color: #64748b; margin-top: 4px;">
+                                    📧 ${response.patient_email || 'No email provided'} 
+                                    ${response.patient_phone ? '| 📞 ' + response.patient_phone : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div class="response-date">${response.submittedAt}</div>
+                            <div style="font-size: 14px; color: #64748b; margin-top: 4px;">
+                                📅 ${response.appointment_date || 'Date not provided'}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ratings-grid">
+                        <div class="rating-item">
+                            <span class="rating-label">Overall Satisfaction</span>
+                            <div class="rating-value">
+                                <span class="rating-emoji">${emojiMap[response.overall_satisfaction]}</span>
+                                <span>${response.overall_satisfaction}/5</span>
+                            </div>
+                        </div>
+                        <div class="rating-item">
+                            <span class="rating-label">Staff Professionalism</span>
+                            <div class="rating-value">
+                                <span class="rating-emoji">${emojiMap[response.staff_professionalism]}</span>
+                                <span>${response.staff_professionalism}/5</span>
+                            </div>
+                        </div>
+                        <div class="rating-item">
+                            <span class="rating-label">Waiting Time</span>
+                            <div class="rating-value">
+                                <span class="rating-emoji">${emojiMap[response.waiting_time]}</span>
+                                <span>${response.waiting_time}/5</span>
+                            </div>
+                        </div>
+                        <div class="rating-item">
+                            <span class="rating-label">Feeling Heard</span>
+                            <div class="rating-value">
+                                <span class="rating-emoji">${emojiMap[response.feeling_heard]}</span>
+                                <span>${response.feeling_heard}/5</span>
+                            </div>
+                        </div>
+                    </div>
+                    ${response.comments ? `<div class="comments"><strong>Patient Comments:</strong> "${response.comments}"</div>` : ''}
+                    ${parseInt(response.overall_satisfaction) <= 2 ? '<div style="background: #fef2f2; color: #dc2626; padding: 8px; border-radius: 4px; margin-top: 12px; font-weight: 500;">⚠️ Low satisfaction - Follow-up recommended</div>' : ''}
+                </div>
+            `).join('');
+        }
+
+        function displayEmails(emails) {
+            const container = document.getElementById('emailsContainer');
+            
+            if (emails.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No email notifications yet</h3>
+                        <p>Email notifications will appear here when surveys are submitted</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = emails.map(email => `
+                <div class="email-notification">
+                    <div class="email-header">
+                        <div class="email-subject">${email.subject}</div>
+                        <div class="email-date">Sent: ${email.sentAt}</div>
+                    </div>
+                    <div><strong>To:</strong> ${email.to}</div>
+                    <div class="email-body">${email.body}</div>
+                </div>
+            `).join('');
+        }
+
+        function displayAnalytics(responses) {
+            const container = document.getElementById('analyticsContainer');
+            
+            if (responses.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>Analytics Dashboard</h3>
+                        <p>Detailed analytics will be available once you have survey data</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Calculate analytics
+            const totalResponses = responses.length;
+            const satisfactionCounts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+            const staffCounts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+            
+            responses.forEach(r => {
+                satisfactionCounts[r.overall_satisfaction]++;
+                staffCounts[r.staff_professionalism]++;
+            });
+
+            const highSatisfaction = ((satisfactionCounts[4] + satisfactionCounts[5]) / totalResponses * 100).toFixed(1);
+            const highStaff = ((staffCounts[4] + staffCounts[5]) / totalResponses * 100).toFixed(1);
+
+            container.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    <div class="stat-card">
+                        <div class="stat-value">${highSatisfaction}%</div>
+                        <div class="stat-label">High Satisfaction (4-5 rating)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${highStaff}%</div>
+                        <div class="stat-label">High Staff Rating (4-5 rating)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${responses.filter(r => r.comments).length}</div>
+                        <div class="stat-label">Responses with Comments</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${responses.filter(r => parseInt(r.overall_satisfaction) <= 2).length}</div>
+                        <div class="stat-label">Low Satisfaction Alerts</div>
+                    </div>
+                </div>
+                <div style="margin-top: 24px; background: white; padding: 20px; border-radius: 8px;">
+                    <h3 style="margin-bottom: 16px; color: #1e293b;">Rating Distribution</h3>
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; text-align: center;">
+                        ${[1,2,3,4,5].map(rating => `
+                            <div style="padding: 12px; background: #f8fafc; border-radius: 6px;">
+                                <div style="font-size: 24px;">${emojiMap[rating]}</div>
+                                <div style="font-weight: 600; margin: 8px 0;">${rating}</div>
+                                <div style="font-size: 14px; color: #64748b;">${satisfactionCounts[rating]} responses</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function showTab(tabName) {
+            // Remove active class from all tabs and panels
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+            
+            // Add active class to selected tab and panel
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function exportData() {
+            const responses = JSON.parse(sessionStorage.getItem('surveyResponses') || '[]');
+            
+            if (responses.length === 0) {
+                alert('No data to export');
+                return;
+            }
+
+            // Create CSV content with patient details
+            const headers = [
+                'Response ID', 'Date', 'Patient Name', 'Patient Email', 'Patient Phone', 
+                'Appointment Date', 'Overall Satisfaction', 'Staff Professionalism', 'Waiting Time', 'Feeling Heard', 'Comments'
+            ];
+            const csvContent = [
+                headers.join(','),
+                ...responses.map(r => [
+                    r.id,
+                    r.submittedAt,
+                    `"${r.patient_name || ''}"`,
+                    r.patient_email || '',
+                    r.patient_phone || '',
+                    r.appointment_date || '',
+                    r.overall_satisfaction,
+                    r.staff_professionalism,
+                    r.waiting_time,
+                    r.feeling_heard,
+                    `"${(r.comments || '').replace(/"/g, '""')}"`
+                ].join(','))
+            ].join('\n');
+
+            // Download CSV
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', `patient_survey_data_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // Filter functionality
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const ratingFilter = document.getElementById('ratingFilter').value;
+            
+            const responses = JSON.parse(sessionStorage.getItem('surveyResponses') || '[]');
+            
+            let filteredResponses = responses.filter(response => {
+                // Search filter
+                const matchesSearch = !searchTerm || 
+                    (response.patient_name && response.patient_name.toLowerCase().includes(searchTerm)) ||
+                    (response.patient_email && response.patient_email.toLowerCase().includes(searchTerm));
+                
+                // Rating filter
+                let matchesRating = true;
+                if (ratingFilter === '5') {
+                    matchesRating = response.overall_satisfaction == 5;
+                } else if (ratingFilter === '4') {
+                    matchesRating = response.overall_satisfaction >= 4;
+                } else if (ratingFilter === '3') {
+                    matchesRating = response.overall_satisfaction >= 3;
+                } else if (ratingFilter === 'low') {
+                    matchesRating = response.overall_satisfaction <= 2;
+                }
+                
+                return matchesSearch && matchesRating;
+            });
+            
+            displayResponses(filteredResponses);
+        }
+
+        // Report generation
+        function generateReport() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const responses = JSON.parse(sessionStorage.getItem('surveyResponses') || '[]');
+            
+            let filteredResponses = responses;
+            if (startDate && endDate) {
+                filteredResponses = responses.filter(r => {
+                    const responseDate = new Date(r.appointment_date || r.timestamp);
+                    return responseDate >= new Date(startDate) && responseDate <= new Date(endDate);
+                });
+            }
+            
+            if (filteredResponses.length === 0) {
+                document.getElementById('reportsContainer').innerHTML = `
+                    <div class="empty-state">
+                        <h3>No data found for selected period</h3>
+                        <p>Try adjusting your date range or check if surveys have been submitted</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            generateFullReport(filteredResponses, startDate, endDate);
+        }
+
+        function generateFullReport(responses, startDate, endDate) {
+            const container = document.getElementById('reportsContainer');
+            
+            // Calculate comprehensive statistics
+            const totalResponses = responses.length;
+            const avgSatisfaction = (responses.reduce((sum, r) => sum + parseInt(r.overall_satisfaction), 0) / totalResponses).toFixed(2);
+            const avgStaff = (responses.reduce((sum, r) => sum + parseInt(r.staff_professionalism), 0) / totalResponses).toFixed(2);
+            const avgWaiting = (responses.reduce((sum, r) => sum + parseInt(r.waiting_time), 0) / totalResponses).toFixed(2);
+            const avgHeard = (responses.reduce((sum, r) => sum + parseInt(r.feeling_heard), 0) / totalResponses).toFixed(2);
+            
+            // Low satisfaction alerts
+            const lowSatisfactionResponses = responses.filter(r => parseInt(r.overall_satisfaction) <= 2);
+            const highSatisfactionResponses = responses.filter(r => parseInt(r.overall_satisfaction) >= 4);
+            
+            container.innerHTML = `
+                <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+                    <div style="text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 2px solid #e2e8f0;">
+                        <h2 style="color: #1e293b; margin-bottom: 8px;">Patient Satisfaction Report</h2>
+                        <p style="color: #64748b; font-size: 16px;">
+                            ${startDate && endDate ? `Period: ${startDate} to ${endDate}` : 'All Time Data'} | 
+                            Total Responses: ${totalResponses}
+                        </p>
+                    </div>
+                    
+                    <!-- Executive Summary -->
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+                        <h3 style="color: #1e293b; margin-bottom: 16px;">📊 Executive Summary</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 24px; font-weight: bold; color: #2c5aa0;">${avgSatisfaction}/5</div>
+                                <div style="font-size: 14px; color: #64748b;">Overall Satisfaction</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 24px; font-weight: bold; color: #2c5aa0;">${((highSatisfactionResponses.length / totalResponses) * 100).toFixed(1)}%</div>
+                                <div style="font-size: 14px; color: #64748b;">High Satisfaction (4-5)</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 24px; font-weight: bold; color: ${lowSatisfactionResponses.length > 0 ? '#dc2626' : '#10b981'};">${lowSatisfactionResponses.length}</div>
+                                <div style="font-size: 14px; color: #64748b;">Low Satisfaction Alerts</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 24px; font-weight: bold; color: #2c5aa0;">${responses.filter(r => r.comments).length}</div>
+                                <div style="font-size: 14px; color: #64748b;">Written Comments</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Detailed Metrics -->
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="color: #1e293b; margin-bottom: 16px;">📈 Detailed Metrics</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+                            <div style="background: #f1f5f9; padding: 16px; border-radius: 8px;">
+                                <div style="font-weight: 600; margin-bottom: 8px;">Staff Professionalism</div>
+                                <div style="font-size: 20px; color: #2c5aa0;">${avgStaff}/5</div>
+                            </div>
+                            <div style="background: #f1f5f9; padding: 16px; border-radius: 8px;">
+                                <div style="font-weight: 600; margin-bottom: 8px;">Waiting Time Satisfaction</div>
+                                <div style="font-size: 20px; color: #2c5aa0;">${avgWaiting}/5</div>
+                            </div>
+                            <div style="background: #f1f5f9; padding: 16px; border-radius: 8px;">
+                                <div style="font-weight: 600; margin-bottom: 8px;">Feeling Heard</div>
+                                <div style="font-size: 20px; color: #2c5aa0;">${avgHeard}/5</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${lowSatisfactionResponses.length > 0 ? `
+                    <!-- Action Items -->
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="color: #dc2626; margin-bottom: 16px;">⚠️ Patients Requiring Follow-up</h3>
+                        <div style="background: #fef2f2; padding: 16px; border-radius: 8px; border-left: 4px solid #dc2626;">
+                            ${lowSatisfactionResponses.map(r => `
+                                <div style="margin-bottom: 12px; padding: 12px; background: white; border-radius: 6px;">
+                                    <div style="font-weight: 600; color: #1e293b;">${r.patient_name}</div>
+                                    <div style="font-size: 14px; color: #64748b;">${r.patient_email} | ${r.appointment_date}</div>
+                                    <div style="font-size: 14px; margin-top: 4px;">Overall Satisfaction: ${r.overall_satisfaction}/5</div>
+                                    ${r.comments ? `<div style="font-style: italic; margin-top: 8px; color: #475569;">"${r.comments}"</div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    <!-- Comments Summary -->
+                    ${responses.filter(r => r.comments).length > 0 ? `
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="color: #1e293b; margin-bottom: 16px;">💬 Patient Comments</h3>
+                        <div style="background: #f8fafc; padding: 16px; border-radius: 8px; max-height: 400px; overflow-y: auto;">
+                            ${responses.filter(r => r.comments).slice(0, 10).map(r => `
+                                <div style="margin-bottom: 16px; padding: 12px; background: white; border-radius: 6px; border-left: 3px solid #2c5aa0;">
+                                    <div style="font-weight: 500; margin-bottom: 4px;">${r.patient_name} - ${r.overall_satisfaction}/5 stars</div>
+                                    <div style="font-style: italic; color: #475569;">"${r.comments}"</div>
+                                    <div style="font-size: 12px; color: #64748b; margin-top: 4px;">${r.appointment_date}</div>
+                                </div>
+                            `).join('')}
+                            ${responses.filter(r => r.comments).length > 10 ? `<div style="text-align: center; color: #64748b; font-style: italic;">... and ${responses.filter(r => r.comments).length - 10} more comments</div>` : ''}
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    <!-- Recommendations -->
+                    <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; border-left: 4px solid #2c5aa0;">
+                        <h3 style="color: #1e293b; margin-bottom: 16px;">💡 Recommendations</h3>
+                        <ul style="color: #475569; line-height: 1.6;">
+                            ${avgSatisfaction < 4.0 ? '<li>Overall satisfaction is below 4.0 - consider reviewing patient experience processes</li>' : ''}
+                            ${avgWaiting < 3.5 ? '<li>Waiting time satisfaction is low - review scheduling and wait time management</li>' : ''}
+                            ${lowSatisfactionResponses.length > 0 ? `<li>Follow up with ${lowSatisfactionResponses.length} patient(s) who rated satisfaction 2 or below</li>` : ''}
+                            ${avgSatisfaction >= 4.5 ? '<li>Excellent satisfaction scores! Consider showcasing positive feedback</li>' : ''}
+                            <li>Continue monitoring feedback regularly to maintain quality standards</li>
+                            <li>Share positive feedback with staff to boost morale and recognize good performance</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        function exportFullReport() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const responses = JSON.parse(sessionStorage.getItem('surveyResponses') || '[]');
+            
+            let filteredResponses = responses;
+            if (startDate && endDate) {
+                filteredResponses = responses.filter(r => {
+                    const responseDate = new Date(r.appointment_date || r.timestamp);
+                    return responseDate >= new Date(startDate) && responseDate <= new Date(endDate);
+                });
+            }
+            
+            if (filteredResponses.length === 0) {
+                alert('No data to export for selected period');
+                return;
+            }
+            
+            // Create detailed CSV with additional calculated fields
+            const headers = [
+                'Response ID', 'Submission Date', 'Patient Name', 'Patient Email', 'Patient Phone', 
+                'Appointment Date', 'Overall Satisfaction', 'Staff Professionalism', 'Waiting Time', 'Feeling Heard', 
+                'Average Rating', 'High Satisfaction (4+)', 'Low Satisfaction (1-2)', 'Has Comments', 'Comments'
+            ];
+            
+            const csvContent = [
+                headers.join(','),
+                ...filteredResponses.map(r => {
+                    const avgRating = ((parseInt(r.overall_satisfaction) + parseInt(r.staff_professionalism) + parseInt(r.waiting_time) + parseInt(r.feeling_heard)) / 4).toFixed(2);
+                    const isHighSatisfaction = parseInt(r.overall_satisfaction) >= 4 ? 'Yes' : 'No';
+                    const isLowSatisfaction = parseInt(r.overall_satisfaction) <= 2 ? 'Yes' : 'No';
+                    const hasComments = r.comments ? 'Yes' : 'No';
+                    
+                    return [
+                        r.id,
+                        r.submittedAt,
+                        `"${r.patient_name || ''}"`,
+                        r.patient_email || '',
+                        r.patient_phone || '',
+                        r.appointment_date || '',
+                        r.overall_satisfaction,
+                        r.staff_professionalism,
+                        r.waiting_time,
+                        r.feeling_heard,
+                        avgRating,
+                        isHighSatisfaction,
+                        isLowSatisfaction,
+                        hasComments,
+                        `"${(r.comments || '').replace(/"/g, '""')}"`
+                    ].join(',');
+                })
+            ].join('\n');
+
+            // Download CSV
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', `detailed_patient_report_${startDate || 'all_time'}_to_${endDate || 'present'}.csv`);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // Load data when page loads
+        window.addEventListener('load', loadDashboardData);
+        
+        // Auto-refresh every 30 seconds
+        setInterval(loadDashboardData, 30000);
+    </script>
+</body>
+</html>
