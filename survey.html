@@ -213,6 +213,7 @@
             cursor: pointer;
             transition: all 0.2s ease;
             font-weight: 500;
+            user-select: none; /* Prevent text selection */
         }
 
         .main-choice-item:hover {
@@ -229,10 +230,11 @@
         .main-choice-item input[type="radio"] {
             margin-right: 8px;
             transform: scale(1.2);
+            pointer-events: none; /* Disable direct radio clicks */
         }
 
         .contact-methods {
-            padding: 20px;
+            padding: 0;
             background: white;
             border-radius: 8px;
             border: 1px solid #e5e7eb;
@@ -241,11 +243,13 @@
             overflow: hidden;
             transition: all 0.3s ease;
             transform: translateY(-10px);
+            margin-top: 12px;
         }
 
         .contact-methods.show {
             opacity: 1;
             max-height: 200px;
+            padding: 20px;
             transform: translateY(0);
         }
 
@@ -272,6 +276,7 @@
             cursor: pointer;
             transition: all 0.2s ease;
             font-size: 14px;
+            user-select: none; /* Prevent text selection */
         }
 
         .method-item:hover {
@@ -287,6 +292,7 @@
 
         .method-item input[type="checkbox"] {
             margin-right: 8px;
+            pointer-events: none; /* Disable direct checkbox clicks */
         }
 
         @media (max-width: 768px) {
@@ -355,12 +361,20 @@
             align-items: flex-start;
             padding: 12px;
             cursor: pointer;
+            user-select: none; /* Prevent text selection */
+            transition: all 0.2s ease;
+            border-radius: 8px;
+        }
+
+        .consent-item:hover {
+            background: #f8fafc;
         }
 
         .consent-item input[type="checkbox"] {
             margin-right: 12px;
             margin-top: 2px;
             transform: scale(1.2);
+            pointer-events: none; /* Disable direct checkbox clicks */
         }
 
         .data-notice {
@@ -1159,6 +1173,9 @@
                 // Contact preferences
                 this.setupContactPreferences();
 
+                // Consent checkbox
+                this.setupConsentCheckbox();
+
                 // Form submission
                 const form = document.getElementById('surveyForm');
                 if (form) {
@@ -1196,18 +1213,23 @@
 
                 // Handle main choice changes
                 const handleContactChoice = () => {
-                    // Update visual state
+                    console.log('Contact choice changed'); // Debug log
+                    
+                    // Update visual state of main choice items
                     mainChoiceItems.forEach(item => {
                         item.classList.remove('selected');
-                        if (item.querySelector('input').checked) {
+                        const input = item.querySelector('input[type="radio"]');
+                        if (input && input.checked) {
                             item.classList.add('selected');
                         }
                     });
 
                     // Show/hide contact methods
                     if (contactYes && contactYes.checked) {
+                        console.log('Showing contact methods'); // Debug log
                         contactMethods.classList.add('show');
                     } else {
+                        console.log('Hiding contact methods'); // Debug log
                         contactMethods.classList.remove('show');
                         // Clear all contact method selections
                         contactCheckboxes.forEach(cb => {
@@ -1219,46 +1241,109 @@
                     }
                 };
 
-                // Attach event listeners
-                if (contactYes) contactYes.addEventListener('change', handleContactChoice);
-                if (contactNo) contactNo.addEventListener('change', handleContactChoice);
-
                 // Handle contact method changes
-                contactCheckboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', () => {
-                        methodItems.forEach(item => {
-                            item.classList.remove('selected');
-                            if (item.querySelector('input').checked) {
-                                item.classList.add('selected');
-                            }
-                        });
+                const handleMethodChange = () => {
+                    console.log('Method selection changed'); // Debug log
+                    methodItems.forEach(item => {
+                        item.classList.remove('selected');
+                        const input = item.querySelector('input[type="checkbox"]');
+                        if (input && input.checked) {
+                            item.classList.add('selected');
+                        }
                     });
+                };
+
+                // Attach event listeners to radio buttons
+                if (contactYes) {
+                    contactYes.addEventListener('change', handleContactChoice);
+                    contactYes.addEventListener('click', handleContactChoice);
+                }
+                if (contactNo) {
+                    contactNo.addEventListener('change', handleContactChoice);
+                    contactNo.addEventListener('click', handleContactChoice);
+                }
+
+                // Handle contact method checkbox changes
+                contactCheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', handleMethodChange);
+                    checkbox.addEventListener('click', handleMethodChange);
                 });
 
-                // Handle clicks on labels
+                // Handle clicks on main choice labels - make entire box clickable
                 mainChoiceItems.forEach(item => {
                     item.addEventListener('click', (e) => {
-                        if (e.target.tagName !== 'INPUT') {
-                            const radio = item.querySelector('input[type="radio"]');
-                            if (radio) {
-                                radio.checked = true;
-                                radio.dispatchEvent(new Event('change'));
-                            }
+                        e.preventDefault(); // Prevent default radio behavior
+                        e.stopPropagation(); // Stop event bubbling
+                        
+                        const radio = item.querySelector('input[type="radio"]');
+                        if (radio) {
+                            // Set this radio as checked
+                            radio.checked = true;
+                            handleContactChoice();
                         }
                     });
+                    
+                    // Also prevent the radio button itself from handling clicks
+                    const radio = item.querySelector('input[type="radio"]');
+                    if (radio) {
+                        radio.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        });
+                    }
                 });
 
+                // Handle clicks on method item labels - make entire box clickable
                 methodItems.forEach(item => {
                     item.addEventListener('click', (e) => {
-                        if (e.target.tagName !== 'INPUT') {
-                            const checkbox = item.querySelector('input[type="checkbox"]');
-                            if (checkbox) {
-                                checkbox.checked = !checkbox.checked;
-                                checkbox.dispatchEvent(new Event('change'));
-                            }
+                        e.preventDefault(); // Prevent default checkbox behavior
+                        e.stopPropagation(); // Stop event bubbling
+                        
+                        const checkbox = item.querySelector('input[type="checkbox"]');
+                        if (checkbox) {
+                            // Toggle the checkbox state
+                            checkbox.checked = !checkbox.checked;
+                            handleMethodChange();
                         }
                     });
+                    
+                    // Also prevent the checkbox itself from handling clicks
+                    const checkbox = item.querySelector('input[type="checkbox"]');
+                    if (checkbox) {
+                        checkbox.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        });
+                    }
                 });
+
+                console.log('Contact preferences setup complete'); // Debug log
+            }
+
+            setupConsentCheckbox() {
+                const consentItem = document.querySelector('.consent-item');
+                const consentCheckbox = document.querySelector('input[name="consent_feedback_use"]');
+
+                if (consentItem && consentCheckbox) {
+                    // Handle clicks on the entire consent area
+                    consentItem.addEventListener('click', (e) => {
+                        e.preventDefault(); // Prevent default checkbox behavior
+                        e.stopPropagation(); // Stop event bubbling
+                        
+                        // Toggle the checkbox state
+                        consentCheckbox.checked = !consentCheckbox.checked;
+                        
+                        console.log('Consent toggled:', consentCheckbox.checked); // Debug log
+                    });
+
+                    // Prevent the checkbox itself from handling clicks
+                    consentCheckbox.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    });
+
+                    console.log('Consent checkbox setup complete'); // Debug log
+                }
             }
 
             setupRatingEffects() {
