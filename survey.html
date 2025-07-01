@@ -124,6 +124,19 @@
             box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
         }
 
+        .other-department-input {
+            margin-top: 12px;
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .other-department-input.show {
+            opacity: 1;
+            max-height: 60px;
+        }
+
         .rating-section {
             margin-bottom: 32px;
             padding: 24px;
@@ -145,44 +158,6 @@
             font-size: 18px;
             margin-right: 8px;
             color: #2c5aa0;
-        }
-
-        .checkbox-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
-            margin-top: 16px;
-        }
-
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 16px;
-            background: white;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .checkbox-item:hover {
-            border-color: #2c5aa0;
-            background: #f8fafc;
-        }
-
-        .checkbox-item input[type="checkbox"] {
-            margin-right: 12px;
-            transform: scale(1.2);
-        }
-
-        .checkbox-item.exclusive {
-            border-color: #dc2626;
-            background: #fef2f2;
-        }
-
-        .checkbox-item.exclusive:hover {
-            border-color: #dc2626;
-            background: #fef2f2;
         }
 
         .contact-preferences-container {
@@ -398,27 +373,6 @@
             margin-top: 16px;
         }
 
-        .issue-conditional {
-            display: none;
-            margin-top: 20px;
-            padding: 20px;
-            background: #fef2f2;
-            border-radius: 12px;
-            border-left: 4px solid #dc2626;
-            animation: slideDown 0.3s ease-out;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         .radio-group {
             display: flex;
             gap: 24px;
@@ -494,11 +448,6 @@
                 gap: 16px;
             }
             
-            .checkbox-grid {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-            
             .radio-group {
                 flex-direction: column;
                 gap: 12px;
@@ -570,38 +519,6 @@
             font-size: 12px;
             color: #64748b;
             margin-top: 10px;
-        }
-
-        .comment-section {
-            margin-top: 40px;
-            padding: 25px;
-            background: #f1f5f9;
-            border-radius: 12px;
-        }
-
-        .comment-section label {
-            display: block;
-            font-size: 16px;
-            font-weight: 500;
-            color: #1e293b;
-            margin-bottom: 12px;
-        }
-
-        .comment-section textarea {
-            width: 100%;
-            min-height: 120px;
-            padding: 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 14px;
-            resize: vertical;
-            transition: border-color 0.3s ease;
-        }
-
-        .comment-section textarea:focus {
-            outline: none;
-            border-color: #2c5aa0;
         }
 
         .submit-btn {
@@ -726,25 +643,24 @@
                         </select>
                     </div>
                     <div class="form-group">
-    <label class="form-label" for="department">Department/Service Visited *</label>
-    <select id="department" name="department_visited" required class="form-select" onchange="toggleOtherDepartment()">
-        <option value="">Select department</option>
-        <option value="Reception/Front Desk">Reception/Front Desk</option>
-        <option value="General Practice">General Practice</option>
-        <option value="Specialist Consultation">Specialist Consultation</option>
-        <option value="Nursing Services">Nursing Services</option>
-        <option value="Laboratory">Laboratory</option>
-        <option value="Radiology/Imaging">Radiology/Imaging</option>
-        <option value="Pharmacy">Pharmacy</option>
-        <option value="Physical Therapy">Physical Therapy</option>
-        <option value="Emergency/Urgent Care">Emergency/Urgent Care</option>
-        <option value="Other">Other</option>
-    </select>
-    <div id="otherDepartment" class="other-department-input" style="display: none; margin-top: 12px;">
-        <input type="text" id="otherDepartmentText" name="other_department" class="form-input" placeholder="Please specify the department/service">
+                        <label class="form-label" for="department">Department/Service Visited *</label>
+                        <select id="department" name="department_visited" required class="form-select">
+                            <option value="">Select department</option>
+                            <option value="Reception/Front Desk">Reception/Front Desk</option>
+                            <option value="General Practice">General Practice</option>
+                            <option value="Specialist Consultation">Specialist Consultation</option>
+                            <option value="Nursing Services">Nursing Services</option>
+                            <option value="Laboratory">Laboratory</option>
+                            <option value="Radiology/Imaging">Radiology/Imaging</option>
+                            <option value="Pharmacy">Pharmacy</option>
+                            <option value="Physical Therapy">Physical Therapy</option>
+                            <option value="Emergency/Urgent Care">Emergency/Urgent Care</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <div id="otherDepartment" class="other-department-input">
+                            <input type="text" id="otherDepartmentText" name="other_department" class="form-input" placeholder="Please specify the department/service">
                         </div>
                     </div>
-
                 </div>
             </div>
 
@@ -941,6 +857,8 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Overall Satisfaction -->
             <div class="question-group">
                 <div class="question">Overall, how satisfied are you with your visit today?</div>
                 <div class="rating-scale">
@@ -1148,11 +1066,11 @@
                     <div class="contact-main-label">Would you like us to contact you for follow-up?</div>
                     <div class="main-choice-options">
                         <label class="main-choice-item">
-                            <input type="radio" name="want_contact" value="yes">
+                            <input type="radio" name="want_contact" value="yes" id="contactYes">
                             <span>✅ Yes, please contact me</span>
                         </label>
                         <label class="main-choice-item">
-                            <input type="radio" name="want_contact" value="no">
+                            <input type="radio" name="want_contact" value="no" id="contactNo">
                             <span>🚫 No, do not contact me</span>
                         </label>
                     </div>
@@ -1163,11 +1081,11 @@
                     <div class="contact-methods-label">How would you prefer to be contacted?</div>
                     <div class="method-options">
                         <label class="method-item">
-                            <input type="checkbox" name="contact_preference" value="email">
+                            <input type="checkbox" name="contact_preference[]" value="email">
                             <span>📧 Email</span>
                         </label>
                         <label class="method-item">
-                            <input type="checkbox" name="contact_preference" value="phone">
+                            <input type="checkbox" name="contact_preference[]" value="phone">
                             <span>📞 Phone</span>
                         </label>
                     </div>
@@ -1216,197 +1134,69 @@
     </div>
 
     <script>
-
-    function toggleOtherDepartment() {
-        const select = document.getElementById("department");
-        const otherDiv = document.getElementById("otherDepartment");
-        if (select.value === "Other") {
-            otherDiv.style.display = "block";
-        } else {
-            otherDiv.style.display = "none";
-            document.getElementById("otherDepartmentText").value = ""; // Clear input
-        }
-    }
-
-        // Survey data storage (using localStorage for cross-tab functionality)
-        function saveSurveyResponse(responseData) {
-            // Get existing responses
-            let responses = JSON.parse(localStorage.getItem('surveyResponses') || '[]');
-            
-            // Add new response with timestamp and ID
-            const newResponse = {
-                id: 'SR' + Date.now(),
-                timestamp: new Date().toISOString(),
-                submittedAt: new Date().toLocaleString(),
-                ...responseData
-            };
-            
-            responses.push(newResponse);
-            
-            // Save back to storage
-            localStorage.setItem('surveyResponses', JSON.stringify(responses));
-            
-            // Simulate email notification
-            sendEmailNotification(newResponse);
-            
-            return newResponse;
-        }
-
-        function sendEmailNotification(response) {
-            // Simulate email notification (in production, this would call your email service)
-            const emailData = {
-                to: 'omarkalkatheeri@gmail.com',
-                subject: `New Patient Feedback - ${response.patient_name}`,
-                body: `
-New patient survey response received:
-
-PATIENT INFORMATION:
-• Name: ${response.patient_name}
-• Email: ${response.patient_email}
-• Phone: ${response.patient_phone || 'Not provided'}
-• Visit Date: ${response.visit_date}
-• Visit Time: ${response.visit_time}
-• Department: ${response.department_visited}
-
-WAIT TIMES:
-• Actual wait time: ${response.wait_time_actual || 'Not specified'}
-• Appointment timeliness: ${response.appointment_timeliness || 'Not specified'}
-
-OVERALL SATISFACTION RATINGS:
-• Overall Satisfaction: ${response.overall_satisfaction}/5
-• Staff Professionalism: ${response.staff_professionalism}/5
-• Waiting Time: ${response.waiting_time}/5
-• Feeling Heard: ${response.feeling_heard}/5
-
-SERVICE-SPECIFIC RATINGS:
-• Reception/Front Desk: ${response.reception_rating ? response.reception_rating + '/5' : 'Not rated'}
-• Doctor Consultation: ${response.doctor_rating ? response.doctor_rating + '/5' : 'Not rated'}  
-• Nursing Services: ${response.nursing_rating ? response.nursing_rating + '/5' : 'Not rated'}
-
-STAFF INTERACTION:
-• Communication Clarity: ${response.communication_clarity ? response.communication_clarity + '/5' : 'Not rated'}
-• Staff Courtesy: ${response.staff_courtesy ? response.staff_courtesy + '/5' : 'Not rated'}
-
-ISSUES REPORTED:
-• Had Issues: ${response.had_issues || 'Not specified'}
-${response.issue_description ? '• Issue Details: ' + response.issue_description : ''}
-
-FOLLOW-UP NEEDS:
-${response.followup_needs_array && response.followup_needs_array.length > 0 ? '• Requested: ' + response.followup_needs_array.join(', ') : '• No specific follow-up requested'}
-${response.followup_details ? '• Follow-up Details: ' + response.followup_details : ''}
-
-GENERAL COMMENTS:
-${response.comments || 'No additional comments provided'}
-
-CONTACT PREFERENCES:
-${response.contact_preference_array && response.contact_preference_array.length > 0 ? '• Preferred contact: ' + response.contact_preference_array.join(', ') : '• No contact preferences specified'}
-
-SUBMISSION DETAILS:
-• Submitted: ${response.submittedAt}
-• Response ID: ${response.id}
-
-${response.overall_satisfaction <= 2 || response.had_issues === 'yes' ? '⚠️ PRIORITY: Low satisfaction or issues reported - Follow up within 24 hours!' : ''}
-                `
-            };
-            
-            console.log('Email notification sent:', emailData);
-            
-            // Store email notifications for admin dashboard
-            let emailLog = JSON.parse(localStorage.getItem('emailNotifications') || '[]');
-            emailLog.push({
-                ...emailData,
-                sentAt: new Date().toLocaleString(),
-                responseId: response.id
-            });
-            localStorage.setItem('emailNotifications', JSON.stringify(emailLog));
-        }
-
-        document.getElementById('surveyForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Collect form data
-            const formData = new FormData(this);
-            const responseData = Object.fromEntries(formData);
-            
-            // Handle checkbox arrays for follow-up needs and contact preferences
-            const followupNeeds = formData.getAll('followup_needs');
-            const contactPreferences = formData.getAll('contact_preference');
-            
-            responseData.followup_needs_array = followupNeeds;
-            responseData.contact_preference_array = contactPreferences;
-            
-            // Handle the want_contact logic
-            responseData.want_contact = formData.get('want_contact') || 'not_specified';
-            
-            // If user selected "no" for contact, ensure contact preferences are empty
-            if (responseData.want_contact === 'no') {
-                responseData.contact_preference_array = ['no_contact'];
+        // Consolidated survey functionality
+        class SurveyManager {
+            constructor() {
+                this.init();
             }
-            
-            // Save the response
-            const savedResponse = saveSurveyResponse(responseData);
-            
-            // Hide the form
-            this.style.display = 'none';
-            
-            // Show thank you message
-            document.getElementById('thankYou').classList.add('show');
-            
-            // Scroll to top to show thank you message
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            
-            console.log('Survey response saved:', savedResponse);
-        });
 
-        // Show/hide issue details based on selection with smooth animation
-        document.querySelectorAll('input[name="had_issues"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                const issueDetails = document.getElementById('issueDetails');
-                if (this.value === 'yes') {
-                    issueDetails.style.display = 'block';
-                    document.getElementById('issueDescription').required = true;
-                    // Scroll to the issue section smoothly
-                    setTimeout(() => {
-                        issueDetails.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    }, 100);
+            init() {
+                // Wait for DOM to be ready
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', () => this.setupEventListeners());
                 } else {
-                    issueDetails.style.display = 'none';
-                    document.getElementById('issueDescription').required = false;
-                    document.getElementById('issueDescription').value = '';
+                    this.setupEventListeners();
                 }
-            });
-        });
-
-        // Handle "no follow-up" checkbox to uncheck others
-        document.querySelector('input[name="followup_needs"][value="no_followup"]').addEventListener('change', function() {
-            if (this.checked) {
-                document.querySelectorAll('input[name="followup_needs"]:not([value="no_followup"])').forEach(cb => {
-                    cb.checked = false;
-                });
             }
-        });
 
-        // Handle other follow-up checkboxes to uncheck "no follow-up"
-        document.querySelectorAll('input[name="followup_needs"]:not([value="no_followup"])').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                if (this.checked) {
-                    document.querySelector('input[name="followup_needs"][value="no_followup"]').checked = false;
+            setupEventListeners() {
+                // Department selector
+                const departmentSelect = document.getElementById('department');
+                if (departmentSelect) {
+                    departmentSelect.addEventListener('change', () => this.toggleOtherDepartment());
                 }
-            });
-        });
 
-        // Simple contact preferences handler
-        function handleContactPreferences() {
-            const wantContactRadios = document.querySelectorAll('input[name="want_contact"]');
-            const contactMethods = document.getElementById('contactMethods');
-            const contactCheckboxes = document.querySelectorAll('input[name="contact_preference"]');
-            const mainChoiceItems = document.querySelectorAll('.main-choice-item');
-            const methodItems = document.querySelectorAll('.method-item');
+                // Contact preferences
+                this.setupContactPreferences();
 
-            // Handle main choice radio buttons
-            wantContactRadios.forEach(radio => {
-                radio.addEventListener('change', function() {
-                    // Update visual state of main choice items
+                // Form submission
+                const form = document.getElementById('surveyForm');
+                if (form) {
+                    form.addEventListener('submit', (e) => this.handleSubmit(e));
+                }
+
+                // Rating hover effects
+                this.setupRatingEffects();
+            }
+
+            toggleOtherDepartment() {
+                const select = document.getElementById('department');
+                const otherDiv = document.getElementById('otherDepartment');
+                const otherInput = document.getElementById('otherDepartmentText');
+                
+                if (select && otherDiv && otherInput) {
+                    if (select.value === 'Other') {
+                        otherDiv.classList.add('show');
+                        otherInput.required = true;
+                    } else {
+                        otherDiv.classList.remove('show');
+                        otherInput.required = false;
+                        otherInput.value = '';
+                    }
+                }
+            }
+
+            setupContactPreferences() {
+                const contactYes = document.getElementById('contactYes');
+                const contactNo = document.getElementById('contactNo');
+                const contactMethods = document.getElementById('contactMethods');
+                const mainChoiceItems = document.querySelectorAll('.main-choice-item');
+                const methodItems = document.querySelectorAll('.method-item');
+                const contactCheckboxes = document.querySelectorAll('input[name="contact_preference[]"]');
+
+                // Handle main choice changes
+                const handleContactChoice = () => {
+                    // Update visual state
                     mainChoiceItems.forEach(item => {
                         item.classList.remove('selected');
                         if (item.querySelector('input').checked) {
@@ -1414,80 +1204,124 @@ ${response.overall_satisfaction <= 2 || response.had_issues === 'yes' ? '⚠️ 
                         }
                     });
 
-                    if (this.value === 'yes') {
-                        // Show contact methods with animation
+                    // Show/hide contact methods
+                    if (contactYes && contactYes.checked) {
                         contactMethods.classList.add('show');
-                    } else if (this.value === 'no') {
-                        // Hide contact methods and uncheck all contact preferences
+                    } else {
                         contactMethods.classList.remove('show');
-                        contactCheckboxes.forEach(checkbox => {
-                            checkbox.checked = false;
+                        // Clear all contact method selections
+                        contactCheckboxes.forEach(cb => {
+                            cb.checked = false;
                         });
-                        // Remove selected state from method items
                         methodItems.forEach(item => {
                             item.classList.remove('selected');
                         });
                     }
-                });
-            });
+                };
 
-            // Handle contact method checkboxes
-            contactCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    // Update visual state of method items
-                    methodItems.forEach(item => {
-                        item.classList.remove('selected');
-                        if (item.querySelector('input').checked) {
-                            item.classList.add('selected');
+                // Attach event listeners
+                if (contactYes) contactYes.addEventListener('change', handleContactChoice);
+                if (contactNo) contactNo.addEventListener('change', handleContactChoice);
+
+                // Handle contact method changes
+                contactCheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', () => {
+                        methodItems.forEach(item => {
+                            item.classList.remove('selected');
+                            if (item.querySelector('input').checked) {
+                                item.classList.add('selected');
+                            }
+                        });
+                    });
+                });
+
+                // Handle clicks on labels
+                mainChoiceItems.forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        if (e.target.tagName !== 'INPUT') {
+                            const radio = item.querySelector('input[type="radio"]');
+                            if (radio) {
+                                radio.checked = true;
+                                radio.dispatchEvent(new Event('change'));
+                            }
                         }
                     });
                 });
-            });
 
-            // Handle clicks on labels for better UX
-            mainChoiceItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    const radio = this.querySelector('input[type="radio"]');
-                    if (radio) {
-                        radio.checked = true;
-                        radio.dispatchEvent(new Event('change'));
-                    }
+                methodItems.forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        if (e.target.tagName !== 'INPUT') {
+                            const checkbox = item.querySelector('input[type="checkbox"]');
+                            if (checkbox) {
+                                checkbox.checked = !checkbox.checked;
+                                checkbox.dispatchEvent(new Event('change'));
+                            }
+                        }
+                    });
                 });
-            });
+            }
 
-            methodItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    const checkbox = this.querySelector('input[type="checkbox"]');
-                    if (checkbox) {
-                        checkbox.checked = !checkbox.checked;
-                        checkbox.dispatchEvent(new Event('change'));
-                    }
+            setupRatingEffects() {
+                document.querySelectorAll('.rating-option').forEach(option => {
+                    option.addEventListener('mouseenter', function() {
+                        if (!this.querySelector('input').checked) {
+                            this.style.transform = 'translateY(-2px)';
+                        }
+                    });
+                    
+                    option.addEventListener('mouseleave', function() {
+                        if (!this.querySelector('input').checked) {
+                            this.style.transform = 'translateY(0)';
+                        }
+                    });
                 });
-            });
+            }
+
+            saveSurveyResponse(responseData) {
+                // In a real application, this would be sent to a server
+                // For now, just store in memory and log
+                const newResponse = {
+                    id: 'SR' + Date.now(),
+                    timestamp: new Date().toISOString(),
+                    submittedAt: new Date().toLocaleString(),
+                    ...responseData
+                };
+
+                console.log('Survey response saved:', newResponse);
+                return newResponse;
+            }
+
+            handleSubmit(e) {
+                e.preventDefault();
+                
+                // Collect form data
+                const formData = new FormData(e.target);
+                const responseData = Object.fromEntries(formData);
+                
+                // Handle checkbox arrays
+                const contactPreferences = formData.getAll('contact_preference[]');
+                responseData.contact_preference_array = contactPreferences;
+                
+                // Handle contact preference logic
+                responseData.want_contact = formData.get('want_contact') || 'not_specified';
+                if (responseData.want_contact === 'no') {
+                    responseData.contact_preference_array = ['no_contact'];
+                }
+                
+                // Save the response
+                this.saveSurveyResponse(responseData);
+                
+                // Hide form and show thank you
+                e.target.style.display = 'none';
+                document.getElementById('thankYou').classList.add('show');
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
 
-        // Initialize when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            handleContactPreferences();
-        });
-
-        // Backup initialization
-        setTimeout(() => {
-            handleContactPreferences();
-        }, 100);
-
-        // Add visual feedback when hovering over rating options
-        document.querySelectorAll('.rating-option').forEach(option => {
-            option.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-2px)';
-            });
-            
-            option.addEventListener('mouseleave', function() {
-                if (!this.querySelector('input').checked) {
-                    this.style.transform = 'translateY(0)';
-                }
-            });
-        });
+        // Initialize the survey manager
+        new SurveyManager();
     </script>
 </body>
 </html>
