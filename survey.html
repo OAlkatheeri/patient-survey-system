@@ -726,24 +726,38 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="department">Department/Service Visited *</label>
-                        <select id="department" name="department_visited" required class="form-select">
-                            <option value="">Select department</option>
-                            <option value="Reception/Front Desk">Reception/Front Desk</option>
-                            <option value="General Practice">General Practice</option>
-                            <option value="Specialist Consultation">Specialist Consultation</option>
-                            <option value="Nursing Services">Nursing Services</option>
-                            <option value="Laboratory">Laboratory</option>
-                            <option value="Radiology/Imaging">Radiology/Imaging</option>
-                            <option value="Pharmacy">Pharmacy</option>
-                            <option value="Physical Therapy">Physical Therapy</option>
-                            <option value="Emergency/Urgent Care">Emergency/Urgent Care</option>
-                            <option value="Other">Other</option>
-                        </select>
-                        <div id="otherDepartment" class="other-department-input" style="display: none; margin-top: 12px;">
-                            <input type="text" id="otherDepartmentText" name="other_department" class="form-input" placeholder="Please specify the department/service">
-                        </div>
-                    </div>
+    <label class="form-label" for="department">Department/Service Visited *</label>
+    <select id="department" name="department_visited" required class="form-select" onchange="toggleOtherDepartment()">
+        <option value="">Select department</option>
+        <option value="Reception/Front Desk">Reception/Front Desk</option>
+        <option value="General Practice">General Practice</option>
+        <option value="Specialist Consultation">Specialist Consultation</option>
+        <option value="Nursing Services">Nursing Services</option>
+        <option value="Laboratory">Laboratory</option>
+        <option value="Radiology/Imaging">Radiology/Imaging</option>
+        <option value="Pharmacy">Pharmacy</option>
+        <option value="Physical Therapy">Physical Therapy</option>
+        <option value="Emergency/Urgent Care">Emergency/Urgent Care</option>
+        <option value="Other">Other</option>
+    </select>
+    <div id="otherDepartment" class="other-department-input" style="display: none; margin-top: 12px;">
+        <input type="text" id="otherDepartmentText" name="other_department" class="form-input" placeholder="Please specify the department/service">
+    </div>
+</div>
+
+<script>
+    function toggleOtherDepartment() {
+        const select = document.getElementById("department");
+        const otherDiv = document.getElementById("otherDepartment");
+        if (select.value === "Other") {
+            otherDiv.style.display = "block";
+        } else {
+            otherDiv.style.display = "none";
+            document.getElementById("otherDepartmentText").value = ""; // Clear input
+        }
+    }
+</script>
+
                 </div>
             </div>
 
