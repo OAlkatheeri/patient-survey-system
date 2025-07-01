@@ -388,8 +388,8 @@
 
         // Load and display dashboard data
         function loadDashboardData() {
-            const responses = JSON.parse(sessionStorage.getItem('surveyResponses') || '[]');
-            const emails = JSON.parse(sessionStorage.getItem('emailNotifications') || '[]');
+            const responses = JSON.parse(localStorage.getItem('surveyResponses') || '[]');
+            const emails = JSON.parse(localStorage.getItem('emailNotifications') || '[]');
 
             updateStatistics(responses, emails);
             displayResponses(responses);
@@ -442,42 +442,135 @@
                         <div style="text-align: right;">
                             <div class="response-date">${response.submittedAt}</div>
                             <div style="font-size: 14px; color: #64748b; margin-top: 4px;">
-                                📅 ${response.appointment_date || 'Date not provided'}
+                                🏥 ${response.department_visited || 'Department not specified'}
+                            </div>
+                            <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
+                                📅 ${response.visit_date || 'Date not provided'} | ⏰ ${response.visit_time || 'Time not specified'}
                             </div>
                         </div>
                     </div>
-                    <div class="ratings-grid">
-                        <div class="rating-item">
-                            <span class="rating-label">Overall Satisfaction</span>
-                            <div class="rating-value">
-                                <span class="rating-emoji">${emojiMap[response.overall_satisfaction]}</span>
-                                <span>${response.overall_satisfaction}/5</span>
-                            </div>
+
+                    <!-- Wait Times Information -->
+                    <div style="background: #f8fafc; padding: 12px; border-radius: 6px; margin: 16px 0;">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #1e293b;">⏱️ Wait Times</div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; font-size: 14px;">
+                            <div><strong>Actual wait:</strong> ${response.wait_time_actual || 'Not specified'}</div>
+                            <div><strong>Timeliness:</strong> ${response.appointment_timeliness || 'Not specified'}</div>
                         </div>
-                        <div class="rating-item">
-                            <span class="rating-label">Staff Professionalism</span>
-                            <div class="rating-value">
-                                <span class="rating-emoji">${emojiMap[response.staff_professionalism]}</span>
-                                <span>${response.staff_professionalism}/5</span>
+                    </div>
+
+                    <!-- Overall Satisfaction Ratings -->
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-weight: 600; margin-bottom: 12px; color: #1e293b;">📊 Overall Experience</div>
+                        <div class="ratings-grid">
+                            <div class="rating-item">
+                                <span class="rating-label">Overall Satisfaction</span>
+                                <div class="rating-value">
+                                    <span class="rating-emoji">${emojiMap[response.overall_satisfaction]}</span>
+                                    <span>${response.overall_satisfaction}/5</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="rating-item">
-                            <span class="rating-label">Waiting Time</span>
-                            <div class="rating-value">
-                                <span class="rating-emoji">${emojiMap[response.waiting_time]}</span>
-                                <span>${response.waiting_time}/5</span>
+                            <div class="rating-item">
+                                <span class="rating-label">Staff Professionalism</span>
+                                <div class="rating-value">
+                                    <span class="rating-emoji">${emojiMap[response.staff_professionalism]}</span>
+                                    <span>${response.staff_professionalism}/5</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="rating-item">
-                            <span class="rating-label">Feeling Heard</span>
-                            <div class="rating-value">
-                                <span class="rating-emoji">${emojiMap[response.feeling_heard]}</span>
-                                <span>${response.feeling_heard}/5</span>
+                            <div class="rating-item">
+                                <span class="rating-label">Waiting Time</span>
+                                <div class="rating-value">
+                                    <span class="rating-emoji">${emojiMap[response.waiting_time]}</span>
+                                    <span>${response.waiting_time}/5</span>
+                                </div>
+                            </div>
+                            <div class="rating-item">
+                                <span class="rating-label">Feeling Heard</span>
+                                <div class="rating-value">
+                                    <span class="rating-emoji">${emojiMap[response.feeling_heard]}</span>
+                                    <span>${response.feeling_heard}/5</span>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Service-Specific Ratings -->
+                    ${response.reception_rating || response.doctor_rating || response.nursing_rating ? `
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-weight: 600; margin-bottom: 12px; color: #1e293b;">🏥 Service-Specific Ratings</div>
+                        <div class="ratings-grid">
+                            ${response.reception_rating ? `
+                            <div class="rating-item">
+                                <span class="rating-label">Reception/Front Desk</span>
+                                <div class="rating-value">
+                                    <span class="rating-emoji">${emojiMap[response.reception_rating]}</span>
+                                    <span>${response.reception_rating}/5</span>
+                                </div>
+                            </div>` : ''}
+                            ${response.doctor_rating ? `
+                            <div class="rating-item">
+                                <span class="rating-label">Doctor Consultation</span>
+                                <div class="rating-value">
+                                    <span class="rating-emoji">${emojiMap[response.doctor_rating]}</span>
+                                    <span>${response.doctor_rating}/5</span>
+                                </div>
+                            </div>` : ''}
+                            ${response.nursing_rating ? `
+                            <div class="rating-item">
+                                <span class="rating-label">Nursing Services</span>
+                                <div class="rating-value">
+                                    <span class="rating-emoji">${emojiMap[response.nursing_rating]}</span>
+                                    <span>${response.nursing_rating}/5</span>
+                                </div>
+                            </div>` : ''}
+                        </div>
+                    </div>` : ''}
+
+                    <!-- Staff Interaction Ratings -->
+                    ${response.communication_clarity || response.staff_courtesy ? `
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-weight: 600; margin-bottom: 12px; color: #1e293b;">👥 Staff Interaction</div>
+                        <div class="ratings-grid">
+                            ${response.communication_clarity ? `
+                            <div class="rating-item">
+                                <span class="rating-label">Communication Clarity</span>
+                                <div class="rating-value">
+                                    <span class="rating-emoji">${emojiMap[response.communication_clarity]}</span>
+                                    <span>${response.communication_clarity}/5</span>
+                                </div>
+                            </div>` : ''}
+                            ${response.staff_courtesy ? `
+                            <div class="rating-item">
+                                <span class="rating-label">Staff Courtesy</span>
+                                <div class="rating-value">
+                                    <span class="rating-emoji">${emojiMap[response.staff_courtesy]}</span>
+                                    <span>${response.staff_courtesy}/5</span>
+                                </div>
+                            </div>` : ''}
+                        </div>
+                    </div>` : ''}
+
+                    <!-- Issues Reported -->
+                    ${response.had_issues === 'yes' ? `
+                    <div style="background: #fef2f2; padding: 12px; border-radius: 6px; margin: 16px 0; border-left: 4px solid #dc2626;">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #dc2626;">⚠️ Issues Reported</div>
+                        <div style="color: #7f1d1d;">${response.issue_description || 'Issue reported but no details provided'}</div>
+                    </div>` : ''}
+
+                    <!-- Follow-up Needs -->
+                    ${response.followup_needs_array && response.followup_needs_array.length > 0 ? `
+                    <div style="background: #f0f9ff; padding: 12px; border-radius: 6px; margin: 16px 0; border-left: 4px solid #0ea5e9;">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #0c4a6e;">📋 Follow-up Required</div>
+                        <div style="color: #0c4a6e; margin-bottom: 4px;"><strong>Requested:</strong> ${response.followup_needs_array.join(', ')}</div>
+                        ${response.followup_details ? `<div style="color: #0c4a6e;"><strong>Details:</strong> ${response.followup_details}</div>` : ''}
+                        ${response.contact_preference_array && response.contact_preference_array.length > 0 ? `<div style="color: #0c4a6e; margin-top: 4px;"><strong>Contact via:</strong> ${response.contact_preference_array.join(', ')}</div>` : ''}
+                    </div>` : ''}
+
+                    <!-- General Comments -->
                     ${response.comments ? `<div class="comments"><strong>Patient Comments:</strong> "${response.comments}"</div>` : ''}
-                    ${parseInt(response.overall_satisfaction) <= 2 ? '<div style="background: #fef2f2; color: #dc2626; padding: 8px; border-radius: 4px; margin-top: 12px; font-weight: 500;">⚠️ Low satisfaction - Follow-up recommended</div>' : ''}
+                    
+                    <!-- Alert for low satisfaction -->
+                    ${parseInt(response.overall_satisfaction) <= 2 || response.had_issues === 'yes' ? '<div style="background: #fef2f2; color: #dc2626; padding: 8px; border-radius: 4px; margin-top: 12px; font-weight: 500;">🚨 PRIORITY: Follow-up required within 24 hours!</div>' : ''}
                 </div>
             `).join('');
         }
@@ -578,18 +671,26 @@
         }
 
         function exportData() {
-            const responses = JSON.parse(sessionStorage.getItem('surveyResponses') || '[]');
+            const responses = JSON.parse(localStorage.getItem('surveyResponses') || '[]');
             
             if (responses.length === 0) {
                 alert('No data to export');
                 return;
             }
 
-            // Create CSV content with patient details
+            // Create comprehensive CSV content with all required data points
             const headers = [
-                'Response ID', 'Date', 'Patient Name', 'Patient Email', 'Patient Phone', 
-                'Appointment Date', 'Overall Satisfaction', 'Staff Professionalism', 'Waiting Time', 'Feeling Heard', 'Comments'
+                'Response ID', 'Submission Date', 'Patient Name', 'Patient Email', 'Patient Phone', 
+                'Visit Date', 'Visit Time', 'Department Visited',
+                'Wait Time Actual', 'Appointment Timeliness',
+                'Overall Satisfaction', 'Staff Professionalism', 'Waiting Time Rating', 'Feeling Heard',
+                'Reception Rating', 'Doctor Rating', 'Nursing Rating',
+                'Communication Clarity', 'Staff Courtesy',
+                'Had Issues', 'Issue Description',
+                'Follow-up Needs', 'Follow-up Details', 'Contact Preferences',
+                'General Comments'
             ];
+            
             const csvContent = [
                 headers.join(','),
                 ...responses.map(r => [
@@ -598,11 +699,25 @@
                     `"${r.patient_name || ''}"`,
                     r.patient_email || '',
                     r.patient_phone || '',
-                    r.appointment_date || '',
+                    r.visit_date || '',
+                    r.visit_time || '',
+                    `"${r.department_visited || ''}"`,
+                    `"${r.wait_time_actual || ''}"`,
+                    `"${r.appointment_timeliness || ''}"`,
                     r.overall_satisfaction,
                     r.staff_professionalism,
                     r.waiting_time,
                     r.feeling_heard,
+                    r.reception_rating || '',
+                    r.doctor_rating || '',
+                    r.nursing_rating || '',
+                    r.communication_clarity || '',
+                    r.staff_courtesy || '',
+                    r.had_issues || '',
+                    `"${(r.issue_description || '').replace(/"/g, '""')}"`,
+                    `"${(r.followup_needs_array || []).join('; ')}"`,
+                    `"${(r.followup_details || '').replace(/"/g, '""')}"`,
+                    `"${(r.contact_preference_array || []).join('; ')}"`,
                     `"${(r.comments || '').replace(/"/g, '""')}"`
                 ].join(','))
             ].join('\n');
@@ -613,7 +728,7 @@
             const a = document.createElement('a');
             a.setAttribute('hidden', '');
             a.setAttribute('href', url);
-            a.setAttribute('download', `patient_survey_data_${new Date().toISOString().split('T')[0]}.csv`);
+            a.setAttribute('download', `comprehensive_patient_survey_${new Date().toISOString().split('T')[0]}.csv`);
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -624,7 +739,7 @@
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const ratingFilter = document.getElementById('ratingFilter').value;
             
-            const responses = JSON.parse(sessionStorage.getItem('surveyResponses') || '[]');
+            const responses = JSON.parse(localStorage.getItem('surveyResponses') || '[]');
             
             let filteredResponses = responses.filter(response => {
                 // Search filter
@@ -654,7 +769,7 @@
         function generateReport() {
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
-            const responses = JSON.parse(sessionStorage.getItem('surveyResponses') || '[]');
+            const responses = JSON.parse(localStorage.getItem('surveyResponses') || '[]');
             
             let filteredResponses = responses;
             if (startDate && endDate) {
@@ -687,14 +802,56 @@
             const avgWaiting = (responses.reduce((sum, r) => sum + parseInt(r.waiting_time), 0) / totalResponses).toFixed(2);
             const avgHeard = (responses.reduce((sum, r) => sum + parseInt(r.feeling_heard), 0) / totalResponses).toFixed(2);
             
-            // Low satisfaction alerts
+            // Service-specific analysis
+            const serviceRatings = {
+                reception: responses.filter(r => r.reception_rating).map(r => parseInt(r.reception_rating)),
+                doctor: responses.filter(r => r.doctor_rating).map(r => parseInt(r.doctor_rating)),
+                nursing: responses.filter(r => r.nursing_rating).map(r => parseInt(r.nursing_rating))
+            };
+
+            // Wait times analysis
+            const waitTimeStats = {};
+            responses.forEach(r => {
+                const waitTime = r.wait_time_actual;
+                if (waitTime) {
+                    waitTimeStats[waitTime] = (waitTimeStats[waitTime] || 0) + 1;
+                }
+            });
+
+            // Department analysis
+            const departmentStats = {};
+            responses.forEach(r => {
+                const dept = r.department_visited || 'Not specified';
+                if (!departmentStats[dept]) {
+                    departmentStats[dept] = { count: 0, totalSatisfaction: 0, avgSatisfaction: 0 };
+                }
+                departmentStats[dept].count++;
+                departmentStats[dept].totalSatisfaction += parseInt(r.overall_satisfaction);
+                departmentStats[dept].avgSatisfaction = (departmentStats[dept].totalSatisfaction / departmentStats[dept].count).toFixed(1);
+            });
+
+            // Issues analysis
+            const issuesReported = responses.filter(r => r.had_issues === 'yes');
+            const issueRate = ((issuesReported.length / totalResponses) * 100).toFixed(1);
+
+            // Follow-up analysis
+            const followupNeeds = {};
+            responses.forEach(r => {
+                if (r.followup_needs_array && r.followup_needs_array.length > 0) {
+                    r.followup_needs_array.forEach(need => {
+                        followupNeeds[need] = (followupNeeds[need] || 0) + 1;
+                    });
+                }
+            });
+
+            // Low/high satisfaction analysis
             const lowSatisfactionResponses = responses.filter(r => parseInt(r.overall_satisfaction) <= 2);
             const highSatisfactionResponses = responses.filter(r => parseInt(r.overall_satisfaction) >= 4);
             
             container.innerHTML = `
                 <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
                     <div style="text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 2px solid #e2e8f0;">
-                        <h2 style="color: #1e293b; margin-bottom: 8px;">Patient Satisfaction Report</h2>
+                        <h2 style="color: #1e293b; margin-bottom: 8px;">Comprehensive Patient Satisfaction Report</h2>
                         <p style="color: #64748b; font-size: 16px;">
                             ${startDate && endDate ? `Period: ${startDate} to ${endDate}` : 'All Time Data'} | 
                             Total Responses: ${totalResponses}
@@ -704,7 +861,7 @@
                     <!-- Executive Summary -->
                     <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
                         <h3 style="color: #1e293b; margin-bottom: 16px;">📊 Executive Summary</h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
                             <div style="text-align: center;">
                                 <div style="font-size: 24px; font-weight: bold; color: #2c5aa0;">${avgSatisfaction}/5</div>
                                 <div style="font-size: 14px; color: #64748b;">Overall Satisfaction</div>
@@ -718,16 +875,20 @@
                                 <div style="font-size: 14px; color: #64748b;">Low Satisfaction Alerts</div>
                             </div>
                             <div style="text-align: center;">
-                                <div style="font-size: 24px; font-weight: bold; color: #2c5aa0;">${responses.filter(r => r.comments).length}</div>
-                                <div style="font-size: 14px; color: #64748b;">Written Comments</div>
+                                <div style="font-size: 24px; font-weight: bold; color: ${issueRate > 10 ? '#dc2626' : '#10b981'};">${issueRate}%</div>
+                                <div style="font-size: 14px; color: #64748b;">Issue Rate</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 24px; font-weight: bold; color: #2c5aa0;">${Object.values(followupNeeds).reduce((a, b) => a + b, 0)}</div>
+                                <div style="font-size: 14px; color: #64748b;">Follow-up Requests</div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Detailed Metrics -->
+                    <!-- Core Satisfaction Metrics -->
                     <div style="margin-bottom: 24px;">
-                        <h3 style="color: #1e293b; margin-bottom: 16px;">📈 Detailed Metrics</h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+                        <h3 style="color: #1e293b; margin-bottom: 16px;">📈 Core Satisfaction Metrics</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
                             <div style="background: #f1f5f9; padding: 16px; border-radius: 8px;">
                                 <div style="font-weight: 600; margin-bottom: 8px;">Staff Professionalism</div>
                                 <div style="font-size: 20px; color: #2c5aa0;">${avgStaff}/5</div>
@@ -742,51 +903,134 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Service-Specific Performance -->
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="color: #1e293b; margin-bottom: 16px;">🏥 Service-Specific Performance</h3>
+                        <div style="background: #f8fafc; padding: 16px; border-radius: 8px;">
+                            ${serviceRatings.reception.length > 0 ? `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #e2e8f0;">
+                                <span style="font-weight: 500;">Reception/Front Desk</span>
+                                <div style="text-align: right;">
+                                    <span style="font-weight: 600; color: #2c5aa0;">${(serviceRatings.reception.reduce((a,b) => a+b, 0) / serviceRatings.reception.length).toFixed(1)}/5</span>
+                                    <span style="font-size: 12px; color: #64748b; margin-left: 8px;">(${serviceRatings.reception.length} ratings)</span>
+                                </div>
+                            </div>` : ''}
+                            ${serviceRatings.doctor.length > 0 ? `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #e2e8f0;">
+                                <span style="font-weight: 500;">Doctor Consultation</span>
+                                <div style="text-align: right;">
+                                    <span style="font-weight: 600; color: #2c5aa0;">${(serviceRatings.doctor.reduce((a,b) => a+b, 0) / serviceRatings.doctor.length).toFixed(1)}/5</span>
+                                    <span style="font-size: 12px; color: #64748b; margin-left: 8px;">(${serviceRatings.doctor.length} ratings)</span>
+                                </div>
+                            </div>` : ''}
+                            ${serviceRatings.nursing.length > 0 ? `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #e2e8f0;">
+                                <span style="font-weight: 500;">Nursing Services</span>
+                                <div style="text-align: right;">
+                                    <span style="font-weight: 600; color: #2c5aa0;">${(serviceRatings.nursing.reduce((a,b) => a+b, 0) / serviceRatings.nursing.length).toFixed(1)}/5</span>
+                                    <span style="font-size: 12px; color: #64748b; margin-left: 8px;">(${serviceRatings.nursing.length} ratings)</span>
+                                </div>
+                            </div>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Wait Times Analysis -->
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="color: #1e293b; margin-bottom: 16px;">⏱️ Wait Times Analysis</h3>
+                        <div style="background: #f8fafc; padding: 16px; border-radius: 8px;">
+                            ${Object.entries(waitTimeStats).map(([time, count]) => `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+                                    <span style="font-weight: 500;">${time}</span>
+                                    <div style="text-align: right;">
+                                        <span style="font-weight: 600; color: #2c5aa0;">${count} patients</span>
+                                        <span style="font-size: 12px; color: #64748b; margin-left: 8px;">(${((count/totalResponses)*100).toFixed(1)}%)</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Department Performance -->
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="color: #1e293b; margin-bottom: 16px;">🏢 Department Performance</h3>
+                        <div style="background: #f8fafc; padding: 16px; border-radius: 8px;">
+                            ${Object.entries(departmentStats).map(([dept, stats]) => `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #e2e8f0;">
+                                    <span style="font-weight: 500;">${dept}</span>
+                                    <div style="text-align: right;">
+                                        <span style="font-weight: 600; color: #2c5aa0;">${stats.avgSatisfaction}/5</span>
+                                        <span style="font-size: 12px; color: #64748b; margin-left: 8px;">(${stats.count} visits)</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Follow-up Needs Analysis -->
+                    ${Object.keys(followupNeeds).length > 0 ? `
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="color: #1e293b; margin-bottom: 16px;">📋 Follow-up Needs Analysis</h3>
+                        <div style="background: #f0f9ff; padding: 16px; border-radius: 8px;">
+                            ${Object.entries(followupNeeds).map(([need, count]) => `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+                                    <span style="font-weight: 500;">${need.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                                    <div style="text-align: right;">
+                                        <span style="font-weight: 600; color: #0ea5e9;">${count} requests</span>
+                                        <span style="font-size: 12px; color: #64748b; margin-left: 8px;">(${((count/totalResponses)*100).toFixed(1)}%)</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>` : ''}
+
+                    ${issuesReported.length > 0 ? `
+                    <!-- Issues Reported -->
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="color: #dc2626; margin-bottom: 16px;">⚠️ Issues Requiring Attention</h3>
+                        <div style="background: #fef2f2; padding: 16px; border-radius: 8px; border-left: 4px solid #dc2626;">
+                            <div style="margin-bottom: 12px; font-weight: 600; color: #dc2626;">${issuesReported.length} patients reported issues (${issueRate}% of total)</div>
+                            ${issuesReported.slice(0, 5).map(r => `
+                                <div style="margin-bottom: 12px; padding: 12px; background: white; border-radius: 6px;">
+                                    <div style="font-weight: 600; color: #1e293b;">${r.patient_name} - ${r.visit_date}</div>
+                                    <div style="font-size: 14px; color: #64748b;">${r.patient_email} | Department: ${r.department_visited}</div>
+                                    <div style="font-style: italic; margin-top: 8px; color: #7f1d1d;">"${r.issue_description || 'Issue reported but no details provided'}"</div>
+                                </div>
+                            `).join('')}
+                            ${issuesReported.length > 5 ? `<div style="text-align: center; color: #64748b; font-style: italic;">... and ${issuesReported.length - 5} more issues reported</div>` : ''}
+                        </div>
+                    </div>` : ''}
                     
                     ${lowSatisfactionResponses.length > 0 ? `
-                    <!-- Action Items -->
+                    <!-- Low Satisfaction Follow-up -->
                     <div style="margin-bottom: 24px;">
-                        <h3 style="color: #dc2626; margin-bottom: 16px;">⚠️ Patients Requiring Follow-up</h3>
+                        <h3 style="color: #dc2626; margin-bottom: 16px;">🚨 Urgent Follow-up Required</h3>
                         <div style="background: #fef2f2; padding: 16px; border-radius: 8px; border-left: 4px solid #dc2626;">
                             ${lowSatisfactionResponses.map(r => `
                                 <div style="margin-bottom: 12px; padding: 12px; background: white; border-radius: 6px;">
                                     <div style="font-weight: 600; color: #1e293b;">${r.patient_name}</div>
-                                    <div style="font-size: 14px; color: #64748b;">${r.patient_email} | ${r.appointment_date}</div>
-                                    <div style="font-size: 14px; margin-top: 4px;">Overall Satisfaction: ${r.overall_satisfaction}/5</div>
+                                    <div style="font-size: 14px; color: #64748b;">${r.patient_email} | ${r.patient_phone || 'No phone'} | ${r.visit_date}</div>
+                                    <div style="font-size: 14px; margin-top: 4px;">Overall Satisfaction: ${r.overall_satisfaction}/5 | Department: ${r.department_visited}</div>
                                     ${r.comments ? `<div style="font-style: italic; margin-top: 8px; color: #475569;">"${r.comments}"</div>` : ''}
+                                    ${r.followup_needs_array && r.followup_needs_array.length > 0 ? `<div style="margin-top: 4px; color: #0ea5e9;"><strong>Follow-up requested:</strong> ${r.followup_needs_array.join(', ')}</div>` : ''}
                                 </div>
                             `).join('')}
                         </div>
-                    </div>
-                    ` : ''}
+                    </div>` : ''}
                     
-                    <!-- Comments Summary -->
-                    ${responses.filter(r => r.comments).length > 0 ? `
-                    <div style="margin-bottom: 24px;">
-                        <h3 style="color: #1e293b; margin-bottom: 16px;">💬 Patient Comments</h3>
-                        <div style="background: #f8fafc; padding: 16px; border-radius: 8px; max-height: 400px; overflow-y: auto;">
-                            ${responses.filter(r => r.comments).slice(0, 10).map(r => `
-                                <div style="margin-bottom: 16px; padding: 12px; background: white; border-radius: 6px; border-left: 3px solid #2c5aa0;">
-                                    <div style="font-weight: 500; margin-bottom: 4px;">${r.patient_name} - ${r.overall_satisfaction}/5 stars</div>
-                                    <div style="font-style: italic; color: #475569;">"${r.comments}"</div>
-                                    <div style="font-size: 12px; color: #64748b; margin-top: 4px;">${r.appointment_date}</div>
-                                </div>
-                            `).join('')}
-                            ${responses.filter(r => r.comments).length > 10 ? `<div style="text-align: center; color: #64748b; font-style: italic;">... and ${responses.filter(r => r.comments).length - 10} more comments</div>` : ''}
-                        </div>
-                    </div>
-                    ` : ''}
-                    
-                    <!-- Recommendations -->
+                    <!-- Operational Recommendations -->
                     <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; border-left: 4px solid #2c5aa0;">
-                        <h3 style="color: #1e293b; margin-bottom: 16px;">💡 Recommendations</h3>
+                        <h3 style="color: #1e293b; margin-bottom: 16px;">💡 Operational Recommendations</h3>
                         <ul style="color: #475569; line-height: 1.6;">
-                            ${avgSatisfaction < 4.0 ? '<li>Overall satisfaction is below 4.0 - consider reviewing patient experience processes</li>' : ''}
-                            ${avgWaiting < 3.5 ? '<li>Waiting time satisfaction is low - review scheduling and wait time management</li>' : ''}
-                            ${lowSatisfactionResponses.length > 0 ? `<li>Follow up with ${lowSatisfactionResponses.length} patient(s) who rated satisfaction 2 or below</li>` : ''}
-                            ${avgSatisfaction >= 4.5 ? '<li>Excellent satisfaction scores! Consider showcasing positive feedback</li>' : ''}
-                            <li>Continue monitoring feedback regularly to maintain quality standards</li>
-                            <li>Share positive feedback with staff to boost morale and recognize good performance</li>
+                            ${avgSatisfaction < 4.0 ? '<li><strong>Priority:</strong> Overall satisfaction below 4.0 - implement comprehensive patient experience review</li>' : ''}
+                            ${avgWaiting < 3.5 ? '<li><strong>Wait Times:</strong> Patient waiting time satisfaction is low - review scheduling efficiency and wait time management</li>' : ''}
+                            ${lowSatisfactionResponses.length > 0 ? `<li><strong>Urgent:</strong> ${lowSatisfactionResponses.length} patient(s) require immediate follow-up within 24 hours</li>` : ''}
+                            ${issueRate > 10 ? `<li><strong>Quality Alert:</strong> ${issueRate}% issue rate exceeds 10% threshold - investigate common problem areas</li>` : ''}
+                            ${Object.keys(followupNeeds).length > 0 ? '<li><strong>Follow-up System:</strong> Implement systematic follow-up process for patient requests</li>' : ''}
+                            ${serviceRatings.reception.length > 0 && (serviceRatings.reception.reduce((a,b) => a+b, 0) / serviceRatings.reception.length) < 4.0 ? '<li><strong>Front Desk:</strong> Reception service scores indicate need for customer service training</li>' : ''}
+                            ${avgSatisfaction >= 4.5 ? '<li><strong>Success:</strong> Excellent satisfaction scores - consider patient testimonial program</li>' : ''}
+                            <li><strong>Continuous Improvement:</strong> Schedule monthly review of feedback trends and implement action plans</li>
+                            <li><strong>Staff Recognition:</strong> Share positive feedback with teams to maintain high service standards</li>
                         </ul>
                     </div>
                 </div>
