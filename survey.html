@@ -742,21 +742,8 @@
     </select>
     <div id="otherDepartment" class="other-department-input" style="display: none; margin-top: 12px;">
         <input type="text" id="otherDepartmentText" name="other_department" class="form-input" placeholder="Please specify the department/service">
-    </div>
-</div>
-
-<script>
-    function toggleOtherDepartment() {
-        const select = document.getElementById("department");
-        const otherDiv = document.getElementById("otherDepartment");
-        if (select.value === "Other") {
-            otherDiv.style.display = "block";
-        } else {
-            otherDiv.style.display = "none";
-            document.getElementById("otherDepartmentText").value = ""; // Clear input
-        }
-    }
-</script>
+                        </div>
+                    </div>
 
                 </div>
             </div>
@@ -1229,6 +1216,18 @@
     </div>
 
     <script>
+
+    function toggleOtherDepartment() {
+        const select = document.getElementById("department");
+        const otherDiv = document.getElementById("otherDepartment");
+        if (select.value === "Other") {
+            otherDiv.style.display = "block";
+        } else {
+            otherDiv.style.display = "none";
+            document.getElementById("otherDepartmentText").value = ""; // Clear input
+        }
+    }
+
         // Survey data storage (using localStorage for cross-tab functionality)
         function saveSurveyResponse(responseData) {
             // Get existing responses
