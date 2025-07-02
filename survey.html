@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Patient Satisfaction Survey</title>
     <style>
         * {
@@ -15,7 +15,10 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #f8fffe 0%, #e8f4f8 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
+            margin: 0;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
         }
 
         .container {
@@ -25,74 +28,118 @@
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             overflow: hidden;
+            width: 100%;
+            min-height: calc(100vh - 20px);
+            display: flex;
+            flex-direction: column;
         }
 
         .header {
             background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
             color: white;
-            padding: 30px;
+            padding: 20px;
             text-align: center;
         }
 
         .header h1 {
-            font-size: 28px;
+            font-size: clamp(20px, 5vw, 28px);
             margin-bottom: 10px;
             font-weight: 600;
+            line-height: 1.2;
         }
 
         .header p {
-            font-size: 16px;
+            font-size: clamp(14px, 3.5vw, 16px);
             opacity: 0.9;
             line-height: 1.5;
         }
 
+        /* Progress Bar */
+        .progress-container {
+            background: #f1f5f9;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .progress-bar {
+            background: #e2e8f0;
+            height: clamp(6px, 1.5vw, 8px);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: clamp(12px, 3vw, 14px);
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* Survey Content */
         .survey-content {
-            padding: 40px;
+            padding: 20px;
+            min-height: 400px;
+            flex: 1;
         }
 
-        .question-group {
-            margin-bottom: 40px;
-            padding: 30px;
-            background: #f8fafc;
-            border-radius: 16px;
-            border-left: 5px solid #2c5aa0;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        .survey-page {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+            height: 100%;
         }
 
-        .section-header {
+        .survey-page.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-title {
+            font-size: clamp(18px, 4vw, 24px);
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 2px solid #e2e8f0;
         }
 
-        .section-icon {
-            font-size: 24px;
+        .page-icon {
+            font-size: clamp(20px, 5vw, 28px);
             margin-right: 12px;
             color: #2c5aa0;
         }
 
-        .question {
-            font-size: 20px;
-            font-weight: 600;
-            color: #1e293b;
-            margin: 0;
-            line-height: 1.4;
-        }
-
-        .section-description {
-            font-size: 14px;
+        .page-description {
+            font-size: clamp(14px, 3.5vw, 16px);
             color: #64748b;
-            margin-top: 8px;
+            margin-bottom: 24px;
             line-height: 1.5;
         }
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 24px;
-            margin-top: 24px;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-top: 20px;
         }
 
         .form-group {
@@ -105,23 +152,39 @@
             font-weight: 500;
             margin-bottom: 8px;
             color: #1e293b;
-            font-size: 14px;
+            font-size: clamp(13px, 3.5vw, 14px);
         }
 
         .form-input, .form-select {
             width: 100%;
-            padding: 12px 16px;
+            padding: 14px 16px;
             border: 2px solid #e2e8f0;
             border-radius: 10px;
-            font-size: 14px;
+            font-size: clamp(14px, 4vw, 16px);
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
             background: white;
+            min-height: 48px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
         }
 
         .form-input:focus, .form-select:focus {
             outline: none;
             border-color: #2c5aa0;
             box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+        }
+
+        .form-input.error, .form-select.error {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: clamp(11px, 3vw, 12px);
+            margin-top: 4px;
+            display: none;
         }
 
         .other-department-input {
@@ -137,43 +200,134 @@
             max-height: 60px;
         }
 
+        /* Rating Sections */
         .rating-section {
-            margin-bottom: 32px;
-            padding: 24px;
-            background: white;
-            border-radius: 12px;
+            margin-bottom: 24px;
+            padding: 24px 16px;
+            background: #f8fafc;
+            border-radius: 16px;
             border: 1px solid #e2e8f0;
+            text-align: center;
         }
 
         .rating-title {
             font-weight: 600;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             color: #1e293b;
-            font-size: 16px;
+            font-size: clamp(16px, 4vw, 20px);
             display: flex;
             align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.3;
         }
 
         .rating-title-icon {
-            font-size: 18px;
+            font-size: clamp(20px, 5vw, 24px);
             margin-right: 8px;
             color: #2c5aa0;
+            flex-shrink: 0;
         }
 
+        .rating-scale {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            gap: clamp(8px, 3vw, 20px);
+            margin-bottom: 16px;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding: 10px 5px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .rating-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            cursor: pointer;
+            padding: 12px 8px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            min-width: clamp(60px, 15vw, 80px);
+            flex: 0 0 auto;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .rating-option:hover {
+            background: #e2e8f0;
+            transform: translateY(-2px);
+        }
+
+        .rating-option:active {
+            transform: translateY(0);
+        }
+
+        .rating-option input[type="radio"] {
+            display: none;
+        }
+
+        .rating-option input[type="radio"]:checked + .rating-content {
+            background: #2c5aa0 !important;
+            color: white !important;
+            transform: scale(1.1) !important;
+            box-shadow: 0 4px 12px rgba(44, 90, 160, 0.3) !important;
+        }
+
+        .rating-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(8px, 2vw, 12px);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border: 2px solid #e2e8f0;
+            background: white;
+            height: clamp(60px, 15vw, 80px);
+            width: clamp(60px, 15vw, 80px);
+        }
+
+        .emoji {
+            font-size: clamp(20px, 6vw, 32px);
+            margin-bottom: 2px;
+            line-height: 1;
+        }
+
+        .rating-number {
+            font-weight: 600;
+            font-size: clamp(12px, 3.5vw, 16px);
+            line-height: 1;
+        }
+
+        .rating-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: clamp(12px, 3vw, 14px);
+            color: #64748b;
+            margin-top: 12px;
+            max-width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 10px;
+        }
+
+        /* Contact Preferences */
         .contact-preferences-container {
             background: #f8fafc;
             border-radius: 12px;
-            padding: 24px;
-            margin: 32px 0;
+            padding: 20px;
+            margin: 24px 0;
             border-left: 4px solid #0ea5e9;
         }
 
         .contact-header {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .contact-title {
-            font-size: 18px;
+            font-size: clamp(16px, 4vw, 18px);
             font-weight: 600;
             color: #1e293b;
             margin-bottom: 8px;
@@ -183,16 +337,16 @@
         }
 
         .contact-subtitle {
-            font-size: 14px;
+            font-size: clamp(12px, 3vw, 14px);
             color: #64748b;
         }
 
         .contact-main-choice {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .contact-main-label {
-            font-size: 16px;
+            font-size: clamp(14px, 3.5vw, 16px);
             font-weight: 500;
             color: #374151;
             margin-bottom: 12px;
@@ -200,25 +354,34 @@
 
         .main-choice-options {
             display: flex;
-            gap: 16px;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .main-choice-item {
             display: flex;
             align-items: center;
-            padding: 12px 20px;
+            padding: 14px 16px;
             background: white;
             border: 2px solid #e5e7eb;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s ease;
             font-weight: 500;
-            user-select: none; /* Prevent text selection */
+            user-select: none;
+            min-height: 48px;
+            font-size: clamp(14px, 3.5vw, 16px);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .main-choice-item:hover {
             border-color: #0ea5e9;
             background: #f0f9ff;
+        }
+
+        .main-choice-item:active {
+            transform: scale(0.98);
         }
 
         .main-choice-item.selected {
@@ -228,9 +391,9 @@
         }
 
         .main-choice-item input[type="radio"] {
-            margin-right: 8px;
+            margin-right: 10px;
             transform: scale(1.2);
-            pointer-events: none; /* Disable direct radio clicks */
+            pointer-events: none;
         }
 
         .contact-methods {
@@ -249,12 +412,12 @@
         .contact-methods.show {
             opacity: 1;
             max-height: 200px;
-            padding: 20px;
+            padding: 16px;
             transform: translateY(0);
         }
 
         .contact-methods-label {
-            font-size: 14px;
+            font-size: clamp(13px, 3vw, 14px);
             font-weight: 500;
             color: #374151;
             margin-bottom: 12px;
@@ -262,26 +425,33 @@
 
         .method-options {
             display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .method-item {
             display: flex;
             align-items: center;
-            padding: 8px 16px;
+            padding: 12px 16px;
             background: #f8fafc;
             border: 2px solid #e5e7eb;
             border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s ease;
-            font-size: 14px;
-            user-select: none; /* Prevent text selection */
+            font-size: clamp(13px, 3vw, 14px);
+            user-select: none;
+            min-height: 44px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .method-item:hover {
             border-color: #0ea5e9;
             background: #f0f9ff;
+        }
+
+        .method-item:active {
+            transform: scale(0.98);
         }
 
         .method-item.selected {
@@ -291,61 +461,51 @@
         }
 
         .method-item input[type="checkbox"] {
-            margin-right: 8px;
-            pointer-events: none; /* Disable direct checkbox clicks */
+            margin-right: 10px;
+            pointer-events: none;
+            transform: scale(1.1);
         }
 
-        @media (max-width: 768px) {
-            .main-choice-options {
-                flex-direction: column;
-                gap: 12px;
-            }
-            
-            .method-options {
-                flex-direction: column;
-                gap: 12px;
-            }
-        }
-
+        /* Privacy Section */
         .privacy-section {
             background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
             border: 2px solid #0ea5e9;
             border-radius: 16px;
-            padding: 24px;
-            margin-top: 32px;
+            padding: 20px;
         }
 
         .privacy-header {
             display: flex;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .privacy-icon {
-            font-size: 28px;
-            margin-right: 12px;
+            font-size: clamp(24px, 5vw, 28px);
+            margin-right: 10px;
             color: #0ea5e9;
         }
 
         .privacy-title {
-            font-size: 20px;
+            font-size: clamp(16px, 4vw, 20px);
             font-weight: 600;
             color: #0c4a6e;
         }
 
         .privacy-content {
-            font-size: 14px;
+            font-size: clamp(13px, 3vw, 14px);
             color: #475569;
             line-height: 1.6;
         }
 
         .privacy-list {
-            margin: 16px 0;
-            padding-left: 20px;
+            margin: 12px 0;
+            padding-left: 16px;
         }
 
         .privacy-list li {
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+            font-size: clamp(12px, 3vw, 13px);
         }
 
         .consent-box {
@@ -353,7 +513,7 @@
             padding: 16px;
             border-radius: 10px;
             border: 2px solid #0ea5e9;
-            margin: 20px 0;
+            margin: 16px 0;
         }
 
         .consent-item {
@@ -361,93 +521,59 @@
             align-items: flex-start;
             padding: 12px;
             cursor: pointer;
-            user-select: none; /* Prevent text selection */
+            user-select: none;
             transition: all 0.2s ease;
             border-radius: 8px;
+            min-height: 44px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .consent-item:hover {
             background: #f8fafc;
         }
 
+        .consent-item:active {
+            transform: scale(0.99);
+        }
+
         .consent-item input[type="checkbox"] {
             margin-right: 12px;
             margin-top: 2px;
             transform: scale(1.2);
-            pointer-events: none; /* Disable direct checkbox clicks */
+            pointer-events: none;
+            flex-shrink: 0;
+        }
+
+        .consent-item span {
+            font-size: clamp(13px, 3vw, 14px);
+            line-height: 1.4;
         }
 
         .data-notice {
-            font-size: 12px;
+            font-size: clamp(11px, 2.5vw, 12px);
             color: #64748b;
             background: white;
-            padding: 16px;
+            padding: 12px;
             border-radius: 8px;
             border-left: 4px solid #0ea5e9;
-            margin-top: 16px;
+            margin-top: 12px;
+            line-height: 1.4;
         }
 
-        .radio-group {
-            display: flex;
-            gap: 24px;
-            margin: 16px 0;
-        }
-
-        .radio-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            background: white;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .radio-item:hover {
-            border-color: #2c5aa0;
-            background: #f8fafc;
-        }
-
-        .radio-item input[type="radio"] {
-            margin-right: 8px;
-            transform: scale(1.2);
-        }
-
-        .comment-section {
-            margin-top: 40px;
-            padding: 32px;
-            background: linear-gradient(135deg, #f1f5f9 0%, #f8fafc 100%);
-            border-radius: 16px;
-            border-left: 5px solid #10b981;
-        }
-
-        .comment-section label {
-            display: block;
-            font-size: 18px;
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 8px;
-        }
-
-        .comment-section p {
-            font-size: 14px;
-            color: #64748b;
-            margin-bottom: 16px;
-            line-height: 1.5;
-        }
-
+        /* Comment Section */
         .comment-section textarea {
             width: 100%;
-            min-height: 120px;
-            padding: 16px;
+            min-height: clamp(100px, 20vw, 120px);
+            padding: 14px;
             border: 2px solid #e2e8f0;
             border-radius: 12px;
             font-family: inherit;
-            font-size: 14px;
+            font-size: clamp(14px, 3.5vw, 16px);
             resize: vertical;
             transition: border-color 0.3s ease;
             background: white;
+            line-height: 1.5;
         }
 
         .comment-section textarea:focus {
@@ -456,151 +582,637 @@
             box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
         }
 
-        @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
-            
-            .radio-group {
-                flex-direction: column;
-                gap: 12px;
-            }
-            
-            .question-group {
-                padding: 20px;
-                margin-bottom: 24px;
-            }
+        .comment-section textarea::placeholder {
+            color: #9ca3af;
+            font-size: clamp(13px, 3vw, 14px);
         }
 
-        .rating-scale {
+        /* Navigation */
+        .navigation {
+            padding: 20px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: 12px;
+            margin-top: auto;
         }
 
-        .rating-option {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-            padding: 12px;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            min-width: 70px;
-        }
-
-        .rating-option:hover {
-            background: #e2e8f0;
-            transform: translateY(-2px);
-        }
-
-        .rating-option input[type="radio"] {
-            display: none;
-        }
-
-        .rating-option input[type="radio"]:checked + .rating-content {
-            background: #2c5aa0;
-            color: white;
-            transform: scale(1.1);
-        }
-
-        .rating-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 8px 12px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            border: 2px solid #e2e8f0;
-        }
-
-        .emoji {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-
-        .rating-number {
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .rating-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #64748b;
-            margin-top: 10px;
-        }
-
-        .submit-btn {
+        .nav-btn {
             background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
             color: white;
-            padding: 15px 40px;
+            padding: 14px 20px;
             border: none;
-            border-radius: 10px;
-            font-size: 16px;
+            border-radius: 8px;
+            font-size: clamp(14px, 3.5vw, 16px);
             font-weight: 600;
             cursor: pointer;
-            margin-top: 30px;
             transition: all 0.3s ease;
-            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 48px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .submit-btn:hover {
+        .nav-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 24px rgba(44, 90, 160, 0.3);
         }
 
+        .nav-btn:active {
+            transform: translateY(0);
+        }
+
+        .nav-btn:disabled {
+            background: #e2e8f0;
+            color: #64748b;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .nav-btn.secondary {
+            background: #e2e8f0;
+            color: #64748b;
+        }
+
+        .nav-btn.secondary:hover:not(:disabled) {
+            background: #cbd5e1;
+            color: #475569;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 16px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: clamp(14px, 4vw, 16px);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 48px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Thank You Page */
         .thank-you {
             display: none;
             text-align: center;
-            padding: 60px 40px;
-            background: #f0f9ff;
-            border-radius: 12px;
-            margin: 20px;
+            padding: clamp(40px, 8vw, 80px) clamp(20px, 5vw, 40px);
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 16px;
+            margin: 10px;
+            border: 3px solid #0ea5e9;
+            box-shadow: 0 20px 40px rgba(14, 165, 233, 0.2);
+            min-height: calc(100vh - 20px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         .thank-you.show {
-            display: block;
+            display: flex;
         }
 
         .thank-you h2 {
             color: #2c5aa0;
-            font-size: 24px;
-            margin-bottom: 15px;
+            font-size: clamp(24px, 6vw, 36px);
+            margin-bottom: 20px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(44, 90, 160, 0.1);
+            line-height: 1.2;
         }
 
         .thank-you p {
             color: #475569;
-            font-size: 16px;
+            font-size: clamp(16px, 4vw, 20px);
             line-height: 1.6;
+            margin-bottom: 30px;
+            max-width: 90%;
         }
 
         .check-icon {
-            font-size: 48px;
+            font-size: clamp(60px, 12vw, 80px);
             color: #10b981;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            animation: checkPulse 2s ease-in-out infinite;
+            filter: drop-shadow(0 4px 8px rgba(16, 185, 129, 0.3));
         }
 
-        @media (max-width: 600px) {
+        @keyframes checkPulse {
+            0%, 100% { 
+                transform: scale(1); 
+                filter: drop-shadow(0 4px 8px rgba(16, 185, 129, 0.3));
+            }
+            50% { 
+                transform: scale(1.15); 
+                filter: drop-shadow(0 6px 12px rgba(16, 185, 129, 0.4));
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                opacity: 1; 
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.8; 
+                transform: scale(1.05);
+            }
+        }
+
+        .thank-you-actions {
+            margin-top: clamp(30px, 6vw, 50px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+            color: white;
+            padding: clamp(14px, 3vw, 18px) clamp(24px, 5vw, 35px);
+            border: none;
+            border-radius: 12px;
+            font-size: clamp(14px, 4vw, 18px);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 16px rgba(44, 90, 160, 0.3);
+            min-height: 48px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(44, 90, 160, 0.4);
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        }
+
+        .restart-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .auto-restart-info {
+            color: #64748b;
+            font-size: clamp(14px, 3.5vw, 16px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            padding: 12px 16px;
+            border-radius: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .countdown {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            min-width: 32px;
+            display: inline-block;
+            font-size: clamp(14px, 3.5vw, 16px);
+            box-shadow: 0 2px 6px rgba(44, 90, 160, 0.3);
+        }
+
+        .survey-complete-badge {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: clamp(12px, 3vw, 14px);
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: inline-block;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Responsive Design for Different Devices */
+
+        /* Small phones (iPhone SE, older Android) */
+        @media (max-width: 375px) {
+            body {
+                padding: 5px;
+            }
+
+            .container {
+                border-radius: 12px;
+                min-height: calc(100vh - 10px);
+            }
+
+            .header {
+                padding: 15px;
+            }
+
+            .survey-content {
+                padding: 15px;
+            }
+
+            .rating-scale {
+                gap: 6px;
+                padding: 8px 2px;
+            }
+
+            .rating-option {
+                min-width: 50px;
+                padding: 8px 4px;
+            }
+
+            .rating-content {
+                height: 50px;
+                width: 50px;
+                padding: 6px;
+            }
+
+            .emoji {
+                font-size: 18px;
+            }
+
+            .rating-number {
+                font-size: 11px;
+            }
+
+            .navigation {
+                padding: 15px;
+                gap: 8px;
+            }
+
+            .nav-btn {
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+
+            .rating-labels {
+                padding: 0 5px;
+            }
+
+            .form-grid {
+                gap: 16px;
+            }
+        }
+
+        /* Standard phones (iPhone 12, Samsung Galaxy) */
+        @media (min-width: 376px) and (max-width: 414px) {
+            .container {
+                margin: 5px auto;
+            }
+
             .rating-scale {
                 gap: 8px;
             }
-            
+
             .rating-option {
                 min-width: 55px;
-                padding: 8px;
             }
-            
+
+            .rating-content {
+                height: 55px;
+                width: 55px;
+            }
+
+            .form-grid {
+                gap: 18px;
+            }
+        }
+
+        /* Large phones and small tablets */
+        @media (min-width: 415px) and (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .survey-content {
+                padding: 25px;
+            }
+
+            .header {
+                padding: 25px;
+            }
+
+            .rating-scale {
+                gap: 12px;
+            }
+
+            .rating-option {
+                min-width: 65px;
+            }
+
+            .rating-content {
+                height: 65px;
+                width: 65px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .navigation {
+                padding: 20px;
+            }
+
+            .thank-you {
+                margin: 15px;
+                padding: 50px 30px;
+            }
+        }
+
+        /* Tablets (iPad, Android tablets) */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            body {
+                padding: 20px;
+            }
+
+            .container {
+                max-width: 600px;
+            }
+
+            .survey-content {
+                padding: 35px;
+            }
+
+            .header {
+                padding: 35px;
+            }
+
+            .form-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 24px;
+            }
+
+            .rating-scale {
+                gap: 16px;
+            }
+
+            .rating-option {
+                min-width: 75px;
+            }
+
+            .rating-content {
+                height: 75px;
+                width: 75px;
+            }
+
+            .navigation {
+                padding: 25px;
+            }
+
+            .thank-you {
+                margin: 20px;
+                padding: 60px 40px;
+            }
+        }
+
+        /* Desktop and large screens */
+        @media (min-width: 1025px) {
+            body {
+                padding: 30px;
+            }
+
+            .container {
+                max-width: 700px;
+            }
+
+            .survey-content {
+                padding: 40px;
+            }
+
+            .header {
+                padding: 40px;
+            }
+
+            .form-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 24px;
+            }
+
+            .rating-scale {
+                gap: 20px;
+            }
+
+            .rating-option {
+                min-width: 80px;
+                padding: 16px;
+            }
+
+            .rating-content {
+                height: 80px;
+                width: 80px;
+                padding: 12px 16px;
+            }
+
             .emoji {
-                font-size: 20px;
+                font-size: 32px;
+                margin-bottom: 4px;
             }
-            
+
             .rating-number {
-                font-size: 12px;
+                font-size: 16px;
+            }
+
+            .navigation {
+                padding: 30px 40px;
+            }
+
+            .thank-you {
+                margin: 20px;
+                padding: 80px 40px;
+            }
+        }
+
+        /* Landscape orientation adjustments */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .container {
+                min-height: auto;
+            }
+
+            .survey-content {
+                min-height: auto;
+                padding: 20px;
+            }
+
+            .thank-you {
+                min-height: auto;
+                padding: 30px 20px;
+            }
+
+            .check-icon {
+                font-size: 40px;
+                margin-bottom: 15px;
+            }
+
+            .thank-you h2 {
+                font-size: 24px;
+                margin-bottom: 15px;
+            }
+
+            .thank-you p {
+                font-size: 16px;
+                margin-bottom: 20px;
+            }
+
+            .thank-you-actions {
+                margin-top: 20px;
+                gap: 15px;
+            }
+        }
+
+        /* High DPI displays */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .container {
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            }
+
+            .nav-btn, .submit-btn, .restart-btn {
+                box-shadow: 0 4px 16px rgba(44, 90, 160, 0.4);
+            }
+        }
+
+        /* Touch device optimizations */
+        @media (pointer: coarse) {
+            .rating-option, .main-choice-item, .method-item, .consent-item {
+                min-height: 44px;
+                padding: 12px;
+            }
+
+            .form-input, .form-select {
+                min-height: 48px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+
+            .nav-btn, .submit-btn, .restart-btn {
+                min-height: 48px;
+                padding: 14px 20px;
+            }
+        }
+
+        /* Touch device optimizations */
+        .touch-device .rating-option {
+            padding: 16px 12px;
+        }
+
+        .touch-device .main-choice-item,
+        .touch-device .method-item,
+        .touch-device .consent-item {
+            padding: 16px;
+            min-height: 48px;
+        }
+
+        .touch-device .nav-btn,
+        .touch-device .submit-btn,
+        .touch-device .restart-btn {
+            min-height: 48px;
+            padding: 16px 24px;
+        }
+
+        /* Landscape mobile adjustments */
+        .landscape-mobile .container {
+            min-height: auto;
+        }
+
+        .landscape-mobile .survey-content {
+            padding: 15px;
+            min-height: auto;
+        }
+
+        .landscape-mobile .header {
+            padding: 15px;
+        }
+
+        .landscape-mobile .thank-you {
+            padding: 20px;
+            min-height: auto;
+        }
+
+        .landscape-mobile .check-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .landscape-mobile .thank-you h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .landscape-mobile .thank-you p {
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .landscape-mobile .thank-you-actions {
+            margin-top: 15px;
+            gap: 10px;
+        }
+
+        /* Accessibility - Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+
+            .check-icon {
+                animation: none;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .container {
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                border: 1px solid #000;
+            }
+
+            .navigation {
+                display: none;
+            }
+
+            .thank-you {
+                display: none;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .container {
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             }
         }
     </style>
@@ -612,550 +1224,640 @@
             <p>Your feedback helps us provide the best possible care. Please take a moment to share your experience with us.</p>
         </div>
 
-        <form id="surveyForm" class="survey-content">
-            <!-- Patient Information Section -->
-            <div class="question-group">
-                <div class="section-header">
-                    <span class="section-icon">👤</span>
-                    <div>
-                        <div class="question">Visit Information</div>
-                        <div class="section-description">Please provide details about your visit today</div>
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Step 1 of 12</div>
+        </div>
+
+        <form id="surveyForm">
+            <!-- Page 1: Patient Information -->
+            <div class="survey-page active" data-page="1">
+                <div class="survey-content">
+                    <div class="page-title">
+                        <span class="page-icon">👤</span>
+                        Visit Information
                     </div>
-                </div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label" for="patientName">Full Name *</label>
-                        <input type="text" id="patientName" name="patient_name" required class="form-input" placeholder="Enter your full name">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="patientEmail">Email Address *</label>
-                        <input type="email" id="patientEmail" name="patient_email" required class="form-input" placeholder="Enter your email">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="patientPhone">Phone Number</label>
-                        <input type="tel" id="patientPhone" name="patient_phone" class="form-input" placeholder="Enter your phone number">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="visitDate">Visit Date *</label>
-                        <input type="date" id="visitDate" name="visit_date" required class="form-input">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="visitTime">Visit Time *</label>
-                        <select id="visitTime" name="visit_time" required class="form-select">
-                            <option value="">Select time</option>
-                            <option value="8:00 AM - 9:00 AM">8:00 AM - 9:00 AM</option>
-                            <option value="9:00 AM - 10:00 AM">9:00 AM - 10:00 AM</option>
-                            <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
-                            <option value="11:00 AM - 12:00 PM">11:00 AM - 12:00 PM</option>
-                            <option value="12:00 PM - 1:00 PM">12:00 PM - 1:00 PM</option>
-                            <option value="1:00 PM - 2:00 PM">1:00 PM - 2:00 PM</option>
-                            <option value="2:00 PM - 3:00 PM">2:00 PM - 3:00 PM</option>
-                            <option value="3:00 PM - 4:00 PM">3:00 PM - 4:00 PM</option>
-                            <option value="4:00 PM - 5:00 PM">4:00 PM - 5:00 PM</option>
-                            <option value="5:00 PM - 6:00 PM">5:00 PM - 6:00 PM</option>
-                            <option value="After 6:00 PM">After 6:00 PM</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="department">Department/Service Visited *</label>
-                        <select id="department" name="department_visited" required class="form-select">
-                            <option value="">Select department</option>
-                            <option value="Reception/Front Desk">Reception/Front Desk</option>
-                            <option value="General Practice">General Practice</option>
-                            <option value="Specialist Consultation">Specialist Consultation</option>
-                            <option value="Nursing Services">Nursing Services</option>
-                            <option value="Laboratory">Laboratory</option>
-                            <option value="Radiology/Imaging">Radiology/Imaging</option>
-                            <option value="Pharmacy">Pharmacy</option>
-                            <option value="Physical Therapy">Physical Therapy</option>
-                            <option value="Emergency/Urgent Care">Emergency/Urgent Care</option>
-                            <option value="Other">Other</option>
-                        </select>
-                        <div id="otherDepartment" class="other-department-input">
-                            <input type="text" id="otherDepartmentText" name="other_department" class="form-input" placeholder="Please specify the department/service">
+                    <div class="page-description">Please provide details about your visit today</div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="patientName">Full Name *</label>
+                            <input type="text" id="patientName" name="patient_name" required class="form-input" placeholder="Enter your full name">
+                            <div class="error-message">Please enter your full name</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="patientEmail">Email Address *</label>
+                            <input type="email" id="patientEmail" name="patient_email" required class="form-input" placeholder="Enter your email">
+                            <div class="error-message">Please enter a valid email address</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="patientPhone">Phone Number</label>
+                            <input type="tel" id="patientPhone" name="patient_phone" class="form-input" placeholder="Enter your phone number">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="visitDate">Visit Date *</label>
+                            <input type="date" id="visitDate" name="visit_date" required class="form-input">
+                            <div class="error-message">Please select your visit date</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="visitTime">Visit Time *</label>
+                            <select id="visitTime" name="visit_time" required class="form-select">
+                                <option value="">Select time</option>
+                                <option value="8:00 AM - 9:00 AM">8:00 AM - 9:00 AM</option>
+                                <option value="9:00 AM - 10:00 AM">9:00 AM - 10:00 AM</option>
+                                <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
+                                <option value="11:00 AM - 12:00 PM">11:00 AM - 12:00 PM</option>
+                                <option value="12:00 PM - 1:00 PM">12:00 PM - 1:00 PM</option>
+                                <option value="1:00 PM - 2:00 PM">1:00 PM - 2:00 PM</option>
+                                <option value="2:00 PM - 3:00 PM">2:00 PM - 3:00 PM</option>
+                                <option value="3:00 PM - 4:00 PM">3:00 PM - 4:00 PM</option>
+                                <option value="4:00 PM - 5:00 PM">4:00 PM - 5:00 PM</option>
+                                <option value="5:00 PM - 6:00 PM">5:00 PM - 6:00 PM</option>
+                                <option value="After 6:00 PM">After 6:00 PM</option>
+                            </select>
+                            <div class="error-message">Please select your visit time</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="department">Department/Service Visited *</label>
+                            <select id="department" name="department_visited" required class="form-select">
+                                <option value="">Select department</option>
+                                <option value="Reception/Front Desk">Reception/Front Desk</option>
+                                <option value="General Practice">General Practice</option>
+                                <option value="Specialist Consultation">Specialist Consultation</option>
+                                <option value="Nursing Services">Nursing Services</option>
+                                <option value="Laboratory">Laboratory</option>
+                                <option value="Radiology/Imaging">Radiology/Imaging</option>
+                                <option value="Pharmacy">Pharmacy</option>
+                                <option value="Physical Therapy">Physical Therapy</option>
+                                <option value="Emergency/Urgent Care">Emergency/Urgent Care</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <div class="error-message">Please select the department you visited</div>
+                            <div id="otherDepartment" class="other-department-input">
+                                <input type="text" id="otherDepartmentText" name="other_department" class="form-input" placeholder="Please specify the department/service">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Wait Times Section -->
-            <div class="question-group">
-                <div class="section-header">
-                    <span class="section-icon">⏱️</span>
-                    <div>
-                        <div class="question">Wait Times Experience</div>
-                        <div class="section-description">Help us understand your waiting experience today</div>
+            <!-- Page 2: Wait Times -->
+            <div class="survey-page" data-page="2">
+                <div class="survey-content">
+                    <div class="page-title">
+                        <span class="page-icon">⏱️</span>
+                        Wait Times Experience
                     </div>
-                </div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label" for="waitTime">How long did you wait for your appointment? *</label>
-                        <select id="waitTime" name="wait_time_actual" required class="form-select">
-                            <option value="">Select wait time</option>
-                            <option value="0-5 minutes">0-5 minutes</option>
-                            <option value="6-10 minutes">6-10 minutes</option>
-                            <option value="11-15 minutes">11-15 minutes</option>
-                            <option value="16-30 minutes">16-30 minutes</option>
-                            <option value="31-45 minutes">31-45 minutes</option>
-                            <option value="46-60 minutes">46-60 minutes</option>
-                            <option value="More than 1 hour">More than 1 hour</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="scheduledTime">Was your appointment on time?</label>
-                        <select id="scheduledTime" name="appointment_timeliness" class="form-select">
-                            <option value="">Select option</option>
-                            <option value="Yes, exactly on time">Yes, exactly on time</option>
-                            <option value="Slightly delayed (under 15 min)">Slightly delayed (under 15 min)</option>
-                            <option value="Moderately delayed (15-30 min)">Moderately delayed (15-30 min)</option>
-                            <option value="Significantly delayed (over 30 min)">Significantly delayed (over 30 min)</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Service-Specific Feedback -->
-            <div class="question-group">
-                <div class="section-header">
-                    <span class="section-icon">🏥</span>
-                    <div>
-                        <div class="question">Service-Specific Feedback</div>
-                        <div class="section-description">Rate each service you experienced today (leave blank if not applicable)</div>
-                    </div>
-                </div>
-                
-                <!-- Reception/Front Desk -->
-                <div class="rating-section">
-                    <div class="rating-title">
-                        <span class="rating-title-icon">🏢</span>
-                        Reception/Front Desk Service
-                    </div>
-                    <div class="rating-scale">
-                        <label class="rating-option">
-                            <input type="radio" name="reception_rating" value="1">
-                            <div class="rating-content">
-                                <div class="emoji">😞</div>
-                                <div class="rating-number">1</div>
-                            </div>
-                        </label>
-                        <label class="rating-option">
-                            <input type="radio" name="reception_rating" value="2">
-                            <div class="rating-content">
-                                <div class="emoji">😕</div>
-                                <div class="rating-number">2</div>
-                            </div>
-                        </label>
-                        <label class="rating-option">
-                            <input type="radio" name="reception_rating" value="3">
-                            <div class="rating-content">
-                                <div class="emoji">😐</div>
-                                <div class="rating-number">3</div>
-                            </div>
-                        </label>
-                        <label class="rating-option">
-                            <input type="radio" name="reception_rating" value="4">
-                            <div class="rating-content">
-                                <div class="emoji">🙂</div>
-                                <div class="rating-number">4</div>
-                            </div>
-                        </label>
-                        <label class="rating-option">
-                            <input type="radio" name="reception_rating" value="5">
-                            <div class="rating-content">
-                                <div class="emoji">😄</div>
-                                <div class="rating-number">5</div>
-                            </div>
-                        </label>
-                    </div>
-                    <div class="rating-labels">
-                        <span>Poor Service</span>
-                        <span>Excellent Service</span>
-                    </div>
-                </div>
-
-                <!-- Doctor Consultation -->
-                <div class="rating-section">
-                    <div class="rating-title">
-                        <span class="rating-title-icon">👨‍⚕️</span>
-                        Doctor/Healthcare Provider Consultation
-                    </div>
-                    <div class="rating-scale">
-                        <label class="rating-option">
-                            <input type="radio" name="doctor_rating" value="1">
-                            <div class="rating-content">
-                                <div class="emoji">😞</div>
-                                <div class="rating-number">1</div>
-                            </div>
-                        </label>
-                        <label class="rating-option">
-                            <input type="radio" name="doctor_rating" value="2">
-                            <div class="rating-content">
-                                <div class="emoji">😕</div>
-                                <div class="rating-number">2</div>
-                            </div>
-                        </label>
-                        <label class="rating-option">
-                            <input type="radio" name="doctor_rating" value="3">
-                            <div class="rating-content">
-                                <div class="emoji">😐</div>
-                                <div class="rating-number">3</div>
-                            </div>
-                        </label>
-                        <label class="rating-option">
-                            <input type="radio" name="doctor_rating" value="4">
-                            <div class="rating-content">
-                                <div class="emoji">🙂</div>
-                                <div class="rating-number">4</div>
-                            </div>
-                        </label>
-                        <label class="rating-option">
-                            <input type="radio" name="doctor_rating" value="5">
-                            <div class="rating-content">
-                                <div class="emoji">😄</div>
-                                <div class="rating-number">5</div>
-                            </div>
-                        </label>
-                    </div>
-                    <div class="rating-labels">
-                        <span>Poor Consultation</span>
-                        <span>Excellent Consultation</span>
-                    </div>
-                </div>
-
-                <!-- Nursing Services -->
-                <div class="rating-section">
-                    <div class="rating-title">
-                        <span class="rating-title-icon">👩‍⚕️</span>
-                        Nursing Services
-                    </div>
-                    <div class="rating-scale">
-                        <label class="rating-option">
-                            <input type="radio" name="nursing_rating" value="1">
-                            <div class="rating-content">
-                                <div class="emoji">😞</div>
-                                <div class="rating-number">1</div>
-                            </div>
-                        </label>
-                        <label class="rating-option">
-                            <input type="radio" name="nursing_rating" value="2">
-                            <div class="rating-content">
-                                <div class="emoji">😕</div>
-                                <div class="rating-number">2</div>
-                            </div>
-                        </label>
-                        <label class="rating-option">
-                            <input type="radio" name="nursing_rating" value="3">
-                            <div class="rating-content">
-                                <div class="emoji">😐</div>
-                                <div class="rating-number">3</div>
-                            </div>
-                        </label>
-                        <label class="rating-option">
-                            <input type="radio" name="nursing_rating" value="4">
-                            <div class="rating-content">
-                                <div class="emoji">🙂</div>
-                                <div class="rating-number">4</div>
-                            </div>
-                        </label>
-                        <label class="rating-option">
-                            <input type="radio" name="nursing_rating" value="5">
-                            <div class="rating-content">
-                                <div class="emoji">😄</div>
-                                <div class="rating-number">5</div>
-                            </div>
-                        </label>
-                    </div>
-                    <div class="rating-labels">
-                        <span>Poor Care</span>
-                        <span>Excellent Care</span>
+                    <div class="page-description">Help us understand your waiting experience today</div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="waitTime">How long did you wait for your appointment? *</label>
+                            <select id="waitTime" name="wait_time_actual" required class="form-select">
+                                <option value="">Select wait time</option>
+                                <option value="0-5 minutes">0-5 minutes</option>
+                                <option value="6-10 minutes">6-10 minutes</option>
+                                <option value="11-15 minutes">11-15 minutes</option>
+                                <option value="16-30 minutes">16-30 minutes</option>
+                                <option value="31-45 minutes">31-45 minutes</option>
+                                <option value="46-60 minutes">46-60 minutes</option>
+                                <option value="More than 1 hour">More than 1 hour</option>
+                            </select>
+                            <div class="error-message">Please select your wait time</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="scheduledTime">Was your appointment on time?</label>
+                            <select id="scheduledTime" name="appointment_timeliness" class="form-select">
+                                <option value="">Select option</option>
+                                <option value="Yes, exactly on time">Yes, exactly on time</option>
+                                <option value="Slightly delayed (under 15 min)">Slightly delayed (under 15 min)</option>
+                                <option value="Moderately delayed (15-30 min)">Moderately delayed (15-30 min)</option>
+                                <option value="Significantly delayed (over 30 min)">Significantly delayed (over 30 min)</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Overall Satisfaction -->
-            <div class="question-group">
-                <div class="question">Overall, how satisfied are you with your visit today?</div>
-                <div class="rating-scale">
-                    <label class="rating-option">
-                        <input type="radio" name="overall_satisfaction" value="1" required>
-                        <div class="rating-content">
-                            <div class="emoji">😞</div>
-                            <div class="rating-number">1</div>
+            <!-- Page 3: Reception Rating -->
+            <div class="survey-page" data-page="3">
+                <div class="survey-content">
+                    <div class="rating-section">
+                        <div class="rating-title">
+                            <span class="rating-title-icon">🏢</span>
+                            How would you rate our Reception/Front Desk service?
                         </div>
-                    </label>
-                    <label class="rating-option">
-                        <input type="radio" name="overall_satisfaction" value="2">
-                        <div class="rating-content">
-                            <div class="emoji">😕</div>
-                            <div class="rating-number">2</div>
+                        <div class="rating-scale">
+                            <label class="rating-option">
+                                <input type="radio" name="reception_rating" value="1">
+                                <div class="rating-content">
+                                    <div class="emoji">😞</div>
+                                    <div class="rating-number">1</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="reception_rating" value="2">
+                                <div class="rating-content">
+                                    <div class="emoji">😕</div>
+                                    <div class="rating-number">2</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="reception_rating" value="3">
+                                <div class="rating-content">
+                                    <div class="emoji">😐</div>
+                                    <div class="rating-number">3</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="reception_rating" value="4">
+                                <div class="rating-content">
+                                    <div class="emoji">🙂</div>
+                                    <div class="rating-number">4</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="reception_rating" value="5">
+                                <div class="rating-content">
+                                    <div class="emoji">😄</div>
+                                    <div class="rating-number">5</div>
+                                </div>
+                            </label>
                         </div>
-                    </label>
-                    <label class="rating-option">
-                        <input type="radio" name="overall_satisfaction" value="3">
-                        <div class="rating-content">
-                            <div class="emoji">😐</div>
-                            <div class="rating-number">3</div>
+                        <div class="rating-labels">
+                            <span>Poor Service</span>
+                            <span>Excellent Service</span>
                         </div>
-                    </label>
-                    <label class="rating-option">
-                        <input type="radio" name="overall_satisfaction" value="4">
-                        <div class="rating-content">
-                            <div class="emoji">🙂</div>
-                            <div class="rating-number">4</div>
-                        </div>
-                    </label>
-                    <label class="rating-option">
-                        <input type="radio" name="overall_satisfaction" value="5">
-                        <div class="rating-content">
-                            <div class="emoji">😄</div>
-                            <div class="rating-number">5</div>
-                        </div>
-                    </label>
-                </div>
-                <div class="rating-labels">
-                    <span>Very Dissatisfied</span>
-                    <span>Very Satisfied</span>
-                </div>
-            </div>
-
-            <!-- Staff Professionalism -->
-            <div class="question-group">
-                <div class="question">How would you rate the professionalism and courtesy of our staff?</div>
-                <div class="rating-scale">
-                    <label class="rating-option">
-                        <input type="radio" name="staff_professionalism" value="1" required>
-                        <div class="rating-content">
-                            <div class="emoji">😞</div>
-                            <div class="rating-number">1</div>
-                        </div>
-                    </label>
-                    <label class="rating-option">
-                        <input type="radio" name="staff_professionalism" value="2">
-                        <div class="rating-content">
-                            <div class="emoji">😕</div>
-                            <div class="rating-number">2</div>
-                        </div>
-                    </label>
-                    <label class="rating-option">
-                        <input type="radio" name="staff_professionalism" value="3">
-                        <div class="rating-content">
-                            <div class="emoji">😐</div>
-                            <div class="rating-number">3</div>
-                        </div>
-                    </label>
-                    <label class="rating-option">
-                        <input type="radio" name="staff_professionalism" value="4">
-                        <div class="rating-content">
-                            <div class="emoji">🙂</div>
-                            <div class="rating-number">4</div>
-                        </div>
-                    </label>
-                    <label class="rating-option">
-                        <input type="radio" name="staff_professionalism" value="5">
-                        <div class="rating-content">
-                            <div class="emoji">😄</div>
-                            <div class="rating-number">5</div>
-                        </div>
-                    </label>
-                </div>
-                <div class="rating-labels">
-                    <span>Poor</span>
-                    <span>Excellent</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Waiting Time -->
-            <div class="question-group">
-                <div class="question">How satisfied are you with your waiting time today?</div>
-                <div class="rating-scale">
-                    <label class="rating-option">
-                        <input type="radio" name="waiting_time" value="1" required>
-                        <div class="rating-content">
-                            <div class="emoji">😞</div>
-                            <div class="rating-number">1</div>
+            <!-- Page 4: Doctor Rating -->
+            <div class="survey-page" data-page="4">
+                <div class="survey-content">
+                    <div class="rating-section">
+                        <div class="rating-title">
+                            <span class="rating-title-icon">👨‍⚕️</span>
+                            How would you rate your Doctor/Healthcare Provider consultation?
                         </div>
-                    </label>
-                    <label class="rating-option">
-                        <input type="radio" name="waiting_time" value="2">
-                        <div class="rating-content">
-                            <div class="emoji">😕</div>
-                            <div class="rating-number">2</div>
+                        <div class="rating-scale">
+                            <label class="rating-option">
+                                <input type="radio" name="doctor_rating" value="1">
+                                <div class="rating-content">
+                                    <div class="emoji">😞</div>
+                                    <div class="rating-number">1</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="doctor_rating" value="2">
+                                <div class="rating-content">
+                                    <div class="emoji">😕</div>
+                                    <div class="rating-number">2</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="doctor_rating" value="3">
+                                <div class="rating-content">
+                                    <div class="emoji">😐</div>
+                                    <div class="rating-number">3</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="doctor_rating" value="4">
+                                <div class="rating-content">
+                                    <div class="emoji">🙂</div>
+                                    <div class="rating-number">4</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="doctor_rating" value="5">
+                                <div class="rating-content">
+                                    <div class="emoji">😄</div>
+                                    <div class="rating-number">5</div>
+                                </div>
+                            </label>
                         </div>
-                    </label>
-                    <label class="rating-option">
-                        <input type="radio" name="waiting_time" value="3">
-                        <div class="rating-content">
-                            <div class="emoji">😐</div>
-                            <div class="rating-number">3</div>
+                        <div class="rating-labels">
+                            <span>Poor Consultation</span>
+                            <span>Excellent Consultation</span>
                         </div>
-                    </label>
-                    <label class="rating-option">
-                        <input type="radio" name="waiting_time" value="4">
-                        <div class="rating-content">
-                            <div class="emoji">🙂</div>
-                            <div class="rating-number">4</div>
-                        </div>
-                    </label>
-                    <label class="rating-option">
-                        <input type="radio" name="waiting_time" value="5">
-                        <div class="rating-content">
-                            <div class="emoji">😄</div>
-                            <div class="rating-number">5</div>
-                        </div>
-                    </label>
-                </div>
-                <div class="rating-labels">
-                    <span>Too Long</span>
-                    <span>Just Right</span>
-                </div>
-            </div>
-
-            <!-- Feeling Heard -->
-            <div class="question-group">
-                <div class="question">Did you feel heard and understood during your appointment?</div>
-                <div class="rating-scale">
-                    <label class="rating-option">
-                        <input type="radio" name="feeling_heard" value="1" required>
-                        <div class="rating-content">
-                            <div class="emoji">😞</div>
-                            <div class="rating-number">1</div>
-                        </div>
-                    </label>
-                    <label class="rating-option">
-                        <input type="radio" name="feeling_heard" value="2">
-                        <div class="rating-content">
-                            <div class="emoji">😕</div>
-                            <div class="rating-number">2</div>
-                        </div>
-                    </label>
-                    <label class="rating-option">
-                        <input type="radio" name="feeling_heard" value="3">
-                        <div class="rating-content">
-                            <div class="emoji">😐</div>
-                            <div class="rating-number">3</div>
-                        </div>
-                    </label>
-                    <label class="rating-option">
-                        <input type="radio" name="feeling_heard" value="4">
-                        <div class="rating-content">
-                            <div class="emoji">🙂</div>
-                            <div class="rating-number">4</div>
-                        </div>
-                    </label>
-                    <label class="rating-option">
-                        <input type="radio" name="feeling_heard" value="5">
-                        <div class="rating-content">
-                            <div class="emoji">😄</div>
-                            <div class="rating-number">5</div>
-                        </div>
-                    </label>
-                </div>
-                <div class="rating-labels">
-                    <span>Not at All</span>
-                    <span>Completely</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Additional Comments -->
-            <div class="comment-section">
-                <label for="comments">💬 Additional Comments</label>
-                <p>Please share any additional thoughts, suggestions, or feedback about your visit today:</p>
-                <textarea id="comments" name="comments" placeholder="Your feedback helps us improve our services. Please share any additional thoughts about your experience..."></textarea>
+            <!-- Page 5: Nursing Rating -->
+            <div class="survey-page" data-page="5">
+                <div class="survey-content">
+                    <div class="rating-section">
+                        <div class="rating-title">
+                            <span class="rating-title-icon">👩‍⚕️</span>
+                            How would you rate our Nursing Services?
+                        </div>
+                        <div class="rating-scale">
+                            <label class="rating-option">
+                                <input type="radio" name="nursing_rating" value="1">
+                                <div class="rating-content">
+                                    <div class="emoji">😞</div>
+                                    <div class="rating-number">1</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="nursing_rating" value="2">
+                                <div class="rating-content">
+                                    <div class="emoji">😕</div>
+                                    <div class="rating-number">2</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="nursing_rating" value="3">
+                                <div class="rating-content">
+                                    <div class="emoji">😐</div>
+                                    <div class="rating-number">3</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="nursing_rating" value="4">
+                                <div class="rating-content">
+                                    <div class="emoji">🙂</div>
+                                    <div class="rating-number">4</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="nursing_rating" value="5">
+                                <div class="rating-content">
+                                    <div class="emoji">😄</div>
+                                    <div class="rating-number">5</div>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="rating-labels">
+                            <span>Poor Care</span>
+                            <span>Excellent Care</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Contact Preferences Section -->
-            <div class="contact-preferences-container">
-                <div class="contact-header">
-                    <div class="contact-title">
-                        <span>📞</span>
+            <!-- Page 6: Overall Satisfaction -->
+            <div class="survey-page" data-page="6">
+                <div class="survey-content">
+                    <div class="rating-section">
+                        <div class="rating-title">
+                            <span class="rating-title-icon">⭐</span>
+                            Overall, how satisfied are you with your visit today? *
+                        </div>
+                        <div class="rating-scale">
+                            <label class="rating-option">
+                                <input type="radio" name="overall_satisfaction" value="1" required>
+                                <div class="rating-content">
+                                    <div class="emoji">😞</div>
+                                    <div class="rating-number">1</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="overall_satisfaction" value="2">
+                                <div class="rating-content">
+                                    <div class="emoji">😕</div>
+                                    <div class="rating-number">2</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="overall_satisfaction" value="3">
+                                <div class="rating-content">
+                                    <div class="emoji">😐</div>
+                                    <div class="rating-number">3</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="overall_satisfaction" value="4">
+                                <div class="rating-content">
+                                    <div class="emoji">🙂</div>
+                                    <div class="rating-number">4</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="overall_satisfaction" value="5">
+                                <div class="rating-content">
+                                    <div class="emoji">😄</div>
+                                    <div class="rating-number">5</div>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="rating-labels">
+                            <span>Very Dissatisfied</span>
+                            <span>Very Satisfied</span>
+                        </div>
+                        <div class="error-message">Please rate your overall satisfaction</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 7: Staff Professionalism -->
+            <div class="survey-page" data-page="7">
+                <div class="survey-content">
+                    <div class="rating-section">
+                        <div class="rating-title">
+                            <span class="rating-title-icon">👥</span>
+                            How would you rate the professionalism and courtesy of our staff? *
+                        </div>
+                        <div class="rating-scale">
+                            <label class="rating-option">
+                                <input type="radio" name="staff_professionalism" value="1" required>
+                                <div class="rating-content">
+                                    <div class="emoji">😞</div>
+                                    <div class="rating-number">1</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="staff_professionalism" value="2">
+                                <div class="rating-content">
+                                    <div class="emoji">😕</div>
+                                    <div class="rating-number">2</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="staff_professionalism" value="3">
+                                <div class="rating-content">
+                                    <div class="emoji">😐</div>
+                                    <div class="rating-number">3</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="staff_professionalism" value="4">
+                                <div class="rating-content">
+                                    <div class="emoji">🙂</div>
+                                    <div class="rating-number">4</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="staff_professionalism" value="5">
+                                <div class="rating-content">
+                                    <div class="emoji">😄</div>
+                                    <div class="rating-number">5</div>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="rating-labels">
+                            <span>Poor</span>
+                            <span>Excellent</span>
+                        </div>
+                        <div class="error-message">Please rate our staff's professionalism</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 8: Waiting Time Satisfaction -->
+            <div class="survey-page" data-page="8">
+                <div class="survey-content">
+                    <div class="rating-section">
+                        <div class="rating-title">
+                            <span class="rating-title-icon">⏰</span>
+                            How satisfied are you with your waiting time today? *
+                        </div>
+                        <div class="rating-scale">
+                            <label class="rating-option">
+                                <input type="radio" name="waiting_time" value="1" required>
+                                <div class="rating-content">
+                                    <div class="emoji">😞</div>
+                                    <div class="rating-number">1</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="waiting_time" value="2">
+                                <div class="rating-content">
+                                    <div class="emoji">😕</div>
+                                    <div class="rating-number">2</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="waiting_time" value="3">
+                                <div class="rating-content">
+                                    <div class="emoji">😐</div>
+                                    <div class="rating-number">3</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="waiting_time" value="4">
+                                <div class="rating-content">
+                                    <div class="emoji">🙂</div>
+                                    <div class="rating-number">4</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="waiting_time" value="5">
+                                <div class="rating-content">
+                                    <div class="emoji">😄</div>
+                                    <div class="rating-number">5</div>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="rating-labels">
+                            <span>Too Long</span>
+                            <span>Just Right</span>
+                        </div>
+                        <div class="error-message">Please rate your satisfaction with wait time</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 9: Feeling Heard -->
+            <div class="survey-page" data-page="9">
+                <div class="survey-content">
+                    <div class="rating-section">
+                        <div class="rating-title">
+                            <span class="rating-title-icon">👂</span>
+                            Did you feel heard and understood during your appointment? *
+                        </div>
+                        <div class="rating-scale">
+                            <label class="rating-option">
+                                <input type="radio" name="feeling_heard" value="1" required>
+                                <div class="rating-content">
+                                    <div class="emoji">😞</div>
+                                    <div class="rating-number">1</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="feeling_heard" value="2">
+                                <div class="rating-content">
+                                    <div class="emoji">😕</div>
+                                    <div class="rating-number">2</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="feeling_heard" value="3">
+                                <div class="rating-content">
+                                    <div class="emoji">😐</div>
+                                    <div class="rating-number">3</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="feeling_heard" value="4">
+                                <div class="rating-content">
+                                    <div class="emoji">🙂</div>
+                                    <div class="rating-number">4</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="feeling_heard" value="5">
+                                <div class="rating-content">
+                                    <div class="emoji">😄</div>
+                                    <div class="rating-number">5</div>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="rating-labels">
+                            <span>Not at All</span>
+                            <span>Completely</span>
+                        </div>
+                        <div class="error-message">Please rate how well you felt heard</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 10: Additional Comments -->
+            <div class="survey-page" data-page="10">
+                <div class="survey-content">
+                    <div class="page-title">
+                        <span class="page-icon">💬</span>
+                        Additional Comments
+                    </div>
+                    <div class="page-description">Please share any additional thoughts, suggestions, or feedback about your visit today</div>
+                    
+                    <div class="comment-section">
+                        <textarea id="comments" name="comments" placeholder="Your feedback helps us improve our services. Please share any additional thoughts about your experience..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 11: Contact Preferences -->
+            <div class="survey-page" data-page="11">
+                <div class="survey-content">
+                    <div class="page-title">
+                        <span class="page-icon">📞</span>
                         Contact Preferences
                     </div>
-                    <div class="contact-subtitle">
-                        Let us know if you'd like follow-up communication
-                    </div>
-                </div>
+                    <div class="page-description">Let us know if you'd like follow-up communication</div>
+                    
+                    <div class="contact-preferences-container">
+                        <div class="contact-main-choice">
+                            <div class="contact-main-label">Would you like us to contact you for follow-up?</div>
+                            <div class="main-choice-options">
+                                <label class="main-choice-item">
+                                    <input type="radio" name="want_contact" value="yes" id="contactYes">
+                                    <span>✅ Yes, please contact me</span>
+                                </label>
+                                <label class="main-choice-item">
+                                    <input type="radio" name="want_contact" value="no" id="contactNo">
+                                    <span>🚫 No, do not contact me</span>
+                                </label>
+                            </div>
+                        </div>
 
-                <!-- Main Choice: Contact or No Contact -->
-                <div class="contact-main-choice">
-                    <div class="contact-main-label">Would you like us to contact you for follow-up?</div>
-                    <div class="main-choice-options">
-                        <label class="main-choice-item">
-                            <input type="radio" name="want_contact" value="yes" id="contactYes">
-                            <span>✅ Yes, please contact me</span>
-                        </label>
-                        <label class="main-choice-item">
-                            <input type="radio" name="want_contact" value="no" id="contactNo">
-                            <span>🚫 No, do not contact me</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Contact Methods (Hidden by default) -->
-                <div class="contact-methods" id="contactMethods">
-                    <div class="contact-methods-label">How would you prefer to be contacted?</div>
-                    <div class="method-options">
-                        <label class="method-item">
-                            <input type="checkbox" name="contact_preference[]" value="email">
-                            <span>📧 Email</span>
-                        </label>
-                        <label class="method-item">
-                            <input type="checkbox" name="contact_preference[]" value="phone">
-                            <span>📞 Phone</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Privacy and Confidentiality -->
-            <div class="privacy-section">
-                <div class="privacy-header">
-                    <span class="privacy-icon">🔒</span>
-                    <div class="privacy-title">Privacy & Confidentiality</div>
-                </div>
-                <div class="privacy-content">
-                    <p style="margin-bottom: 12px;"><strong>Your Privacy Matters:</strong> We are committed to protecting your personal information and ensuring compliance with healthcare privacy regulations.</p>
-                    <ul class="privacy-list">
-                        <li>Your feedback will be used solely for quality improvement purposes</li>
-                        <li>Personal identifiers will be kept secure and confidential</li>
-                        <li>Your responses may be shared with relevant staff for service improvement</li>
-                        <li>You have the right to request deletion of your feedback data</li>
-                    </ul>
-                </div>
-                
-                <div class="consent-box">
-                    <div style="margin-bottom: 16px;">
-                        <label class="form-label">Consent for feedback use:</label>
-                        <div class="consent-item">
-                            <input type="checkbox" name="consent_feedback_use" value="yes" required>
-                            <span style="line-height: 1.4;">I consent to my feedback being used for quality improvement purposes and understand that my personal information will be kept confidential.</span>
+                        <div class="contact-methods" id="contactMethods">
+                            <div class="contact-methods-label">How would you prefer to be contacted?</div>
+                            <div class="method-options">
+                                <label class="method-item">
+                                    <input type="checkbox" name="contact_preference[]" value="email">
+                                    <span>📧 Email</span>
+                                </label>
+                                <label class="method-item">
+                                    <input type="checkbox" name="contact_preference[]" value="phone">
+                                    <span>📞 Phone</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="data-notice">
-                    <strong>Data Protection Notice:</strong> This feedback system complies with healthcare privacy standards. For questions about how your data is used or to request data deletion, please contact our Privacy Officer at privacy@medicalpractice.com
-                </div>
             </div>
 
-            <button type="submit" class="submit-btn">Submit Feedback</button>
+            <!-- Page 12: Privacy & Consent -->
+            <div class="survey-page" data-page="12">
+                <div class="survey-content">
+                    <div class="page-title">
+                        <span class="page-icon">🔒</span>
+                        Privacy & Consent
+                    </div>
+                    <div class="page-description">Your privacy matters to us. Please review and provide consent below</div>
+                    
+                    <div class="privacy-section">
+                        <div class="privacy-header">
+                            <span class="privacy-icon">🔒</span>
+                            <div class="privacy-title">Privacy & Confidentiality</div>
+                        </div>
+                        <div class="privacy-content">
+                            <p style="margin-bottom: 12px;"><strong>Your Privacy Matters:</strong> We are committed to protecting your personal information and ensuring compliance with healthcare privacy regulations.</p>
+                            <ul class="privacy-list">
+                                <li>Your feedback will be used solely for quality improvement purposes</li>
+                                <li>Personal identifiers will be kept secure and confidential</li>
+                                <li>Your responses may be shared with relevant staff for service improvement</li>
+                                <li>You have the right to request deletion of your feedback data</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="consent-box">
+                            <div style="margin-bottom: 16px;">
+                                <label class="form-label">Consent for feedback use: *</label>
+                                <div class="consent-item">
+                                    <input type="checkbox" name="consent_feedback_use" value="yes" required>
+                                    <span style="line-height: 1.4;">I consent to my feedback being used for quality improvement purposes and understand that my personal information will be kept confidential.</span>
+                                </div>
+                                <div class="error-message">You must provide consent to proceed</div>
+                            </div>
+                        </div>
+
+                        <div class="data-notice">
+                            <strong>Data Protection Notice:</strong> This feedback system complies with healthcare privacy standards. For questions about how your data is used or to request data deletion, please contact our Privacy Officer at privacy@medicalpractice.com
+                        </div>
+                    </div>
+                </div>
+            </div>
         </form>
 
+        <!-- Navigation -->
+        <div class="navigation">
+            <button type="button" id="prevBtn" class="nav-btn secondary" disabled>
+                ← Previous
+            </button>
+            <button type="button" id="nextBtn" class="nav-btn">
+                Next →
+            </button>
+            <button type="button" id="submitBtn" class="submit-btn" style="display: none;">
+                Submit Feedback ✓
+            </button>
+        </div>
+
         <div id="thankYou" class="thank-you">
+            <div class="survey-complete-badge">✨ Survey Complete ✨</div>
             <div class="check-icon">✅</div>
             <h2>Thank You for Your Feedback!</h2>
-            <p>We truly appreciate you taking the time to share your experience with us. Your feedback helps us continue to improve our care and service. We look forward to serving you again in the future.</p>
+            <p>We truly appreciate you taking the time to share your experience with us. Your feedback helps us continue to improve our care and service quality. We look forward to serving you again in the future.</p>
+            
+            <div class="thank-you-actions">
+                <button id="restartBtn" class="restart-btn">
+                    🔄 Start New Survey
+                </button>
+                
+                <div class="auto-restart-info">
+                    ⏱️ Automatically restarting in <span class="countdown" id="countdown">30</span> seconds
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Consolidated survey functionality
-        class SurveyManager {
+        class MultiPageSurvey {
             constructor() {
+                this.currentPage = 1;
+                this.totalPages = 12;
+                this.countdownTimer = null;
+                this.idleTimer = null;
+                this.idleTimeoutDuration = 5 * 60 * 1000; // 5 minutes
                 this.init();
             }
 
             init() {
-                // Wait for DOM to be ready
                 if (document.readyState === 'loading') {
                     document.addEventListener('DOMContentLoaded', () => this.setupEventListeners());
                 } else {
@@ -1164,26 +1866,248 @@
             }
 
             setupEventListeners() {
+                // Navigation buttons
+                document.getElementById('nextBtn').addEventListener('click', () => this.nextPage());
+                document.getElementById('prevBtn').addEventListener('click', () => this.prevPage());
+                document.getElementById('submitBtn').addEventListener('click', () => this.submitForm());
+                document.getElementById('restartBtn').addEventListener('click', () => this.restartSurvey());
+
                 // Department selector
                 const departmentSelect = document.getElementById('department');
                 if (departmentSelect) {
                     departmentSelect.addEventListener('change', () => this.toggleOtherDepartment());
                 }
 
-                // Contact preferences
+                // Setup responsive interactions
+                this.setupResponsiveInteractions();
                 this.setupContactPreferences();
-
-                // Consent checkbox
                 this.setupConsentCheckbox();
+                this.setupRatingEffects();
+                this.setupErrorClearing();
+                this.setupIdleTracking();
 
-                // Form submission
-                const form = document.getElementById('surveyForm');
-                if (form) {
-                    form.addEventListener('submit', (e) => this.handleSubmit(e));
+                // Update initial state
+                this.updateProgressBar();
+                this.updateNavigation();
+            }
+
+            setupResponsiveInteractions() {
+                // Detect if user is on a touch device
+                const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+                
+                if (isTouchDevice) {
+                    // Add touch-specific optimizations
+                    document.body.classList.add('touch-device');
+                    
+                    // Prevent zoom on form inputs for iOS
+                    const inputs = document.querySelectorAll('input, select, textarea');
+                    inputs.forEach(input => {
+                        input.addEventListener('focus', (e) => {
+                            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+                                // Scroll input into view on mobile
+                                setTimeout(() => {
+                                    e.target.scrollIntoView({
+                                        behavior: 'smooth',
+                                        block: 'center'
+                                    });
+                                }, 300);
+                            }
+                        });
+                    });
                 }
 
-                // Rating hover effects
-                this.setupRatingEffects();
+                // Handle orientation changes
+                window.addEventListener('orientationchange', () => {
+                    setTimeout(() => {
+                        this.adjustForOrientation();
+                    }, 100);
+                });
+
+                // Handle window resize
+                let resizeTimeout;
+                window.addEventListener('resize', () => {
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(() => {
+                        this.adjustForScreenSize();
+                    }, 150);
+                });
+
+                // Initial adjustments
+                this.adjustForScreenSize();
+            }
+
+            adjustForOrientation() {
+                // Adjust layout for landscape on mobile
+                const isLandscape = window.innerHeight < window.innerWidth;
+                const isMobile = window.innerWidth <= 768;
+                
+                if (isLandscape && isMobile) {
+                    document.body.classList.add('landscape-mobile');
+                } else {
+                    document.body.classList.remove('landscape-mobile');
+                }
+            }
+
+            adjustForScreenSize() {
+                const container = document.querySelector('.container');
+                const screenWidth = window.innerWidth;
+                const screenHeight = window.innerHeight;
+                
+                // Adjust container for very small screens
+                if (screenWidth <= 320) {
+                    container.style.margin = '5px auto';
+                    container.style.borderRadius = '8px';
+                } else if (screenWidth <= 768) {
+                    container.style.margin = '10px auto';
+                    container.style.borderRadius = '12px';
+                } else {
+                    container.style.margin = '0 auto';
+                    container.style.borderRadius = '16px';
+                }
+
+                // Adjust min-height for very short screens
+                if (screenHeight <= 500) {
+                    container.style.minHeight = 'auto';
+                } else {
+                    container.style.minHeight = 'calc(100vh - 20px)';
+                }
+            }
+
+            validateCurrentPage() {
+                const currentPageElement = document.querySelector(`.survey-page[data-page="${this.currentPage}"]`);
+                let isValid = true;
+
+                // Clear all error states first
+                currentPageElement.querySelectorAll('.error-message').forEach(errorMsg => {
+                    errorMsg.style.display = 'none';
+                });
+                currentPageElement.querySelectorAll('.error').forEach(field => {
+                    field.classList.remove('error');
+                });
+
+                // Check required form fields
+                const requiredFormFields = currentPageElement.querySelectorAll('input[required]:not([type="radio"]):not([type="checkbox"]), select[required], textarea[required]');
+                requiredFormFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.classList.add('error');
+                        const errorMsg = field.parentElement.querySelector('.error-message');
+                        if (errorMsg) {
+                            errorMsg.style.display = 'block';
+                        }
+                    }
+                });
+
+                // Check required radio groups
+                const radioGroups = {};
+                const allRadios = currentPageElement.querySelectorAll('input[type="radio"]');
+                
+                allRadios.forEach(radio => {
+                    if (!radioGroups[radio.name]) {
+                        radioGroups[radio.name] = [];
+                    }
+                    radioGroups[radio.name].push(radio);
+                });
+
+                Object.keys(radioGroups).forEach(groupName => {
+                    const groupRadios = radioGroups[groupName];
+                    const hasRequiredRadio = groupRadios.some(radio => radio.hasAttribute('required'));
+                    
+                    if (hasRequiredRadio) {
+                        const hasSelection = groupRadios.some(radio => radio.checked);
+                        if (!hasSelection) {
+                            isValid = false;
+                            const ratingSection = groupRadios[0].closest('.rating-section');
+                            const errorMsg = ratingSection?.querySelector('.error-message');
+                            if (errorMsg) {
+                                errorMsg.style.display = 'block';
+                            }
+                        }
+                    }
+                });
+
+                // Check required checkboxes
+                const requiredCheckboxes = currentPageElement.querySelectorAll('input[type="checkbox"][required]');
+                requiredCheckboxes.forEach(checkbox => {
+                    if (!checkbox.checked) {
+                        isValid = false;
+                        const errorMsg = checkbox.closest('.consent-box')?.querySelector('.error-message');
+                        if (errorMsg) {
+                            errorMsg.style.display = 'block';
+                        }
+                    }
+                });
+
+                // Email validation
+                const emailField = currentPageElement.querySelector('input[type="email"]');
+                if (emailField && emailField.value) {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(emailField.value)) {
+                        isValid = false;
+                        emailField.classList.add('error');
+                        const errorMsg = emailField.parentElement.querySelector('.error-message');
+                        if (errorMsg) {
+                            errorMsg.style.display = 'block';
+                        }
+                    }
+                }
+
+                return isValid;
+            }
+
+            nextPage() {
+                if (this.validateCurrentPage()) {
+                    if (this.currentPage < this.totalPages) {
+                        this.currentPage++;
+                        this.showPage(this.currentPage);
+                        this.updateProgressBar();
+                        this.updateNavigation();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                }
+            }
+
+            prevPage() {
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                    this.showPage(this.currentPage);
+                    this.updateProgressBar();
+                    this.updateNavigation();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }
+
+            showPage(pageNumber) {
+                document.querySelectorAll('.survey-page').forEach(page => {
+                    page.classList.remove('active');
+                });
+
+                const targetPage = document.querySelector(`.survey-page[data-page="${pageNumber}"]`);
+                if (targetPage) {
+                    targetPage.classList.add('active');
+                }
+            }
+
+            updateProgressBar() {
+                const progress = (this.currentPage / this.totalPages) * 100;
+                document.getElementById('progressFill').style.width = `${progress}%`;
+                document.getElementById('progressText').textContent = `Step ${this.currentPage} of ${this.totalPages}`;
+            }
+
+            updateNavigation() {
+                const prevBtn = document.getElementById('prevBtn');
+                const nextBtn = document.getElementById('nextBtn');
+                const submitBtn = document.getElementById('submitBtn');
+
+                prevBtn.disabled = this.currentPage === 1;
+
+                if (this.currentPage === this.totalPages) {
+                    nextBtn.style.display = 'none';
+                    submitBtn.style.display = 'block';
+                } else {
+                    nextBtn.style.display = 'block';
+                    submitBtn.style.display = 'none';
+                }
             }
 
             toggleOtherDepartment() {
@@ -1211,11 +2135,7 @@
                 const methodItems = document.querySelectorAll('.method-item');
                 const contactCheckboxes = document.querySelectorAll('input[name="contact_preference[]"]');
 
-                // Handle main choice changes
                 const handleContactChoice = () => {
-                    console.log('Contact choice changed'); // Debug log
-                    
-                    // Update visual state of main choice items
                     mainChoiceItems.forEach(item => {
                         item.classList.remove('selected');
                         const input = item.querySelector('input[type="radio"]');
@@ -1224,14 +2144,10 @@
                         }
                     });
 
-                    // Show/hide contact methods
                     if (contactYes && contactYes.checked) {
-                        console.log('Showing contact methods'); // Debug log
                         contactMethods.classList.add('show');
                     } else {
-                        console.log('Hiding contact methods'); // Debug log
                         contactMethods.classList.remove('show');
-                        // Clear all contact method selections
                         contactCheckboxes.forEach(cb => {
                             cb.checked = false;
                         });
@@ -1241,9 +2157,7 @@
                     }
                 };
 
-                // Handle contact method changes
                 const handleMethodChange = () => {
-                    console.log('Method selection changed'); // Debug log
                     methodItems.forEach(item => {
                         item.classList.remove('selected');
                         const input = item.querySelector('input[type="checkbox"]');
@@ -1253,71 +2167,34 @@
                     });
                 };
 
-                // Attach event listeners to radio buttons
-                if (contactYes) {
-                    contactYes.addEventListener('change', handleContactChoice);
-                    contactYes.addEventListener('click', handleContactChoice);
-                }
-                if (contactNo) {
-                    contactNo.addEventListener('change', handleContactChoice);
-                    contactNo.addEventListener('click', handleContactChoice);
-                }
+                if (contactYes) contactYes.addEventListener('change', handleContactChoice);
+                if (contactNo) contactNo.addEventListener('change', handleContactChoice);
 
-                // Handle contact method checkbox changes
                 contactCheckboxes.forEach(checkbox => {
                     checkbox.addEventListener('change', handleMethodChange);
-                    checkbox.addEventListener('click', handleMethodChange);
                 });
 
-                // Handle clicks on main choice labels - make entire box clickable
                 mainChoiceItems.forEach(item => {
                     item.addEventListener('click', (e) => {
-                        e.preventDefault(); // Prevent default radio behavior
-                        e.stopPropagation(); // Stop event bubbling
-                        
+                        e.preventDefault();
                         const radio = item.querySelector('input[type="radio"]');
                         if (radio) {
-                            // Set this radio as checked
                             radio.checked = true;
                             handleContactChoice();
                         }
                     });
-                    
-                    // Also prevent the radio button itself from handling clicks
-                    const radio = item.querySelector('input[type="radio"]');
-                    if (radio) {
-                        radio.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                        });
-                    }
                 });
 
-                // Handle clicks on method item labels - make entire box clickable
                 methodItems.forEach(item => {
                     item.addEventListener('click', (e) => {
-                        e.preventDefault(); // Prevent default checkbox behavior
-                        e.stopPropagation(); // Stop event bubbling
-                        
+                        e.preventDefault();
                         const checkbox = item.querySelector('input[type="checkbox"]');
                         if (checkbox) {
-                            // Toggle the checkbox state
                             checkbox.checked = !checkbox.checked;
                             handleMethodChange();
                         }
                     });
-                    
-                    // Also prevent the checkbox itself from handling clicks
-                    const checkbox = item.querySelector('input[type="checkbox"]');
-                    if (checkbox) {
-                        checkbox.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                        });
-                    }
                 });
-
-                console.log('Contact preferences setup complete'); // Debug log
             }
 
             setupConsentCheckbox() {
@@ -1325,88 +2202,236 @@
                 const consentCheckbox = document.querySelector('input[name="consent_feedback_use"]');
 
                 if (consentItem && consentCheckbox) {
-                    // Handle clicks on the entire consent area
                     consentItem.addEventListener('click', (e) => {
-                        e.preventDefault(); // Prevent default checkbox behavior
-                        e.stopPropagation(); // Stop event bubbling
-                        
-                        // Toggle the checkbox state
+                        e.preventDefault();
                         consentCheckbox.checked = !consentCheckbox.checked;
                         
-                        console.log('Consent toggled:', consentCheckbox.checked); // Debug log
+                        if (consentCheckbox.checked) {
+                            consentCheckbox.classList.remove('error');
+                            const errorMsg = consentCheckbox.closest('.consent-box').querySelector('.error-message');
+                            if (errorMsg) {
+                                errorMsg.style.display = 'none';
+                            }
+                        }
                     });
-
-                    // Prevent the checkbox itself from handling clicks
-                    consentCheckbox.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    });
-
-                    console.log('Consent checkbox setup complete'); // Debug log
                 }
             }
 
             setupRatingEffects() {
                 document.querySelectorAll('.rating-option').forEach(option => {
-                    option.addEventListener('mouseenter', function() {
-                        if (!this.querySelector('input').checked) {
-                            this.style.transform = 'translateY(-2px)';
-                        }
-                    });
-                    
-                    option.addEventListener('mouseleave', function() {
-                        if (!this.querySelector('input').checked) {
-                            this.style.transform = 'translateY(0)';
+                    option.addEventListener('click', (e) => {
+                        const radio = option.querySelector('input[type="radio"]');
+                        if (radio) {
+                            // Clear all selections in this group first
+                            document.querySelectorAll(`input[name="${radio.name}"]`).forEach(r => {
+                                r.checked = false;
+                            });
+                            
+                            // Select this radio
+                            radio.checked = true;
+                            
+                            // Clear error immediately
+                            const ratingSection = radio.closest('.rating-section');
+                            const errorMsg = ratingSection?.querySelector('.error-message');
+                            if (errorMsg) {
+                                errorMsg.style.display = 'none';
+                            }
                         }
                     });
                 });
             }
 
-            saveSurveyResponse(responseData) {
-                // In a real application, this would be sent to a server
-                // For now, just store in memory and log
-                const newResponse = {
-                    id: 'SR' + Date.now(),
-                    timestamp: new Date().toISOString(),
-                    submittedAt: new Date().toLocaleString(),
-                    ...responseData
-                };
+            setupIdleTracking() {
+                const resetEvents = ['click', 'keypress', 'scroll', 'mousemove', 'touchstart'];
+                
+                resetEvents.forEach(eventType => {
+                    document.addEventListener(eventType, () => {
+                        if (!document.getElementById('thankYou').classList.contains('show')) {
+                            this.resetIdleTimer();
+                        }
+                    }, true);
+                });
 
-                console.log('Survey response saved:', newResponse);
-                return newResponse;
+                this.resetIdleTimer();
             }
 
-            handleSubmit(e) {
-                e.preventDefault();
+            resetIdleTimer() {
+                if (this.idleTimer) {
+                    clearTimeout(this.idleTimer);
+                }
+
+                if (!document.getElementById('thankYou').classList.contains('show')) {
+                    this.idleTimer = setTimeout(() => {
+                        this.restartSurvey();
+                    }, this.idleTimeoutDuration);
+                }
+            }
+
+            setupErrorClearing() {
+                document.querySelectorAll('input, select, textarea').forEach(input => {
+                    const clearError = () => {
+                        input.classList.remove('error');
+                        const errorMsg = input.parentElement.querySelector('.error-message');
+                        if (errorMsg) {
+                            errorMsg.style.display = 'none';
+                        }
+                    };
+
+                    input.addEventListener('input', clearError);
+                    input.addEventListener('change', clearError);
+                });
+            }
+
+            submitForm() {
+                if (this.validateCurrentPage()) {
+                    if (this.idleTimer) {
+                        clearTimeout(this.idleTimer);
+                    }
+                    
+                    const form = document.getElementById('surveyForm');
+                    const formData = new FormData(form);
+                    const responseData = Object.fromEntries(formData);
+                    
+                    // Handle checkbox arrays
+                    const contactPreferences = formData.getAll('contact_preference[]');
+                    responseData.contact_preference_array = contactPreferences;
+                    
+                    // Handle contact preference logic
+                    responseData.want_contact = formData.get('want_contact') || 'not_specified';
+                    if (responseData.want_contact === 'no') {
+                        responseData.contact_preference_array = ['no_contact'];
+                    }
+                    
+                    // Add submission timestamp
+                    responseData.submission_timestamp = new Date().toISOString();
+                    responseData.submission_date = new Date().toLocaleDateString();
+                    responseData.submission_time = new Date().toLocaleTimeString();
+                    
+                    console.log('🎉 Survey Successfully Submitted!');
+                    console.log('📊 Survey Response Data:', responseData);
+                    
+                    // Show success animation
+                    this.showThankYouPage();
+                }
+            }
+
+            showThankYouPage() {
+                // Hide form container with fade effect
+                const container = document.querySelector('.container');
+                container.style.transition = 'opacity 0.5s ease-out';
+                container.style.opacity = '0';
                 
-                // Collect form data
-                const formData = new FormData(e.target);
-                const responseData = Object.fromEntries(formData);
+                setTimeout(() => {
+                    container.style.display = 'none';
+                    
+                    // Show thank you page with animation
+                    const thankYou = document.getElementById('thankYou');
+                    thankYou.classList.add('show');
+                    thankYou.style.opacity = '0';
+                    thankYou.style.transform = 'translateY(30px)';
+                    
+                    setTimeout(() => {
+                        thankYou.style.transition = 'all 0.6s ease-out';
+                        thankYou.style.opacity = '1';
+                        thankYou.style.transform = 'translateY(0)';
+                    }, 100);
+                    
+                    this.startCountdown();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 500);
+            }
+
+            startCountdown() {
+                let timeLeft = 30;
+                const countdownElement = document.getElementById('countdown');
+                const restartInfo = document.querySelector('.auto-restart-info');
                 
-                // Handle checkbox arrays
-                const contactPreferences = formData.getAll('contact_preference[]');
-                responseData.contact_preference_array = contactPreferences;
+                // Add pulsing animation to countdown
+                restartInfo.style.animation = 'pulse 2s ease-in-out infinite';
                 
-                // Handle contact preference logic
-                responseData.want_contact = formData.get('want_contact') || 'not_specified';
-                if (responseData.want_contact === 'no') {
-                    responseData.contact_preference_array = ['no_contact'];
+                const timer = setInterval(() => {
+                    timeLeft--;
+                    countdownElement.textContent = timeLeft;
+                    
+                    // Change color when time is running out
+                    if (timeLeft <= 10) {
+                        countdownElement.style.background = 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)';
+                        restartInfo.style.animation = 'pulse 1s ease-in-out infinite';
+                    }
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        this.restartSurvey();
+                    }
+                }, 1000);
+                
+                this.countdownTimer = timer;
+            }
+
+            restartSurvey() {
+                console.log('🔄 Restarting Survey...');
+                
+                if (this.countdownTimer) {
+                    clearInterval(this.countdownTimer);
                 }
                 
-                // Save the response
-                this.saveSurveyResponse(responseData);
+                if (this.idleTimer) {
+                    clearTimeout(this.idleTimer);
+                }
                 
-                // Hide form and show thank you
-                e.target.style.display = 'none';
-                document.getElementById('thankYou').classList.add('show');
+                // Animate thank you page out
+                const thankYou = document.getElementById('thankYou');
+                thankYou.style.transition = 'all 0.5s ease-in';
+                thankYou.style.opacity = '0';
+                thankYou.style.transform = 'translateY(-30px)';
                 
-                // Scroll to top
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                setTimeout(() => {
+                    // Reset form
+                    document.getElementById('surveyForm').reset();
+                    
+                    // Clear all error states and selections
+                    document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+                    document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+                    document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+                    document.querySelectorAll('.show').forEach(el => el.classList.remove('show'));
+                    
+                    // Reset to first page
+                    this.currentPage = 1;
+                    this.showPage(1);
+                    this.updateProgressBar();
+                    this.updateNavigation();
+                    
+                    // Hide thank you and show form with animation
+                    thankYou.classList.remove('show');
+                    thankYou.style.transform = 'translateY(0)';
+                    
+                    const container = document.querySelector('.container');
+                    container.style.display = 'block';
+                    container.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        container.style.transition = 'opacity 0.5s ease-in';
+                        container.style.opacity = '1';
+                    }, 100);
+                    
+                    // Reset countdown display
+                    const countdownElement = document.getElementById('countdown');
+                    countdownElement.textContent = '30';
+                    countdownElement.style.background = 'linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%)';
+                    
+                    const restartInfo = document.querySelector('.auto-restart-info');
+                    restartInfo.style.animation = 'none';
+                    
+                    this.resetIdleTimer();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    
+                    console.log('✅ Survey Reset Complete - Ready for new response');
+                }, 500);
             }
         }
 
-        // Initialize the survey manager
-        new SurveyManager();
+        // Initialize the survey
+        new MultiPageSurvey();
     </script>
 </body>
 </html>
