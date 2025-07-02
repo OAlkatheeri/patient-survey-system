@@ -24,6 +24,8 @@
             justify-content: center;
             align-items: center;
             padding: clamp(12px, 3vw, 20px);
+            transform: scale(0.9);
+            transform-origin: center center;
         }
 
         .container {
@@ -718,6 +720,8 @@
             pointer-events: none;
             padding: clamp(16px, 4vw, 24px);
             transition: all 0.5s ease;
+            transform: scale(0.9);
+            transform-origin: center center;
         }
 
         .thank-you.show {
@@ -2028,9 +2032,13 @@
                     const phoneLabel = phoneOption?.closest('.method-item');
                     
                     if (phoneInput && phoneOption && phoneLabel) {
-                        const hasPhoneNumber = phoneInput.value.trim() !== '';
+                        const phoneValue = phoneInput.value.trim();
+                        // Updated logic to also exclude "+9715"
+                        const hasValidPhoneNumber = phoneValue !== '' && 
+                                                   phoneValue !== '+971' && 
+                                                   phoneValue !== '+9715';
                         
-                        if (hasPhoneNumber) {
+                        if (hasValidPhoneNumber) {
                             // Show phone option
                             phoneLabel.style.display = 'flex';
                             phoneOption.disabled = false;
@@ -2349,21 +2357,136 @@
                         }
 
                         const formData = new FormData(form);
-                        const responseData = Object.fromEntries(formData.entries());
+                        
+                        // Create comprehensive response data for admin
+                        const responseData = {
+                            // Unique identifier for this response
+                            response_id: 'SURVEY_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                            
+                            // Patient Information
+                            patient_info: {
+                                full_name: formData.get('patient_name') || '',
+                                email: formData.get('patient_email') || '',
+                                phone: formData.get('patient_phone') || '',
+                                visit_date: formData.get('visit_date') || '',
+                                visit_time: formData.get('visit_time') || '',
+                                department_visited: formData.get('department_visited') || '',
+                                other_department: formData.get('other_department') || ''
+                            },
+                            
+                            // Experience Ratings & Feedback
+                            experience_data: {
+                                wait_time_actual: formData.get('wait_time_actual') || '',
+                                appointment_timeliness: formData.get('appointment_timeliness') || '',
+                                reception_rating: parseInt(formData.get('reception_rating')) || 0,
+                                doctor_rating: parseInt(formData.get('doctor_rating')) || 0,
+                                nursing_rating: parseInt(formData.get('nursing_rating')) || 0,
+                                overall_satisfaction: parseInt(formData.get('overall_satisfaction')) || 0,
+                                staff_professionalism: parseInt(formData.get('staff_professionalism')) || 0,
+                                additional_comments: formData.get('comments') || ''
+                            },
+                            
+                            // Contact Preferences (detailed for admin)
+                            contact_preferences: {
+                                wants_contact: formData.get('want_contact') || 'not_specified',
+                                contact_methods: [],
+                                contact_status: '',
+                                phone_available: false,
+                                email_available: false
+                            },
+                            
+                            // Privacy & Consent
+                            privacy_consent: {
+                                feedback_use_consent: formData.get('consent_feedback_use') === 'yes',
+                                consent_timestamp: new Date().toISOString()
+                            },
+                            
+                            // Metadata
+                            metadata: {
+                                submission_timestamp: new Date().toISOString(),
+                                submission_date: new Date().toLocaleDateString('en-US'),
+                                submission_time: new Date().toLocaleTimeString('en-US'),
+                                survey_version: '1.0',
+                                user_agent: navigator.userAgent,
+                                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                            }
+                        };
 
-                        // Handle checkbox arrays, only include enabled options
-                        const enabledContactMethods = Array.from(form.querySelectorAll('input[name="contact_preference[]"]:not([disabled]):checked')).map(cb => cb.value);
-                        responseData.contact_preference_array = enabledContactMethods;
-                        responseData.want_contact = formData.get('want_contact') || 'not_specified';
-
-                        // If "no" contact, override
-                        if (responseData.want_contact === 'no') {
-                            responseData.contact_preference_array = ['no_contact'];
+                        // Process contact preferences in detail
+                        const phoneValue = formData.get('patient_phone') || '';
+                        const emailValue = formData.get('patient_email') || '';
+                        
+                        // Check if valid contact methods are available
+                        responseData.contact_preferences.phone_available = phoneValue !== '' && 
+                                                                          phoneValue !== '+971' && 
+                                                                          phoneValue !== '+9715';
+                        responseData.contact_preferences.email_available = emailValue !== '';
+                        
+                        // Get selected contact methods
+                        const selectedMethods = Array.from(form.querySelectorAll('input[name="contact_preference[]"]:checked')).map(cb => cb.value);
+                        responseData.contact_preferences.contact_methods = selectedMethods;
+                        
+                        // Determine contact status for admin
+                        if (responseData.contact_preferences.wants_contact === 'no') {
+                            responseData.contact_preferences.contact_status = 'DO_NOT_CONTACT';
+                        } else if (responseData.contact_preferences.wants_contact === 'yes') {
+                            if (selectedMethods.length === 0) {
+                                responseData.contact_preferences.contact_status = 'WANTS_CONTACT_NO_METHOD_SELECTED';
+                            } else {
+                                responseData.contact_preferences.contact_status = 'WANTS_CONTACT_METHODS_SELECTED';
+                            }
+                        } else {
+                            responseData.contact_preferences.contact_status = 'CONTACT_PREFERENCE_NOT_SPECIFIED';
+                        }
+                        
+                        // Calculate average rating for admin dashboard
+                        const ratings = [
+                            responseData.experience_data.reception_rating,
+                            responseData.experience_data.doctor_rating,
+                            responseData.experience_data.nursing_rating,
+                            responseData.experience_data.overall_satisfaction,
+                            responseData.experience_data.staff_professionalism
+                        ].filter(rating => rating > 0);
+                        
+                        responseData.experience_data.average_rating = ratings.length > 0 
+                            ? (ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length).toFixed(2)
+                            : 0;
+                        
+                        // Determine satisfaction level for admin
+                        const overallRating = responseData.experience_data.overall_satisfaction;
+                        if (overallRating >= 4) {
+                            responseData.experience_data.satisfaction_level = 'HIGH';
+                        } else if (overallRating >= 3) {
+                            responseData.experience_data.satisfaction_level = 'MEDIUM';
+                        } else if (overallRating >= 1) {
+                            responseData.experience_data.satisfaction_level = 'LOW';
+                        } else {
+                            responseData.experience_data.satisfaction_level = 'NOT_RATED';
                         }
 
-                        responseData.submission_timestamp = new Date().toISOString();
+                        // Log comprehensive data for admin system
+                        console.log("📤 COMPREHENSIVE SURVEY DATA FOR ADMIN:", responseData);
+                        console.log("📊 ADMIN SUMMARY:", {
+                            patient: responseData.patient_info.full_name,
+                            email: responseData.patient_info.email,
+                            phone: responseData.patient_info.phone,
+                            visit_date: responseData.patient_info.visit_date,
+                            overall_satisfaction: responseData.experience_data.overall_satisfaction + '/5',
+                            average_rating: responseData.experience_data.average_rating + '/5',
+                            satisfaction_level: responseData.experience_data.satisfaction_level,
+                            wants_contact: responseData.contact_preferences.wants_contact,
+                            contact_methods: responseData.contact_preferences.contact_methods.join(', ') || 'None',
+                            contact_status: responseData.contact_preferences.contact_status,
+                            has_comments: responseData.experience_data.additional_comments.length > 0
+                        });
 
-                        console.log("📤 SUBMITTED:", responseData);
+                        // TODO: Send responseData to admin backend
+                        // Example: 
+                        // await fetch('/api/survey-responses', {
+                        //     method: 'POST',
+                        //     headers: { 'Content-Type': 'application/json' },
+                        //     body: JSON.stringify(responseData)
+                        // });
 
                         // Show thank-you page
                         setTimeout(() => {
