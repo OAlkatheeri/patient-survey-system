@@ -3,6 +3,557 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Connection Test</title>
+    
+    <!-- Supabase CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.3/umd/index.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c5aa0;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #64748b;
+            font-size: 16px;
+        }
+
+        .test-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #e5e7eb;
+            background: #f8fafc;
+        }
+
+        .test-section.loading {
+            border-color: #f59e0b;
+            background: #fef3c7;
+        }
+
+        .test-section.success {
+            border-color: #10b981;
+            background: #d1fae5;
+        }
+
+        .test-section.error {
+            border-color: #ef4444;
+            background: #fee2e2;
+        }
+
+        .test-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .test-result {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f4f6;
+            border-top: 2px solid #f59e0b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .credentials {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 20px auto 0;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(44, 90, 160, 0.3);
+        }
+
+        .btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .status-icon {
+            font-size: 18px;
+        }
+
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .warning { color: #f59e0b; }
+
+        .next-steps {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border: 2px solid #2c5aa0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .next-steps h3 {
+            color: #2c5aa0;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .next-steps ul {
+            color: #1e293b;
+            padding-left: 20px;
+        }
+
+        .next-steps li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .url-box {
+            background: white;
+            border: 2px solid #2c5aa0;
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #2c5aa0;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Supabase Connection Test</h1>
+            <p>Testing your Patient Survey System database connection</p>
+        </div>
+
+        <!-- Test 1: Supabase Client Loading -->
+        <div id="test1" class="test-section loading">
+            <div class="test-title">
+                <span class="spinner"></span>
+                1. Checking Supabase Client Loading
+            </div>
+            <div class="test-result">
+                Verifying that Supabase JavaScript library is loaded from CDN...
+            </div>
+        </div>
+
+        <!-- Test 2: Configuration -->
+        <div id="test2" class="test-section">
+            <div class="test-title">
+                <span class="status-icon">⏳</span>
+                2. Verifying Configuration
+            </div>
+            <div class="test-result">
+                Waiting for client loading test...
+            </div>
+        </div>
+
+        <!-- Test 3: Database Connection -->
+        <div id="test3" class="test-section">
+            <div class="test-title">
+                <span class="status-icon">⏳</span>
+                3. Testing Database Connection
+            </div>
+            <div class="test-result">
+                Waiting for configuration test...
+            </div>
+        </div>
+
+        <!-- Test 4: Authentication System -->
+        <div id="test4" class="test-section">
+            <div class="test-title">
+                <span class="status-icon">⏳</span>
+                4. Testing Authentication System
+            </div>
+            <div class="test-result">
+                Waiting for database test...
+            </div>
+        </div>
+
+        <!-- Test 5: Database Tables -->
+        <div id="test5" class="test-section">
+            <div class="test-title">
+                <span class="status-icon">⏳</span>
+                5. Checking Database Tables
+            </div>
+            <div class="test-result">
+                Waiting for auth test...
+            </div>
+        </div>
+
+        <button id="retestBtn" class="btn" onclick="runAllTests()" disabled>
+            🔄 Run Tests Again
+        </button>
+
+        <div id="nextSteps" class="next-steps" style="display: none;">
+            <h3>🎉 What's Next?</h3>
+            <ul>
+                <li><strong>Access your admin dashboard:</strong></li>
+                <div class="url-box">https://oalkatheeri.github.io/patient-survey-system/admin.html</div>
+                <li><strong>Create your first admin user</strong> in the Supabase dashboard</li>
+                <li><strong>Set up your database tables</strong> using the SQL schema</li>
+                <li><strong>Test the full admin login</strong> functionality</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Your actual Supabase credentials
+        const SUPABASE_CONFIG = {
+            url: 'https://haeephlyfcoxrioohhjj.supabase.co',
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhZWVwaGx5ZmNveHJpb29oaGpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0ODE4MDksImV4cCI6MjA2NzA1NzgwOX0.YqSBhcZA6zu2PFIidZl7Qt6Paqim8kMOimqHF9OfLRQ'
+        };
+
+        let supabaseClient = null;
+        let testResults = {
+            clientLoaded: false,
+            configValid: false,
+            dbConnected: false,
+            authWorking: false,
+            tablesExist: false
+        };
+
+        function updateTestSection(testId, status, title, message, details = '') {
+            const section = document.getElementById(testId);
+            const titleEl = section.querySelector('.test-title');
+            const resultEl = section.querySelector('.test-result');
+
+            // Remove all status classes
+            section.classList.remove('loading', 'success', 'error');
+            
+            // Add new status
+            section.classList.add(status);
+
+            // Update icon and title
+            let icon = '';
+            switch(status) {
+                case 'loading':
+                    icon = '<span class="spinner"></span>';
+                    break;
+                case 'success':
+                    icon = '<span class="status-icon success">✅</span>';
+                    break;
+                case 'error':
+                    icon = '<span class="status-icon error">❌</span>';
+                    break;
+            }
+
+            titleEl.innerHTML = `${icon} ${title}`;
+            resultEl.innerHTML = `${message}${details ? `<div class="credentials">${details}</div>` : ''}`;
+        }
+
+        async function test1_CheckSupabaseClient() {
+            console.log('🧪 Test 1: Checking Supabase client...');
+            
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Give time for CDN to load
+
+            if (typeof supabase === 'undefined') {
+                updateTestSection('test1', 'error', '1. Supabase Client Loading', 
+                    'ERROR: Supabase client not loaded. The CDN script may be blocked or failed to load.',
+                    'Expected: supabase object should be available\nActual: supabase is undefined');
+                return false;
+            }
+
+            updateTestSection('test1', 'success', '1. Supabase Client Loading', 
+                'SUCCESS: Supabase JavaScript client loaded successfully from CDN.');
+            
+            testResults.clientLoaded = true;
+            return true;
+        }
+
+        async function test2_CheckConfiguration() {
+            console.log('🧪 Test 2: Checking configuration...');
+            
+            updateTestSection('test2', 'loading', '2. Verifying Configuration', 'Testing configuration values...');
+
+            if (!testResults.clientLoaded) {
+                updateTestSection('test2', 'error', '2. Verifying Configuration', 
+                    'SKIPPED: Cannot test configuration - Supabase client not loaded.');
+                return false;
+            }
+
+            // Validate URL format
+            const urlPattern = /^https:\/\/[a-z0-9]+\.supabase\.co$/;
+            if (!urlPattern.test(SUPABASE_CONFIG.url)) {
+                updateTestSection('test2', 'error', '2. Verifying Configuration', 
+                    'ERROR: Invalid Supabase URL format.',
+                    `Expected: https://your-project.supabase.co\nActual: ${SUPABASE_CONFIG.url}`);
+                return false;
+            }
+
+            // Validate anon key format (should be a JWT)
+            const jwtPattern = /^eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
+            if (!jwtPattern.test(SUPABASE_CONFIG.anonKey)) {
+                updateTestSection('test2', 'error', '2. Verifying Configuration', 
+                    'ERROR: Invalid anon key format. Should be a JWT token.',
+                    `Expected: JWT starting with "eyJ"\nActual: ${SUPABASE_CONFIG.anonKey.substring(0, 20)}...`);
+                return false;
+            }
+
+            try {
+                supabaseClient = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+                
+                updateTestSection('test2', 'success', '2. Verifying Configuration', 
+                    'SUCCESS: Configuration values are valid and Supabase client created.',
+                    `URL: ${SUPABASE_CONFIG.url}\nAnon Key: ${SUPABASE_CONFIG.anonKey.substring(0, 20)}...`);
+                
+                testResults.configValid = true;
+                return true;
+            } catch (error) {
+                updateTestSection('test2', 'error', '2. Verifying Configuration', 
+                    'ERROR: Failed to create Supabase client.',
+                    `Error: ${error.message}`);
+                return false;
+            }
+        }
+
+        async function test3_TestDatabaseConnection() {
+            console.log('🧪 Test 3: Testing database connection...');
+            
+            updateTestSection('test3', 'loading', '3. Testing Database Connection', 'Attempting to connect to database...');
+
+            if (!testResults.configValid) {
+                updateTestSection('test3', 'error', '3. Testing Database Connection', 
+                    'SKIPPED: Cannot test database - Configuration invalid.');
+                return false;
+            }
+
+            try {
+                // Test basic connectivity to Supabase REST API
+                const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/`, {
+                    headers: {
+                        'apikey': SUPABASE_CONFIG.anonKey,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    updateTestSection('test3', 'success', '3. Testing Database Connection', 
+                        'SUCCESS: Database connection established. REST API is accessible.',
+                        `Status: ${response.status} ${response.statusText}\nURL: ${SUPABASE_CONFIG.url}/rest/v1/`);
+                    
+                    testResults.dbConnected = true;
+                    return true;
+                } else {
+                    updateTestSection('test3', 'error', '3. Testing Database Connection', 
+                        'ERROR: Database connection failed. REST API returned error.',
+                        `Status: ${response.status} ${response.statusText}\nCheck your project URL and API key`);
+                    return false;
+                }
+            } catch (error) {
+                updateTestSection('test3', 'error', '3. Testing Database Connection', 
+                    'ERROR: Network error connecting to database.',
+                    `Error: ${error.message}\nCheck your internet connection and Supabase status`);
+                return false;
+            }
+        }
+
+        async function test4_TestAuthentication() {
+            console.log('🧪 Test 4: Testing authentication system...');
+            
+            updateTestSection('test4', 'loading', '4. Testing Authentication System', 'Testing auth system...');
+
+            if (!testResults.dbConnected) {
+                updateTestSection('test4', 'error', '4. Testing Authentication System', 
+                    'SKIPPED: Cannot test auth - Database connection failed.');
+                return false;
+            }
+
+            try {
+                // Test auth system by checking current session
+                const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+                
+                if (sessionError) {
+                    updateTestSection('test4', 'error', '4. Testing Authentication System', 
+                        'ERROR: Authentication system error.',
+                        `Error: ${sessionError.message}`);
+                    return false;
+                }
+
+                updateTestSection('test4', 'success', '4. Testing Authentication System', 
+                    'SUCCESS: Authentication system is working. Ready for user login.',
+                    `Session status: ${sessionData.session ? 'User logged in' : 'No active session'}\nAuth system: Operational`);
+                
+                testResults.authWorking = true;
+                return true;
+            } catch (error) {
+                updateTestSection('test4', 'error', '4. Testing Authentication System', 
+                    'ERROR: Failed to test authentication system.',
+                    `Error: ${error.message}`);
+                return false;
+            }
+        }
+
+        async function test5_CheckDatabaseTables() {
+            console.log('🧪 Test 5: Checking database tables...');
+            
+            updateTestSection('test5', 'loading', '5. Checking Database Tables', 'Checking for required tables...');
+
+            if (!testResults.authWorking) {
+                updateTestSection('test5', 'error', '5. Checking Database Tables', 
+                    'SKIPPED: Cannot check tables - Authentication test failed.');
+                return false;
+            }
+
+            try {
+                // Test if we can access the main tables
+                const tables = ['patient_survey_responses', 'admin_users'];
+                const tableResults = {};
+
+                for (const table of tables) {
+                    try {
+                        const { data, error } = await supabaseClient
+                            .from(table)
+                            .select('count', { count: 'exact', head: true });
+                        
+                        if (error) {
+                            tableResults[table] = `❌ ${error.message}`;
+                        } else {
+                            tableResults[table] = `✅ Table exists`;
+                        }
+                    } catch (err) {
+                        tableResults[table] = `❌ ${err.message}`;
+                    }
+                }
+
+                const tableStatus = Object.entries(tableResults)
+                    .map(([table, status]) => `${table}: ${status}`)
+                    .join('\n');
+
+                const allTablesExist = Object.values(tableResults).every(result => result.includes('✅'));
+
+                if (allTablesExist) {
+                    updateTestSection('test5', 'success', '5. Checking Database Tables', 
+                        'SUCCESS: All required database tables are set up correctly.',
+                        tableStatus);
+                    testResults.tablesExist = true;
+                } else {
+                    updateTestSection('test5', 'error', '5. Checking Database Tables', 
+                        'WARNING: Some database tables are missing. You need to run the database setup.',
+                        `${tableStatus}\n\nNext step: Run the database schema SQL in your Supabase dashboard`);
+                }
+
+                return allTablesExist;
+            } catch (error) {
+                updateTestSection('test5', 'error', '5. Checking Database Tables', 
+                    'ERROR: Failed to check database tables.',
+                    `Error: ${error.message}\nThis might be normal if tables haven't been created yet`);
+                return false;
+            }
+        }
+
+        async function runAllTests() {
+            const retestBtn = document.getElementById('retestBtn');
+            const nextSteps = document.getElementById('nextSteps');
+            
+            retestBtn.disabled = true;
+            retestBtn.textContent = '⏳ Running Tests...';
+            nextSteps.style.display = 'none';
+
+            // Reset all test sections to waiting state
+            for (let i = 2; i <= 5; i++) {
+                updateTestSection(`test${i}`, '', `${i}. Waiting...`, 'Waiting for previous test...');
+            }
+
+            console.log('🧪 Starting Supabase connection tests...');
+
+            // Run tests sequentially
+            await test1_CheckSupabaseClient();
+            await test2_CheckConfiguration();
+            await test3_TestDatabaseConnection();
+            await test4_TestAuthentication();
+            await test5_CheckDatabaseTables();
+
+            // Show results
+            console.log('🧪 All tests completed:', testResults);
+
+            const allTestsPassed = Object.values(testResults).every(result => result === true);
+            
+            if (allTestsPassed) {
+                nextSteps.style.display = 'block';
+            }
+
+            retestBtn.disabled = false;
+            retestBtn.textContent = '🔄 Run Tests Again';
+        }
+
+        // Start tests when page loads
+        window.addEventListener('load', () => {
+            console.log('🧪 Supabase Test Page Loaded');
+            setTimeout(runAllTests, 500); // Small delay to ensure everything is ready
+        });
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Survey Admin Dashboard</title>
     
     <!-- ✅ ADD THIS LINE - Supabase CDN -->
