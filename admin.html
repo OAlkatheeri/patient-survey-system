@@ -1185,14 +1185,16 @@
                     submitBtn.disabled = true;
                     submitBtn.textContent = 'Creating Account...';
 
-                    // Create user account
+                    // Create user account with admin metadata
+                    // The database trigger will automatically create the admin_users record
                     const { data, error } = await this.supabase.auth.signUp({
                         email,
                         password,
                         options: {
                             data: {
                                 full_name: name,
-                                department: department
+                                department: department,
+                                admin_code: adminCode  // This triggers automatic admin_users creation
                             }
                         }
                     });
@@ -1200,29 +1202,32 @@
                     if (error) throw error;
 
                     if (data.user) {
-                        // Create admin user record
-                        const { error: adminError } = await this.supabase
+                        // Wait a moment for the trigger to complete
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+
+                        // Check if admin user was created by the trigger
+                        const { data: adminUser, error: adminError } = await this.supabase
                             .from('admin_users')
-                            .insert({
-                                user_id: data.user.id,
-                                full_name: name,
-                                email: email,
-                                role: 'admin',
-                                department: department,
-                                is_active: true
-                            });
+                            .select('role, is_active')
+                            .eq('user_id', data.user.id)
+                            .single();
 
-                        if (adminError) {
-                            console.error('❌ Error creating admin user:', adminError);
-                            // Still show success as the user was created
+                        if (adminError || !adminUser) {
+                            console.warn('Admin user not found after trigger, this might be normal for email verification');
+                            this.showSuccess(`Account created! Please check your email to verify your account before signing in.`);
+                        } else {
+                            const role = adminUser.role;
+                            const isFirstAdmin = role === 'super_admin';
+                            
+                            this.showSuccess(`🎉 Account created successfully as ${role}! ${isFirstAdmin ? '(You are the first admin!)' : ''} ${data.user.email_confirmed_at ? 'You can now sign in.' : 'Please check your email to verify your account before signing in.'}`);
                         }
-
-                        this.showSuccess('Account created successfully! Please check your email to verify your account before signing in.');
                         
-                        // Switch to login tab
+                        // Switch to login tab after success
                         setTimeout(() => {
                             switchAuthTab('login');
-                        }, 2000);
+                            // Pre-fill email
+                            document.getElementById('loginEmail').value = email;
+                        }, 3000);
                     }
 
                 } catch (error) {
@@ -1239,21 +1244,38 @@
                     this.currentUser = user;
                     console.log('🔍 Checking admin user for:', user.email);
 
-                    // Get admin user details
+                    // Get admin user details with better error handling
                     const { data: adminUser, error } = await this.supabase
                         .from('admin_users')
                         .select('*')
                         .eq('user_id', user.id)
-                        .eq('is_active', true)
-                        .single();
+                        .maybeSingle(); // Use maybeSingle instead of single to avoid error if no record
 
-                    if (error || !adminUser) {
-                        console.warn('⚠️ Admin user not found:', error);
-                        throw new Error('Admin access denied. Please contact your system administrator.');
+                    if (error) {
+                        console.error('❌ Error querying admin_users:', error);
+                        throw new Error(`Database error: ${error.message}`);
+                    }
+
+                    if (!adminUser) {
+                        console.warn('⚠️ Admin user record not found for:', user.email);
+                        
+                        // Check if user signed up recently and admin record creation might have failed
+                        const userCreatedAt = new Date(user.created_at);
+                        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+                        
+                        if (userCreatedAt > fiveMinutesAgo) {
+                            throw new Error('Admin account setup incomplete. Please try signing out and back in, or contact your system administrator if the problem persists.');
+                        } else {
+                            throw new Error('Admin access denied. Your account does not have administrative privileges. Please contact your system administrator.');
+                        }
+                    }
+
+                    if (!adminUser.is_active) {
+                        throw new Error('Your admin account has been disabled. Please contact your system administrator.');
                     }
 
                     this.currentAdminUser = adminUser;
-                    console.log('✅ Admin user found:', adminUser.full_name);
+                    console.log('✅ Admin user found:', adminUser.full_name, `(${adminUser.role})`);
 
                     // Update last login
                     await this.supabase
@@ -1263,7 +1285,8 @@
 
                     // Log activity
                     await this.logActivity('login', 'auth', null, { 
-                        login_time: new Date().toISOString() 
+                        login_time: new Date().toISOString(),
+                        user_agent: navigator.userAgent
                     });
 
                     this.showDashboard();
