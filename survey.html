@@ -6,7 +6,7 @@
     <title>Patient Satisfaction Survey</title>
     
     <!-- Supabase CDN -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
     
     <style>
         * {
@@ -1828,10 +1828,10 @@
     </div>
 
     <script>
-        // 🔧 SUPABASE CONFIGURATION - REPLACE WITH YOUR ACTUAL CREDENTIALS
+        // 🔧 SUPABASE CONFIGURATION
         const SUPABASE_CONFIG = {
-            url: 'https://haeephlyfcoxrioohhjj.supabase.co', // Replace with your Supabase project URL
-            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhZWVwaGx5ZmNveHJpb29oaGpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0ODE4MDksImV4cCI6MjA2NzA1NzgwOX0.YqSBhcZA6zu2PFIidZl7Qt6Paqim8kMOimqHF9OfLRQ' // Replace with your Supabase anon key
+            url: 'https://haeephlyfcoxrioohhjj.supabase.co',
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhZWVwaGx5ZmNveHJpb29oaGpqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTQ4MTgwOSwiZXhwIjoyMDY3MDU3ODA5fQ.srXbETt6h-zFXuW41b_fKFZTlRquNOCS1I_nwKZIyhY'
         };
 
         class SupabaseService {
@@ -1844,6 +1844,7 @@
                 try {
                     if (typeof supabase === 'undefined') {
                         console.warn('Supabase client not loaded. Running in demo mode.');
+                        console.log('📝 Demo mode enabled - survey data will be logged to console');
                         return;
                     }
 
@@ -1868,21 +1869,40 @@
             async saveSurveyResponse(responseData) {
                 // If Supabase is not available, run in demo mode
                 if (!this.supabase) {
-                    console.warn('Demo mode: Survey data logged to console');
-                    console.log('📊 SURVEY DATA (Demo Mode):', responseData);
+                    console.warn('🔧 DEMO MODE: Configure Supabase credentials to save data');
+                    console.log('📊 SURVEY DATA (Demo Mode):', JSON.stringify(responseData, null, 2));
+                    
+                    // Simulate API delay
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
                     return { success: true, id: responseData.response_id, demo: true };
                 }
 
                 try {
-                    // Save the main survey response
+                    console.log('🔄 Attempting to save survey data:', responseData);
+                    
+                    // Test connection first
+                    const connectionTest = await this.testConnection();
+                    console.log('🔗 Connection test result:', connectionTest);
+                    
+                    if (!connectionTest.connected) {
+                        throw new Error(`Database connection failed: ${connectionTest.reason}`);
+                    }
+
+                    // Save the survey response to the database
                     const { data, error } = await this.supabase
                         .from('patient_survey_responses')
                         .insert([responseData])
                         .select();
 
                     if (error) {
-                        console.error('❌ Supabase error:', error);
-                        throw error;
+                        console.error('❌ Supabase error details:', {
+                            message: error.message,
+                            details: error.details,
+                            hint: error.hint,
+                            code: error.code
+                        });
+                        throw new Error(`Database error: ${error.message}`);
                     }
 
                     console.log('✅ Survey saved successfully:', data[0]);
@@ -1890,72 +1910,38 @@
 
                 } catch (error) {
                     console.error('❌ Error saving survey:', error);
-                    throw error;
+                    
+                    // Provide more specific error messages
+                    if (error.message.includes('permission denied')) {
+                        throw new Error('Database permission denied. Please check RLS policies.');
+                    } else if (error.message.includes('relation') && error.message.includes('does not exist')) {
+                        throw new Error('Database tables not found. Please run the database setup script.');
+                    } else if (error.message.includes('network')) {
+                        throw new Error('Network connection failed. Please check your internet connection.');
+                    } else {
+                        throw new Error(`Save failed: ${error.message}`);
+                    }
                 }
             }
 
-            async getSurveyById(surveyId) {
+            async testConnection() {
                 if (!this.supabase) {
-                    console.warn('Demo mode: Cannot retrieve survey data');
-                    return null;
+                    return { connected: false, reason: 'Demo mode - no configuration' };
                 }
 
                 try {
                     const { data, error } = await this.supabase
                         .from('patient_survey_responses')
-                        .select('*')
-                        .eq('response_id', surveyId)
-                        .single();
+                        .select('count')
+                        .limit(1);
 
                     if (error) {
-                        console.error('❌ Error retrieving survey:', error);
-                        return null;
+                        return { connected: false, reason: error.message };
                     }
 
-                    return data;
+                    return { connected: true };
                 } catch (error) {
-                    console.error('❌ Error retrieving survey:', error);
-                    return null;
-                }
-            }
-
-            async getAllSurveys(filters = {}) {
-                if (!this.supabase) {
-                    console.warn('Demo mode: Cannot retrieve survey data');
-                    return [];
-                }
-
-                try {
-                    let query = this.supabase
-                        .from('patient_survey_responses')
-                        .select('*')
-                        .order('created_at', { ascending: false });
-
-                    // Apply filters if provided
-                    if (filters.startDate) {
-                        query = query.gte('created_at', filters.startDate);
-                    }
-                    if (filters.endDate) {
-                        query = query.lte('created_at', filters.endDate);
-                    }
-                    if (filters.department) {
-                        query = query.eq('patient_info->>department_visited', filters.department);
-                    }
-                    if (filters.minRating) {
-                        query = query.gte('experience_data->>overall_satisfaction', filters.minRating);
-                    }
-
-                    const { data, error } = await query;
-
-                    if (error) {
-                        console.error('❌ Error retrieving surveys:', error);
-                        return [];
-                    }
-
-                    return data || [];
-                } catch (error) {
-                    console.error('❌ Error retrieving surveys:', error);
-                    return [];
+                    return { connected: false, reason: error.message };
                 }
             }
         }
@@ -2016,9 +2002,9 @@
                     // Prevent scrolling on body
                     document.body.style.overflow = 'hidden';
 
-                    console.log('Survey initialized successfully');
+                    console.log('✅ Survey initialized successfully');
                 } catch (error) {
-                    console.error('Error setting up event listeners:', error);
+                    console.error('❌ Error setting up event listeners:', error);
                 }
             }
 
@@ -2057,7 +2043,7 @@
                         });
                     }
                 } catch (error) {
-                    console.error('Error setting up visit date constraints:', error);
+                    console.error('❌ Error setting up visit date constraints:', error);
                 }
             }
 
@@ -2175,7 +2161,7 @@
                         }
                     }
                 } catch (error) {
-                    console.error('Error during validation:', error);
+                    console.error('❌ Error during validation:', error);
                     return false;
                 }
 
@@ -2193,7 +2179,7 @@
                         }
                     }
                 } catch (error) {
-                    console.error('Error in nextPage:', error);
+                    console.error('❌ Error in nextPage:', error);
                 }
             }
 
@@ -2206,7 +2192,7 @@
                         this.updateNavigation();
                     }
                 } catch (error) {
-                    console.error('Error in prevPage:', error);
+                    console.error('❌ Error in prevPage:', error);
                 }
             }
 
@@ -2226,7 +2212,7 @@
                         }
                     }
                 } catch (error) {
-                    console.error('Error in showPage:', error);
+                    console.error('❌ Error in showPage:', error);
                 }
             }
 
@@ -2238,10 +2224,11 @@
                     
                     if (phoneInput && phoneOption && phoneLabel) {
                         const phoneValue = phoneInput.value.trim();
-                        // Updated logic to also exclude "+9715"
+                        // Check if phone number is valid (not empty, not just +971, not just +9715)
                         const hasValidPhoneNumber = phoneValue !== '' && 
                                                    phoneValue !== '+971' && 
-                                                   phoneValue !== '+9715';
+                                                   phoneValue !== '+9715' &&
+                                                   phoneValue.length > 4;
                         
                         if (hasValidPhoneNumber) {
                             // Show phone option
@@ -2256,7 +2243,7 @@
                         }
                     }
                 } catch (error) {
-                    console.error('Error updating contact options:', error);
+                    console.error('❌ Error updating contact options:', error);
                 }
             }
 
@@ -2269,7 +2256,7 @@
                     if (progressFill) progressFill.style.width = `${progress}%`;
                     if (progressText) progressText.textContent = `Step ${this.currentPage} of ${this.totalPages}`;
                 } catch (error) {
-                    console.error('Error updating progress bar:', error);
+                    console.error('❌ Error updating progress bar:', error);
                 }
             }
 
@@ -2289,7 +2276,7 @@
                         if (submitBtn) submitBtn.style.display = 'none';
                     }
                 } catch (error) {
-                    console.error('Error updating navigation:', error);
+                    console.error('❌ Error updating navigation:', error);
                 }
             }
 
@@ -2310,7 +2297,7 @@
                         }
                     }
                 } catch (error) {
-                    console.error('Error toggling other department:', error);
+                    console.error('❌ Error toggling other department:', error);
                 }
             }
 
@@ -2359,7 +2346,7 @@
                                 });
                             }
                         } catch (error) {
-                            console.error('Error in handleContactChoice:', error);
+                            console.error('❌ Error in handleContactChoice:', error);
                         }
                     };
 
@@ -2378,7 +2365,7 @@
                                 methodsErrorMsg.style.display = 'none';
                             }
                         } catch (error) {
-                            console.error('Error in handleMethodChange:', error);
+                            console.error('❌ Error in handleMethodChange:', error);
                         }
                     };
 
@@ -2422,7 +2409,7 @@
                         });
                     }
                 } catch (error) {
-                    console.error('Error setting up contact preferences:', error);
+                    console.error('❌ Error setting up contact preferences:', error);
                 }
             }
 
@@ -2446,7 +2433,7 @@
                         });
                     }
                 } catch (error) {
-                    console.error('Error setting up consent checkbox:', error);
+                    console.error('❌ Error setting up consent checkbox:', error);
                 }
             }
 
@@ -2473,12 +2460,12 @@
                                     }
                                 }
                             } catch (error) {
-                                console.error('Error in rating option click:', error);
+                                console.error('❌ Error in rating option click:', error);
                             }
                         });
                     });
                 } catch (error) {
-                    console.error('Error setting up rating effects:', error);
+                    console.error('❌ Error setting up rating effects:', error);
                 }
             }
 
@@ -2494,14 +2481,14 @@
                                     this.resetIdleTimer();
                                 }
                             } catch (error) {
-                                console.error('Error in idle event handler:', error);
+                                console.error('❌ Error in idle event handler:', error);
                             }
                         }, true);
                     });
 
                     this.resetIdleTimer();
                 } catch (error) {
-                    console.error('Error setting up idle tracking:', error);
+                    console.error('❌ Error setting up idle tracking:', error);
                 }
             }
 
@@ -2518,7 +2505,7 @@
                         }, this.idleTimeoutDuration);
                     }
                 } catch (error) {
-                    console.error('Error resetting idle timer:', error);
+                    console.error('❌ Error resetting idle timer:', error);
                 }
             }
 
@@ -2533,7 +2520,7 @@
                                     errorMsg.style.display = 'none';
                                 }
                             } catch (error) {
-                                console.error('Error clearing field error:', error);
+                                console.error('❌ Error clearing field error:', error);
                             }
                         };
 
@@ -2541,7 +2528,7 @@
                         input.addEventListener('change', clearError);
                     });
                 } catch (error) {
-                    console.error('Error setting up error clearing:', error);
+                    console.error('❌ Error setting up error clearing:', error);
                 }
             }
 
@@ -2615,7 +2602,10 @@
                             contact_methods: [],
                             contact_status: '',
                             phone_available: false,
-                            email_available: false
+                            email_available: false,
+                            follow_up_completed: false,
+                            follow_up_date: null,
+                            follow_up_notes: ''
                         },
                         
                         // Privacy & Consent
@@ -2629,7 +2619,7 @@
                             submission_timestamp: new Date().toISOString(),
                             submission_date: new Date().toLocaleDateString('en-US'),
                             submission_time: new Date().toLocaleTimeString('en-US'),
-                            survey_version: '1.0',
+                            survey_version: '2.0',
                             user_agent: navigator.userAgent,
                             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
                         },
@@ -2646,7 +2636,8 @@
                     // Check if valid contact methods are available
                     responseData.contact_preferences.phone_available = phoneValue !== '' && 
                                                                       phoneValue !== '+971' && 
-                                                                      phoneValue !== '+9715';
+                                                                      phoneValue !== '+9715' &&
+                                                                      phoneValue.length > 4;
                     responseData.contact_preferences.email_available = emailValue !== '';
                     
                     // Get selected contact methods
@@ -2708,7 +2699,7 @@
                             throw new Error('Failed to save survey response');
                         }
                     } catch (error) {
-                        console.error('❌ Error saving to Supabase:', error);
+                        console.error('❌ Error saving survey:', error);
                         this.hideLoading();
                         this.showErrorMessage('Unable to save your feedback. Please try again.');
                         return;
@@ -2717,29 +2708,36 @@
                 } catch (error) {
                     console.error('❌ Error submitting form:', error);
                     this.hideLoading();
-                    this.showErrorMessage('An error occurred. Please try again.');
+                    this.showErrorMessage(error.message || 'An unexpected error occurred. Please try again.');
                 }
             }
 
             showErrorMessage(message) {
-                // Create a temporary error message overlay
+                // Create a more detailed error message overlay
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'error-state';
                 errorDiv.innerHTML = `
                     <h3>⚠️ Submission Error</h3>
                     <p>${message}</p>
-                    <button onclick="this.parentElement.remove()" style="margin-top: 10px; padding: 8px 16px; background: #dc2626; color: white; border: none; border-radius: 6px; cursor: pointer;">Close</button>
+                    <div style="margin-top: 15px; font-size: 12px; color: #666;">
+                        <strong>Troubleshooting Tips:</strong><br>
+                        • Check your internet connection<br>
+                        • Ensure database is properly set up<br>
+                        • Try refreshing the page<br>
+                        • Contact system administrator if issue persists
+                    </div>
+                    <button onclick="this.parentElement.remove()" style="margin-top: 15px; padding: 8px 16px; background: #dc2626; color: white; border: none; border-radius: 6px; cursor: pointer;">Close</button>
                 `;
                 
                 const container = document.querySelector('.container');
                 container.appendChild(errorDiv);
                 
-                // Auto-remove after 5 seconds
+                // Auto-remove after 10 seconds
                 setTimeout(() => {
                     if (errorDiv.parentNode) {
                         errorDiv.remove();
                     }
-                }, 5000);
+                }, 10000);
             }
 
             showThankYouPage() {
@@ -2747,7 +2745,7 @@
                 const container = document.querySelector('.container');
 
                 if (!thankYou || !container) {
-                    console.error("Missing required elements for thank you page.");
+                    console.error("❌ Missing required elements for thank you page.");
                     return;
                 }
 
@@ -2789,14 +2787,14 @@
                                 this.restartSurvey();
                             }
                         } catch (error) {
-                            console.error('Error in countdown timer:', error);
+                            console.error('❌ Error in countdown timer:', error);
                             clearInterval(timer);
                         }
                     }, 1000);
                     
                     this.countdownTimer = timer;
                 } catch (error) {
-                    console.error('Error starting countdown:', error);
+                    console.error('❌ Error starting countdown:', error);
                 }
             }
 
@@ -2877,22 +2875,51 @@
                         console.log('✅ Survey Reset Complete - Ready for new response');
                     }
                 } catch (error) {
-                    console.error('Error restarting survey:', error);
+                    console.error('❌ Error restarting survey:', error);
                 }
             }
         }
 
+        // Debug function - call window.debugSurvey() in browser console for troubleshooting
+        window.debugSurvey = async function() {
+            console.log('🔍 Debug Survey System');
+            
+            if (window.survey && window.survey.supabaseService) {
+                const service = window.survey.supabaseService;
+                console.log('📊 Supabase Service:', service);
+                console.log('🔗 Supabase Client:', service.supabase);
+                
+                if (service.supabase) {
+                    console.log('🧪 Testing connection...');
+                    const testResult = await service.testConnection();
+                    console.log('📋 Connection Test Result:', testResult);
+                    
+                    if (testResult.connected) {
+                        console.log('✅ Database connection successful');
+                    } else {
+                        console.log('❌ Database connection failed:', testResult.reason);
+                    }
+                } else {
+                    console.log('❌ Supabase client not initialized');
+                }
+            } else {
+                console.log('❌ Survey system not found');
+            }
+        };
+
         // Initialize the survey when the page loads
         try {
-            new MultiPageSurvey();
+            const surveyInstance = new MultiPageSurvey();
+            window.survey = surveyInstance; // Make available for debugging
         } catch (error) {
-            console.error('Error initializing survey:', error);
+        } catch (error) {
+            console.error('❌ Error initializing survey:', error);
             // Fallback: basic retry mechanism
             setTimeout(() => {
                 try {
                     new MultiPageSurvey();
                 } catch (retryError) {
-                    console.error('Retry failed:', retryError);
+                    console.error('❌ Retry failed:', retryError);
                 }
             }, 1000);
         }
