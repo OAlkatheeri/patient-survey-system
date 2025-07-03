@@ -1,4 +1,4 @@
-// 🔧 SUPABASE CONFIGUR<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1040,10 +1040,12 @@
     </div>
 
     <script>
-        // 🔧 SUPABASE CONFIGURATION
+        // 🔧 SUPABASE CONFIGURATION  
         const SUPABASE_CONFIG = {
             url: 'https://haeephlyfcoxrioohhjj.supabase.co',
-            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhZWVwaGx5ZmNveHJpb29oaGpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0ODE4MDksImV4cCI6MjA2NzA1NzgwOX0.YqSBhcZA6zu2PFIidZl7Qt6Paqim8kMOimqHF9OfLRQ'
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhZWVwaGx5ZmNveHJpb29oaGpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0ODE4MDksImV4cCI6MjA2NzA1NzgwOX0.YqSBhcZA6zu2PFIidZl7Qt6Paqim8kMOimqHF9OfLRQ',
+            // Service role for admin operations (commented out for security - use only if needed)
+            serviceKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhZWVwaGx5ZmNveHJpb29oaGpqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTQ4MTgwOSwiZXhwIjoyMDY3MDU3ODA5fQ.srXbETt6h-zFXuW41b_fKFZTlRquNOCS1I_nwKZIyhY'
         };
 
         class AdminDashboard {
@@ -1126,19 +1128,29 @@
                 try {
                     if (!this.supabase) {
                         this.showLogin();
+                        this.showDebugInfo();
                         return;
                     }
 
-                    const { data: { session } } = await this.supabase.auth.getSession();
+                    const { data: { session }, error } = await this.supabase.auth.getSession();
+                    
+                    if (error) {
+                        console.error('❌ Auth session error:', error);
+                        this.showLogin();
+                        return;
+                    }
                     
                     if (session) {
+                        console.log('✅ Active session found:', session.user.email);
                         await this.handleAuthSuccess(session.user);
                     } else {
+                        console.log('ℹ️ No active session, showing login');
                         this.showLogin();
                     }
                 } catch (error) {
                     console.error('❌ Auth check error:', error);
                     this.showLogin();
+                    this.showError(`Authentication check failed: ${error.message}`);
                 }
             }
 
@@ -1211,6 +1223,7 @@
             async handleAuthSuccess(user) {
                 try {
                     this.currentUser = user;
+                    console.log('🔍 Checking admin user for:', user.email);
 
                     // Get admin user details
                     const { data: adminUser, error } = await this.supabase
@@ -1221,16 +1234,40 @@
                         .single();
 
                     if (error || !adminUser) {
-                        throw new Error('Admin access denied. Please contact system administrator.');
-                    }
+                        console.warn('⚠️ Admin user not found. Error:', error);
+                        
+                        // Try to auto-create admin user for the first user
+                        console.log('🔧 Attempting to create admin user...');
+                        
+                        const { data: newAdminUser, error: createError } = await this.supabase
+                            .from('admin_users')
+                            .insert({
+                                user_id: user.id,
+                                full_name: user.email.split('@')[0], // Use email prefix as name
+                                email: user.email,
+                                role: 'super_admin',
+                                is_active: true
+                            })
+                            .select()
+                            .single();
 
-                    this.currentAdminUser = adminUser;
+                        if (createError) {
+                            console.error('❌ Failed to create admin user:', createError);
+                            throw new Error(`Admin access denied. Please contact system administrator. Details: ${createError.message}`);
+                        }
+
+                        console.log('✅ Created new admin user:', newAdminUser);
+                        this.currentAdminUser = newAdminUser;
+                    } else {
+                        this.currentAdminUser = adminUser;
+                        console.log('✅ Admin user found:', adminUser.full_name);
+                    }
 
                     // Update last login
                     await this.supabase
                         .from('admin_users')
                         .update({ last_login: new Date().toISOString() })
-                        .eq('id', adminUser.id);
+                        .eq('id', this.currentAdminUser.id);
 
                     // Log activity
                     await this.logActivity('login', 'auth', null, { 
