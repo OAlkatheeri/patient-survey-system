@@ -34,8 +34,8 @@
             padding: 20px;
         }
 
-        /* Login Screen */
-        .login-container {
+        /* Auth Screen Styles */
+        .auth-container {
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -43,20 +43,46 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
-        .login-form {
+        .auth-form {
             background: white;
             padding: 40px;
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
         }
 
-        .login-form h1 {
+        .auth-form h1 {
             text-align: center;
             margin-bottom: 30px;
             color: #2c5aa0;
             font-size: 28px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #64748b;
+        }
+
+        .auth-tab.active {
+            background: white;
+            color: #2c5aa0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .form-group {
@@ -85,6 +111,11 @@
             box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
         }
 
+        .form-group small {
+            color: #64748b;
+            font-size: 14px;
+        }
+
         .btn-primary {
             width: 100%;
             background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
@@ -103,9 +134,24 @@
             box-shadow: 0 6px 20px rgba(44, 90, 160, 0.3);
         }
 
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .error-message {
             color: #dc2626;
             background: #fee2e2;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .success-message {
+            color: #059669;
+            background: #d1fae5;
             padding: 12px;
             border-radius: 8px;
             margin-bottom: 20px;
@@ -466,101 +512,6 @@
             color: #000;
         }
 
-        /* Follow-up specific styles */
-        .follow-up-card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-left: 4px solid #2c5aa0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .follow-up-header {
-            display: flex;
-            justify-content: between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .follow-up-patient {
-            font-weight: 600;
-            color: #1e293b;
-        }
-
-        .follow-up-priority {
-            font-size: 12px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-
-        .priority-urgent { background: #fee2e2; color: #991b1b; }
-        .priority-high { background: #fef3c7; color: #92400e; }
-        .priority-medium { background: #e0f2fe; color: #0c4a6e; }
-        .priority-low { background: #d1fae5; color: #065f46; }
-
-        /* Analytics specific styles */
-        .metric-card {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            border: 1px solid #e2e8f0;
-        }
-
-        .metric-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #2c5aa0;
-            margin-bottom: 5px;
-        }
-
-        .metric-label {
-            color: #64748b;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-
-            .header {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .nav-tabs {
-                justify-content: flex-start;
-            }
-
-            table {
-                font-size: 14px;
-            }
-
-            th, td {
-                padding: 10px 15px;
-            }
-
-            .chart-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .table-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-        }
-
         /* Alert styles */
         .alert {
             padding: 12px 16px;
@@ -619,24 +570,111 @@
         .export-dropdown.show .export-dropdown-content {
             display: block;
         }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                justify-content: flex-start;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 10px 15px;
+            }
+
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
-    <div id="loginScreen" class="login-container">
-        <div class="login-form">
-            <h1>🏥 Admin Login</h1>
-            <div id="loginError" class="error-message" style="display: none;"></div>
-            <form id="loginForm">
+    <!-- Authentication Screen -->
+    <div id="authScreen" class="auth-container">
+        <div class="auth-form">
+            <h1>🏥 Admin Portal</h1>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
+                <button class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+            </div>
+
+            <div id="authError" class="error-message" style="display: none;"></div>
+            <div id="authSuccess" class="success-message" style="display: none;"></div>
+
+            <!-- Login Form -->
+            <form id="loginForm" style="display: block;">
                 <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" required placeholder="admin@hospital.com">
+                    <label for="loginEmail">Email Address</label>
+                    <input type="email" id="loginEmail" required placeholder="admin@hospital.com">
                 </div>
                 <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" required placeholder="Enter your password">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required placeholder="Enter your password">
                 </div>
                 <button type="submit" class="btn-primary">Sign In</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" style="display: none;">
+                <div class="form-group">
+                    <label for="registerName">Full Name</label>
+                    <input type="text" id="registerName" required placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email Address</label>
+                    <input type="email" id="registerEmail" required placeholder="john@hospital.com">
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" required placeholder="Create a strong password" minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="registerDepartment">Department</label>
+                    <select id="registerDepartment" required>
+                        <option value="">Select Department</option>
+                        <option value="Reception/Front Desk">Reception/Front Desk</option>
+                        <option value="General Practice">General Practice</option>
+                        <option value="Specialist Consultation">Specialist Consultation</option>
+                        <option value="Nursing Services">Nursing Services</option>
+                        <option value="Laboratory">Laboratory</option>
+                        <option value="Radiology/Imaging">Radiology/Imaging</option>
+                        <option value="Pharmacy">Pharmacy</option>
+                        <option value="Physical Therapy">Physical Therapy</option>
+                        <option value="Emergency/Urgent Care">Emergency/Urgent Care</option>
+                        <option value="Administration">Administration</option>
+                        <option value="IT">IT</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="adminCode">Admin Access Code</label>
+                    <input type="text" id="adminCode" required placeholder="Enter admin code">
+                    <small>Contact your system administrator for the admin access code.</small>
+                </div>
+                <button type="submit" class="btn-primary">Create Account</button>
             </form>
         </div>
     </div>
@@ -660,7 +698,6 @@
                 <button class="nav-tab" data-tab="surveys">📋 All Surveys</button>
                 <button class="nav-tab" data-tab="analytics">📊 Analytics</button>
                 <button class="nav-tab" data-tab="follow-ups">📞 Follow-ups</button>
-                <button class="nav-tab" data-tab="reports">📄 Reports</button>
                 <button class="nav-tab" data-tab="users">👥 Users</button>
                 <button class="nav-tab" data-tab="settings">⚙️ Settings</button>
             </div>
@@ -762,14 +799,6 @@
                             </select>
                         </div>
                         <div class="filter-group">
-                            <label>Follow-up Status</label>
-                            <select id="followUpFilter">
-                                <option value="">All</option>
-                                <option value="wants">Wants Contact</option>
-                                <option value="no_contact">No Contact</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
                             <button class="btn btn-primary" onclick="applyFilters()">Apply Filters</button>
                         </div>
                     </div>
@@ -799,14 +828,13 @@
                                 <th>Department</th>
                                 <th>Overall Rating</th>
                                 <th>Visit Date</th>
-                                <th>Wait Time</th>
                                 <th>Follow-up</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="allSurveysTable">
                             <tr>
-                                <td colspan="9" class="loading">
+                                <td colspan="8" class="loading">
                                     <div class="spinner"></div>
                                 </td>
                             </tr>
@@ -818,27 +846,27 @@
             <!-- Analytics Tab -->
             <div id="analytics" class="tab-content">
                 <div class="stats-grid">
-                    <div class="metric-card">
-                        <div class="metric-value" id="totalResponsesMetric">0</div>
-                        <div class="metric-label">Total Responses</div>
+                    <div class="stat-card">
+                        <h3 id="totalResponsesMetric">0</h3>
+                        <p>Total Responses (30 days)</p>
                     </div>
-                    <div class="metric-card">
-                        <div class="metric-value" id="avgOverallMetric">0.0</div>
-                        <div class="metric-label">Average Overall Rating</div>
+                    <div class="stat-card">
+                        <h3 id="avgOverallMetric">0.0</h3>
+                        <p>Average Overall Rating</p>
                     </div>
-                    <div class="metric-card">
-                        <div class="metric-value" id="satisfactionRateMetric">0%</div>
-                        <div class="metric-label">Satisfaction Rate (4-5)</div>
+                    <div class="stat-card">
+                        <h3 id="satisfactionRateMetric">0%</h3>
+                        <p>Satisfaction Rate (4-5)</p>
                     </div>
-                    <div class="metric-card">
-                        <div class="metric-value" id="responseRateMetric">0%</div>
-                        <div class="metric-label">Follow-up Request Rate</div>
+                    <div class="stat-card">
+                        <h3 id="responseRateMetric">0%</h3>
+                        <p>Follow-up Request Rate</p>
                     </div>
                 </div>
 
                 <div class="chart-grid">
                     <div class="chart-container">
-                        <h3>Satisfaction Trends (Last 30 Days)</h3>
+                        <h3>Satisfaction Trends (Last 7 Days)</h3>
                         <canvas id="satisfactionChart" width="400" height="200"></canvas>
                     </div>
 
@@ -876,9 +904,9 @@
                                 <th>Contact Method</th>
                                 <th>Priority</th>
                                 <th>Assigned To</th>
-                                <th>Scheduled</th>
                                 <th>Status</th>
                                 <th>Survey Rating</th>
+                                <th>Created</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -893,63 +921,12 @@
                 </div>
             </div>
 
-            <!-- Reports Tab -->
-            <div id="reports" class="tab-content">
-                <div class="filters">
-                    <div class="filters-grid">
-                        <div class="filter-group">
-                            <label>Report Type</label>
-                            <select id="reportType">
-                                <option value="satisfaction">Patient Satisfaction Summary</option>
-                                <option value="department">Department Performance</option>
-                                <option value="wait-times">Wait Times Analysis</option>
-                                <option value="staff-feedback">Staff Interaction Feedback</option>
-                                <option value="follow-up">Follow-up Requirements</option>
-                                <option value="detailed">Detailed Survey Report</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>Period</label>
-                            <select id="reportPeriod">
-                                <option value="week">This Week</option>
-                                <option value="month">This Month</option>
-                                <option value="quarter">This Quarter</option>
-                                <option value="year">This Year</option>
-                                <option value="custom">Custom Range</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>Format</label>
-                            <select id="reportFormat">
-                                <option value="pdf">PDF Report</option>
-                                <option value="excel">Excel Spreadsheet</option>
-                                <option value="csv">CSV Data</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <button class="btn btn-primary" onclick="generateReport()">📄 Generate Report</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="reportPreview" class="table-container" style="display: none;">
-                    <div class="table-header">
-                        <h3>Report Preview</h3>
-                        <div class="table-actions">
-                            <button class="btn btn-success btn-sm" onclick="downloadReport()">💾 Download</button>
-                        </div>
-                    </div>
-                    <div id="reportContent"></div>
-                </div>
-            </div>
-
             <!-- Users Tab -->
             <div id="users" class="tab-content">
                 <div class="table-container">
                     <div class="table-header">
                         <h3>Admin Users</h3>
                         <div class="table-actions">
-                            <button class="btn btn-primary btn-sm" onclick="showInviteUserModal()">➕ Invite User</button>
                             <button class="btn btn-secondary btn-sm" onclick="loadUsersData()">🔄 Refresh</button>
                         </div>
                     </div>
@@ -1043,10 +1020,10 @@
         // 🔧 SUPABASE CONFIGURATION  
         const SUPABASE_CONFIG = {
             url: 'https://haeephlyfcoxrioohhjj.supabase.co',
-            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhZWVwaGx5ZmNveHJpb29oaGpqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTQ4MTgwOSwiZXhwIjoyMDY3MDU3ODA5fQ.srXbETt6h-zFXuW41b_fKFZTlRquNOCS1I_nwKZIyhY',
-            // Service role for admin operations (commented out for security - use only if needed)
-            serviceKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhZWVwaGx5ZmNveHJpb29oaGpqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTQ4MTgwOSwiZXhwIjoyMDY3MDU3ODA5fQ.srXbETt6h-zFXuW41b_fKFZTlRquNOCS1I_nwKZIyhY'
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhZWVwaGx5ZmNveHJpb29oaGpqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTQ4MTgwOSwiZXhwIjoyMDY3MDU3ODA5fQ.srXbETt6h-zFXuW41b_fKFZTlRquNOCS1I_nwKZIyhY'
         };
+
+        const ADMIN_CODE = '5865'; // Admin access code
 
         class AdminDashboard {
             constructor() {
@@ -1061,7 +1038,6 @@
 
             init() {
                 try {
-                    // Initialize Supabase
                     this.initSupabase();
                     this.setupEventListeners();
                     this.checkAuthStatus();
@@ -1099,6 +1075,15 @@
                     });
                 }
 
+                // Register form
+                const registerForm = document.getElementById('registerForm');
+                if (registerForm) {
+                    registerForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.handleRegister();
+                    });
+                }
+
                 // Logout button
                 const logoutBtn = document.getElementById('logoutBtn');
                 if (logoutBtn) {
@@ -1127,8 +1112,7 @@
             async checkAuthStatus() {
                 try {
                     if (!this.supabase) {
-                        this.showLogin();
-                        this.showDebugInfo();
+                        this.showAuth();
                         return;
                     }
 
@@ -1136,7 +1120,7 @@
                     
                     if (error) {
                         console.error('❌ Auth session error:', error);
-                        this.showLogin();
+                        this.showAuth();
                         return;
                     }
                     
@@ -1144,80 +1128,110 @@
                         console.log('✅ Active session found:', session.user.email);
                         await this.handleAuthSuccess(session.user);
                     } else {
-                        console.log('ℹ️ No active session, showing login');
-                        this.showLogin();
+                        console.log('ℹ️ No active session, showing auth');
+                        this.showAuth();
                     }
                 } catch (error) {
                     console.error('❌ Auth check error:', error);
-                    this.showLogin();
+                    this.showAuth();
                     this.showError(`Authentication check failed: ${error.message}`);
                 }
             }
 
-            showDemoLoginInfo() {
-                const loginForm = document.querySelector('.login-form');
-                if (loginForm) {
-                    const demoInfo = document.createElement('div');
-                    demoInfo.className = 'alert alert-info';
-                    demoInfo.innerHTML = `
-                        <strong>Demo Mode:</strong> Configure Supabase credentials to enable authentication.
-                        <br><small>For demo: any email/password will work</small>
-                    `;
-                    loginForm.insertBefore(demoInfo, loginForm.firstChild);
-                }
-            }
-
             async handleLogin() {
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-                const errorDiv = document.getElementById('loginError');
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                const errorDiv = document.getElementById('authError');
+                const submitBtn = document.querySelector('#loginForm button[type="submit"]');
 
                 try {
-                    errorDiv.style.display = 'none';
-
-                    if (!this.supabase) {
-                        throw new Error('Supabase connection not available');
-                    }
+                    this.hideMessages();
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Signing In...';
 
                     const { data, error } = await this.supabase.auth.signInWithPassword({
                         email,
                         password
                     });
 
-                    if (error) {
-                        throw error;
-                    }
+                    if (error) throw error;
 
                     await this.handleAuthSuccess(data.user);
                 } catch (error) {
                     console.error('❌ Login error:', error);
-                    errorDiv.textContent = error.message || 'Login failed. Please try again.';
-                    errorDiv.style.display = 'block';
+                    this.showError(error.message || 'Login failed. Please try again.');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Sign In';
                 }
             }
 
-            async handleDemoLogin(email) {
-                // Create demo user object
-                const demoUser = {
-                    id: 'demo-user-id',
-                    email: email
-                };
+            async handleRegister() {
+                const name = document.getElementById('registerName').value;
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+                const department = document.getElementById('registerDepartment').value;
+                const adminCode = document.getElementById('adminCode').value;
+                const submitBtn = document.querySelector('#registerForm button[type="submit"]');
 
-                const demoAdminUser = {
-                    id: 'demo-admin-id',
-                    user_id: 'demo-user-id',
-                    full_name: 'Demo Administrator',
-                    email: email,
-                    role: 'super_admin',
-                    department: 'IT',
-                    is_active: true
-                };
+                try {
+                    this.hideMessages();
+                    
+                    // Validate admin code
+                    if (adminCode !== ADMIN_CODE) {
+                        throw new Error('Invalid admin access code. Please contact your system administrator.');
+                    }
 
-                this.currentUser = demoUser;
-                this.currentAdminUser = demoAdminUser;
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Creating Account...';
 
-                this.showDashboard();
-                await this.loadDemoData();
+                    // Create user account
+                    const { data, error } = await this.supabase.auth.signUp({
+                        email,
+                        password,
+                        options: {
+                            data: {
+                                full_name: name,
+                                department: department
+                            }
+                        }
+                    });
+
+                    if (error) throw error;
+
+                    if (data.user) {
+                        // Create admin user record
+                        const { error: adminError } = await this.supabase
+                            .from('admin_users')
+                            .insert({
+                                user_id: data.user.id,
+                                full_name: name,
+                                email: email,
+                                role: 'admin',
+                                department: department,
+                                is_active: true
+                            });
+
+                        if (adminError) {
+                            console.error('❌ Error creating admin user:', adminError);
+                            // Still show success as the user was created
+                        }
+
+                        this.showSuccess('Account created successfully! Please check your email to verify your account before signing in.');
+                        
+                        // Switch to login tab
+                        setTimeout(() => {
+                            switchAuthTab('login');
+                        }, 2000);
+                    }
+
+                } catch (error) {
+                    console.error('❌ Registration error:', error);
+                    this.showError(error.message || 'Registration failed. Please try again.');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Create Account';
+                }
             }
 
             async handleAuthSuccess(user) {
@@ -1234,34 +1248,12 @@
                         .single();
 
                     if (error || !adminUser) {
-                        console.warn('⚠️ Admin user not found. Error:', error);
-                        
-                        // Try to auto-create admin user for the first user
-                        console.log('🔧 Attempting to create admin user...');
-                        
-                        const { data: newAdminUser, error: createError } = await this.supabase
-                            .from('admin_users')
-                            .insert({
-                                user_id: user.id,
-                                full_name: user.email.split('@')[0], // Use email prefix as name
-                                email: user.email,
-                                role: 'super_admin',
-                                is_active: true
-                            })
-                            .select()
-                            .single();
-
-                        if (createError) {
-                            console.error('❌ Failed to create admin user:', createError);
-                            throw new Error(`Admin access denied. Please contact system administrator. Details: ${createError.message}`);
-                        }
-
-                        console.log('✅ Created new admin user:', newAdminUser);
-                        this.currentAdminUser = newAdminUser;
-                    } else {
-                        this.currentAdminUser = adminUser;
-                        console.log('✅ Admin user found:', adminUser.full_name);
+                        console.warn('⚠️ Admin user not found:', error);
+                        throw new Error('Admin access denied. Please contact your system administrator.');
                     }
+
+                    this.currentAdminUser = adminUser;
+                    console.log('✅ Admin user found:', adminUser.full_name);
 
                     // Update last login
                     await this.supabase
@@ -1282,7 +1274,7 @@
                     if (this.supabase) {
                         await this.supabase.auth.signOut();
                     }
-                    this.showLogin();
+                    this.showAuth();
                 }
             }
 
@@ -1293,19 +1285,19 @@
                     
                     this.currentUser = null;
                     this.currentAdminUser = null;
-                    this.showLogin();
+                    this.showAuth();
                 } catch (error) {
                     console.error('❌ Logout error:', error);
                 }
             }
 
-            showLogin() {
-                document.getElementById('loginScreen').style.display = 'flex';
+            showAuth() {
+                document.getElementById('authScreen').style.display = 'flex';
                 document.getElementById('dashboard').classList.remove('active');
             }
 
             showDashboard() {
-                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('authScreen').style.display = 'none';
                 document.getElementById('dashboard').classList.add('active');
                 
                 // Update user info
@@ -1331,28 +1323,30 @@
             }
 
             async loadTabData(tabName) {
-                switch (tabName) {
-                    case 'overview':
-                        await this.loadOverviewData();
-                        break;
-                    case 'surveys':
-                        await this.loadSurveysData();
-                        break;
-                    case 'analytics':
-                        await this.loadAnalyticsData();
-                        break;
-                    case 'follow-ups':
-                        await this.loadFollowUpsData();
-                        break;
-                    case 'reports':
-                        await this.loadReportsData();
-                        break;
-                    case 'users':
-                        await this.loadUsersData();
-                        break;
-                    case 'settings':
-                        await this.loadSettingsData();
-                        break;
+                try {
+                    switch (tabName) {
+                        case 'overview':
+                            await this.loadOverviewData();
+                            break;
+                        case 'surveys':
+                            await this.loadSurveysData();
+                            break;
+                        case 'analytics':
+                            await this.loadAnalyticsData();
+                            break;
+                        case 'follow-ups':
+                            await this.loadFollowUpsData();
+                            break;
+                        case 'users':
+                            await this.loadUsersData();
+                            break;
+                        case 'settings':
+                            await this.loadSettingsData();
+                            break;
+                    }
+                } catch (error) {
+                    console.error(`❌ Error loading ${tabName} data:`, error);
+                    this.showError(`Failed to load ${tabName} data`);
                 }
             }
 
@@ -1361,128 +1355,40 @@
                 await this.populateFilterOptions();
             }
 
-            async loadDemoData() {
-                // Generate demo data
-                const demoData = this.generateDemoData();
-                
-                // Update overview stats
-                document.getElementById('totalSurveys').textContent = demoData.totalSurveys;
-                document.getElementById('avgSatisfaction').textContent = demoData.avgSatisfaction;
-                document.getElementById('pendingFollowUps').textContent = demoData.pendingFollowUps;
-                document.getElementById('lowSatisfaction').textContent = demoData.lowSatisfaction;
-                
-                // Update trends
-                document.getElementById('surveyTrend').textContent = '+12% from yesterday';
-                document.getElementById('satisfactionTrend').textContent = '+0.3 from last week';
-                document.getElementById('followUpTrend').textContent = '-5 from yesterday';
-                document.getElementById('lowSatTrend').textContent = '-2 from yesterday';
-
-                // Load demo recent surveys
-                this.loadDemoRecentSurveys(demoData.recentSurveys);
-                
-                // Populate demo filter options
-                this.populateDemoFilterOptions();
-            }
-
-            generateDemoData() {
-                const departments = ['Reception/Front Desk', 'General Practice', 'Specialist Consultation', 'Nursing Services', 'Laboratory', 'Radiology/Imaging', 'Pharmacy'];
-                const recentSurveys = [];
-                
-                // Generate 15 demo surveys
-                for (let i = 0; i < 15; i++) {
-                    const rating = Math.floor(Math.random() * 5) + 1;
-                    const visitDate = new Date();
-                    visitDate.setDate(visitDate.getDate() - Math.floor(Math.random() * 7));
-                    
-                    recentSurveys.push({
-                        response_id: `DEMO_${Date.now()}_${i}`,
-                        patient_name: `Patient ${i + 1}`,
-                        department: departments[Math.floor(Math.random() * departments.length)],
-                        overall_rating: rating,
-                        visit_date: visitDate.toLocaleDateString(),
-                        created_at: new Date().toLocaleDateString(),
-                        wants_followup: Math.random() > 0.7
-                    });
-                }
-
-                return {
-                    totalSurveys: 24,
-                    avgSatisfaction: '4.2',
-                    pendingFollowUps: 7,
-                    lowSatisfaction: 3,
-                    recentSurveys
-                };
-            }
-
-            loadDemoRecentSurveys(surveys) {
-                const tableBody = document.getElementById('recentSurveysTable');
-                
-                if (surveys.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #64748b;">No surveys found</td></tr>';
-                    return;
-                }
-
-                tableBody.innerHTML = surveys.map(survey => `
-                    <tr>
-                        <td>${survey.patient_name}</td>
-                        <td>${survey.department}</td>
-                        <td>
-                            <span class="status-badge ${this.getSatisfactionClass(survey.overall_rating)}">
-                                ${survey.overall_rating}/5
-                            </span>
-                        </td>
-                        <td>${survey.visit_date}</td>
-                        <td>${survey.created_at}</td>
-                        <td>
-                            <span class="status-badge status-completed">Active</span>
-                        </td>
-                        <td>
-                            <button class="btn btn-primary btn-sm" onclick="viewDemoSurvey('${survey.response_id}')">View</button>
-                        </td>
-                    </tr>
-                `).join('');
-            }
-
-            populateDemoFilterOptions() {
-                const departments = ['Reception/Front Desk', 'General Practice', 'Specialist Consultation', 'Nursing Services', 'Laboratory', 'Radiology/Imaging', 'Pharmacy'];
-                const departmentFilter = document.getElementById('departmentFilter');
-                
-                if (departmentFilter) {
-                    departments.forEach(dept => {
-                        const option = document.createElement('option');
-                        option.value = dept;
-                        option.textContent = dept;
-                        departmentFilter.appendChild(option);
-                    });
-                }
-            }
-
             async loadOverviewData() {
                 try {
-                    // Get today's stats
-                    const today = new Date().toISOString().split('T')[0];
-                    
+                    // Get today's date range
+                    const today = new Date();
+                    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                    const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+
+                    // Get today's surveys using visit_date from JSONB
                     const { data: surveys, error } = await this.supabase
                         .from('patient_survey_responses')
                         .select('*')
-                        .gte('created_at', today + 'T00:00:00')
-                        .lt('created_at', today + 'T23:59:59');
+                        .gte('patient_info->visit_date', startOfDay.toISOString().split('T')[0])
+                        .lt('patient_info->visit_date', endOfDay.toISOString().split('T')[0]);
 
                     if (error) throw error;
 
                     // Calculate stats
                     const totalSurveys = surveys.length;
-                    const avgSatisfaction = surveys.length > 0 
-                        ? (surveys.reduce((sum, s) => sum + (parseInt(s.experience_data?.overall_satisfaction) || 0), 0) / surveys.length).toFixed(1)
+                    const validRatings = surveys.filter(s => s.experience_data?.overall_satisfaction);
+                    const avgSatisfaction = validRatings.length > 0 
+                        ? (validRatings.reduce((sum, s) => sum + parseInt(s.experience_data.overall_satisfaction), 0) / validRatings.length).toFixed(1)
                         : '0.0';
                     
-                    const lowSatisfaction = surveys.filter(s => 
-                        parseInt(s.experience_data?.overall_satisfaction) <= 2
+                    const lowSatisfaction = validRatings.filter(s => 
+                        parseInt(s.experience_data.overall_satisfaction) <= 2
                     ).length;
 
-                    const pendingFollowUps = surveys.filter(s => 
-                        s.contact_preferences?.wants_contact === 'yes'
-                    ).length;
+                    // Get pending follow-ups
+                    const { data: followUps, error: followUpError } = await this.supabase
+                        .from('follow_up_tasks')
+                        .select('*')
+                        .eq('status', 'pending');
+
+                    const pendingFollowUps = followUpError ? 0 : followUps.length;
 
                     // Update stats
                     document.getElementById('totalSurveys').textContent = totalSurveys;
@@ -1490,11 +1396,26 @@
                     document.getElementById('pendingFollowUps').textContent = pendingFollowUps;
                     document.getElementById('lowSatisfaction').textContent = lowSatisfaction;
 
-                    // Update trends with dummy data for now
-                    document.getElementById('surveyTrend').textContent = totalSurveys > 0 ? `+${Math.floor(Math.random() * 20)}% from yesterday` : 'No data yet';
-                    document.getElementById('satisfactionTrend').textContent = avgSatisfaction !== '0.0' ? '+0.3 from last week' : 'No data yet';
-                    document.getElementById('followUpTrend').textContent = pendingFollowUps > 0 ? `-${Math.floor(Math.random() * 5)} from yesterday` : 'No pending';
-                    document.getElementById('lowSatTrend').textContent = lowSatisfaction > 0 ? `-${Math.floor(Math.random() * 3)} from yesterday` : 'No low ratings';
+                    // Calculate trends (compare with yesterday)
+                    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+                    const yesterdayStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+                    const yesterdayEnd = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() + 1);
+
+                    const { data: yesterdaySurveys } = await this.supabase
+                        .from('patient_survey_responses')
+                        .select('*')
+                        .gte('patient_info->visit_date', yesterdayStart.toISOString().split('T')[0])
+                        .lt('patient_info->visit_date', yesterdayEnd.toISOString().split('T')[0]);
+
+                    const yesterdayCount = yesterdaySurveys ? yesterdaySurveys.length : 0;
+                    const surveyTrend = yesterdayCount > 0 ? 
+                        `${totalSurveys > yesterdayCount ? '+' : ''}${totalSurveys - yesterdayCount} from yesterday` : 
+                        totalSurveys > 0 ? 'First surveys today' : 'No surveys yet';
+
+                    document.getElementById('surveyTrend').textContent = surveyTrend;
+                    document.getElementById('satisfactionTrend').textContent = avgSatisfaction !== '0.0' ? 'Monitoring trends' : 'No data yet';
+                    document.getElementById('followUpTrend').textContent = pendingFollowUps > 0 ? `${pendingFollowUps} pending tasks` : 'All caught up!';
+                    document.getElementById('lowSatTrend').textContent = lowSatisfaction > 0 ? 'Needs attention' : 'Great job!';
 
                     // Load recent surveys table
                     await this.loadRecentSurveys();
@@ -1534,7 +1455,7 @@
                             <td>${survey.patient_info?.visit_date ? new Date(survey.patient_info.visit_date).toLocaleDateString() : 'N/A'}</td>
                             <td>${new Date(survey.created_at).toLocaleDateString()}</td>
                             <td>
-                                <span class="status-badge status-completed">Active</span>
+                                <span class="status-badge status-completed">Submitted</span>
                             </td>
                             <td>
                                 <button class="btn btn-primary btn-sm" onclick="viewSurvey('${survey.response_id}')">View</button>
@@ -1544,19 +1465,24 @@
 
                 } catch (error) {
                     console.error('❌ Error loading recent surveys:', error);
+                    document.getElementById('recentSurveysTable').innerHTML = '<tr><td colspan="7" style="text-align: center; color: #dc2626;">Error loading surveys</td></tr>';
                 }
             }
 
             async populateFilterOptions() {
                 try {
                     // Get unique departments from JSONB field
-                    const { data: departments, error } = await this.supabase
+                    const { data: surveys, error } = await this.supabase
                         .from('patient_survey_responses')
                         .select('patient_info')
                         .not('patient_info->department_visited', 'is', null);
 
-                    if (!error && departments) {
-                        const uniqueDepartments = [...new Set(departments.map(d => d.patient_info?.department_visited).filter(Boolean))];
+                    if (!error && surveys) {
+                        const uniqueDepartments = [...new Set(surveys
+                            .map(s => s.patient_info?.department_visited)
+                            .filter(Boolean)
+                        )];
+                        
                         const departmentFilter = document.getElementById('departmentFilter');
                         
                         // Clear existing options except "All Departments"
@@ -1578,7 +1504,7 @@
 
             getSatisfactionClass(rating) {
                 const r = parseInt(rating);
-                if (isNaN(r)) return 'status-medium'; // Default for N/A
+                if (isNaN(r)) return 'status-medium';
                 if (r >= 4) return 'status-high';
                 if (r === 3) return 'status-medium';
                 return 'status-low';
@@ -1607,54 +1533,17 @@
                 }
             }
 
-            loadDemoSurveysData() {
-                // Generate more comprehensive demo data for surveys table
-                const surveys = [];
-                const departments = ['Reception/Front Desk', 'General Practice', 'Specialist Consultation', 'Nursing Services', 'Laboratory'];
-                const waitTimes = ['0-5 minutes', '6-10 minutes', '11-15 minutes', '16-30 minutes', '31-45 minutes'];
-                
-                for (let i = 1; i <= 25; i++) {
-                    const rating = Math.floor(Math.random() * 5) + 1;
-                    const visitDate = new Date();
-                    visitDate.setDate(visitDate.getDate() - Math.floor(Math.random() * 30));
-                    
-                    surveys.push({
-                        response_id: `DEMO_SURVEY_${i}`,
-                        patient_info: {
-                            full_name: `Patient ${i}`,
-                            email: `patient${i}@example.com`
-                        },
-                        patient_info: {
-                            department_visited: departments[Math.floor(Math.random() * departments.length)]
-                        },
-                        experience_data: {
-                            overall_satisfaction: rating,
-                            wait_time_actual: waitTimes[Math.floor(Math.random() * waitTimes.length)]
-                        },
-                        patient_info: {
-                            visit_date: visitDate.toISOString().split('T')[0]
-                        },
-                        contact_preferences: {
-                            wants_contact: Math.random() > 0.6 ? 'yes' : 'no'
-                        }
-                    });
-                }
-
-                this.filteredData = surveys;
-                this.renderSurveysTable(surveys);
-            }
-
             renderSurveysTable(surveys) {
                 const tableBody = document.getElementById('allSurveysTable');
                 
                 if (surveys.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #64748b;">No surveys found matching current filters</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #64748b;">No surveys found matching current filters</td></tr>';
                     return;
                 }
 
                 tableBody.innerHTML = surveys.map(survey => `
                     <tr>
-                        <td>${survey.response_id.substring(0, 12)}...</td>
+                        <td title="${survey.response_id}">${survey.response_id.substring(0, 12)}...</td>
                         <td>${survey.patient_info?.full_name || 'N/A'}</td>
                         <td>${survey.patient_info?.email || 'N/A'}</td>
                         <td>${survey.patient_info?.department_visited || 'N/A'}</td>
@@ -1664,7 +1553,6 @@
                             </span>
                         </td>
                         <td>${survey.patient_info?.visit_date || 'N/A'}</td>
-                        <td>${survey.experience_data?.wait_time_actual || 'N/A'}</td>
                         <td>
                             <span class="status-badge ${survey.contact_preferences?.wants_contact === 'yes' ? 'status-pending' : 'status-completed'}">
                                 ${survey.contact_preferences?.wants_contact === 'yes' ? 'Yes' : 'No'}
@@ -1683,10 +1571,21 @@
                     query = query.eq('patient_info->department_visited', this.currentFilters.department);
                 }
 
-                // Apply date range filter using JSONB operator
+                // Apply date range filter
+                if (this.currentFilters.dateRange) {
+                    const { startDate, endDate } = this.getDateRange(this.currentFilters.dateRange);
+                    if (startDate && endDate) {
+                        query = query
+                            .gte('patient_info->visit_date', startDate)
+                            .lte('patient_info->visit_date', endDate);
+                    }
+                }
+
+                // Apply custom date range
                 if (this.currentFilters.startDate && this.currentFilters.endDate) {
-                    query = query.gte('patient_info->visit_date', this.currentFilters.startDate)
-                               .lte('patient_info->visit_date', this.currentFilters.endDate);
+                    query = query
+                        .gte('patient_info->visit_date', this.currentFilters.startDate)
+                        .lte('patient_info->visit_date', this.currentFilters.endDate);
                 }
 
                 // Apply satisfaction filter using JSONB operator
@@ -1704,27 +1603,53 @@
                     }
                 }
 
-                // Apply follow-up filter using JSONB operator
-                if (this.currentFilters.followUp) {
-                    if (this.currentFilters.followUp === 'wants') {
-                        query = query.eq('contact_preferences->wants_contact', 'yes');
-                    } else if (this.currentFilters.followUp === 'no_contact') {
-                        query = query.eq('contact_preferences->wants_contact', 'no');
-                    }
+                return query;
+            }
+
+            getDateRange(range) {
+                const today = new Date();
+                let startDate, endDate;
+
+                switch (range) {
+                    case 'today':
+                        startDate = endDate = today.toISOString().split('T')[0];
+                        break;
+                    case 'yesterday':
+                        const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+                        startDate = endDate = yesterday.toISOString().split('T')[0];
+                        break;
+                    case 'week':
+                        const weekStart = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+                        startDate = weekStart.toISOString().split('T')[0];
+                        endDate = today.toISOString().split('T')[0];
+                        break;
+                    case 'month':
+                        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+                        startDate = monthStart.toISOString().split('T')[0];
+                        endDate = today.toISOString().split('T')[0];
+                        break;
+                    case 'quarter':
+                        const quarterStart = new Date(today.getFullYear(), Math.floor(today.getMonth() / 3) * 3, 1);
+                        startDate = quarterStart.toISOString().split('T')[0];
+                        endDate = today.toISOString().split('T')[0];
+                        break;
+                    case 'year':
+                        const yearStart = new Date(today.getFullYear(), 0, 1);
+                        startDate = yearStart.toISOString().split('T')[0];
+                        endDate = today.toISOString().split('T')[0];
+                        break;
                 }
 
-                return query;
+                return { startDate, endDate };
             }
 
             async loadAnalyticsData() {
                 try {
-                    // Load analytics data and create charts
                     await this.updateAnalyticsMetrics();
                     await this.createSatisfactionTrendChart();
                     await this.createDepartmentPerformanceChart();
                     await this.createWaitTimeChart();
                     await this.createRatingDistributionChart();
-
                 } catch (error) {
                     console.error('❌ Error loading analytics data:', error);
                     this.showError('Failed to load analytics data');
@@ -1733,21 +1658,25 @@
 
             async updateAnalyticsMetrics() {
                 try {
-                    // Get overall metrics from surveys
+                    // Get last 30 days of surveys
+                    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+                    
                     const { data: surveys, error } = await this.supabase
                         .from('patient_survey_responses')
                         .select('*')
-                        .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
+                        .gte('created_at', thirtyDaysAgo.toISOString());
 
                     if (error) throw error;
 
                     const totalResponses = surveys.length;
-                    const avgOverall = surveys.length > 0 
-                        ? (surveys.reduce((sum, s) => sum + (parseInt(s.experience_data?.overall_satisfaction) || 0), 0) / surveys.length).toFixed(1)
+                    const validRatings = surveys.filter(s => s.experience_data?.overall_satisfaction);
+                    
+                    const avgOverall = validRatings.length > 0 
+                        ? (validRatings.reduce((sum, s) => sum + parseInt(s.experience_data.overall_satisfaction), 0) / validRatings.length).toFixed(1)
                         : '0.0';
                     
-                    const satisfactionRate = surveys.length > 0 
-                        ? Math.round((surveys.filter(s => parseInt(s.experience_data?.overall_satisfaction) >= 4).length / surveys.length) * 100)
+                    const satisfactionRate = validRatings.length > 0 
+                        ? Math.round((validRatings.filter(s => parseInt(s.experience_data.overall_satisfaction) >= 4).length / validRatings.length) * 100)
                         : 0;
                     
                     const responseRate = surveys.length > 0 
@@ -1775,11 +1704,18 @@
                 if (!ctx) return;
 
                 try {
+                    // Clear existing chart
+                    if (this.charts.satisfaction) {
+                        this.charts.satisfaction.destroy();
+                    }
+
                     // Get last 7 days of data
+                    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                    
                     const { data: surveys, error } = await this.supabase
                         .from('patient_survey_responses')
                         .select('*')
-                        .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+                        .gte('created_at', sevenDaysAgo.toISOString())
                         .order('created_at', { ascending: true });
 
                     if (error) throw error;
@@ -1796,9 +1732,9 @@
                     }
 
                     surveys.forEach(survey => {
-                        const dateStr = survey.created_at.split('T')[0];
-                        if (dailyData[dateStr]) {
-                            dailyData[dateStr].push(parseInt(survey.experience_data?.overall_satisfaction) || 0);
+                        const visitDate = survey.patient_info?.visit_date;
+                        if (visitDate && dailyData[visitDate] && survey.experience_data?.overall_satisfaction) {
+                            dailyData[visitDate].push(parseInt(survey.experience_data.overall_satisfaction));
                         }
                     });
 
@@ -1806,12 +1742,15 @@
                         const ratings = dailyData[date];
                         return ratings.length > 0 
                             ? (ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(1)
-                            : 0;
+                            : null;
                     });
 
-                    const labels = last7Days.map(date => new Date(date).toLocaleDateString('en-US', { weekday: 'short' }));
+                    const labels = last7Days.map(date => {
+                        const d = new Date(date);
+                        return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                    });
 
-                    new Chart(ctx, {
+                    this.charts.satisfaction = new Chart(ctx, {
                         type: 'line',
                         data: {
                             labels: labels,
@@ -1821,7 +1760,8 @@
                                 borderColor: '#2c5aa0',
                                 backgroundColor: 'rgba(44, 90, 160, 0.1)',
                                 tension: 0.4,
-                                fill: true
+                                fill: true,
+                                spanGaps: true
                             }]
                         },
                         options: {
@@ -1829,31 +1769,21 @@
                             scales: {
                                 y: {
                                     beginAtZero: true,
-                                    max: 5
+                                    max: 5,
+                                    ticks: {
+                                        stepSize: 1
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: true
                                 }
                             }
                         }
                     });
                 } catch (error) {
                     console.error('❌ Error creating satisfaction trend chart:', error);
-                    // Create empty chart
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                            datasets: [{
-                                label: 'Average Satisfaction',
-                                data: [0, 0, 0, 0, 0, 0, 0],
-                                borderColor: '#2c5aa0',
-                                backgroundColor: 'rgba(44, 90, 160, 0.1)',
-                                tension: 0.4
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            scales: { y: { beginAtZero: true, max: 5 } }
-                        }
-                    });
                 }
             }
 
@@ -1862,6 +1792,11 @@
                 if (!ctx) return;
 
                 try {
+                    // Clear existing chart
+                    if (this.charts.department) {
+                        this.charts.department.destroy();
+                    }
+
                     const { data: surveys, error } = await this.supabase
                         .from('patient_survey_responses')
                         .select('*')
@@ -1873,53 +1808,56 @@
                     const deptData = {};
                     surveys.forEach(survey => {
                         const dept = survey.patient_info?.department_visited;
-                        if (dept) {
+                        const rating = survey.experience_data?.overall_satisfaction;
+                        if (dept && rating) {
                             if (!deptData[dept]) deptData[dept] = [];
-                            deptData[dept].push(parseInt(survey.experience_data?.overall_satisfaction) || 0);
+                            deptData[dept].push(parseInt(rating));
                         }
                     });
 
-                    const labels = Object.keys(deptData).slice(0, 5); // Top 5 departments
-                    const data = labels.map(dept => {
+                    const departments = Object.keys(deptData).slice(0, 8); // Top 8 departments
+                    const data = departments.map(dept => {
                         const ratings = deptData[dept];
                         return ratings.length > 0 
                             ? (ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(1)
                             : 0;
                     });
 
-                    new Chart(ctx, {
+                    const colors = [
+                        '#10b981', '#f59e0b', '#3b82f6', '#ef4444', 
+                        '#8b5cf6', '#06b6d4', '#84cc16', '#f97316'
+                    ];
+
+                    this.charts.department = new Chart(ctx, {
                         type: 'bar',
                         data: {
-                            labels: labels,
+                            labels: departments.map(dept => dept.length > 15 ? dept.substring(0, 15) + '...' : dept),
                             datasets: [{
                                 label: 'Average Rating',
                                 data: data,
-                                backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#ef4444', '#8b5cf6']
+                                backgroundColor: colors.slice(0, departments.length)
                             }]
                         },
                         options: {
                             responsive: true,
-                            scales: { y: { beginAtZero: true, max: 5 } }
+                            scales: { 
+                                y: { 
+                                    beginAtZero: true, 
+                                    max: 5,
+                                    ticks: {
+                                        stepSize: 1
+                                    }
+                                } 
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
                         }
                     });
                 } catch (error) {
                     console.error('❌ Error creating department chart:', error);
-                    // Create empty chart
-                    new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: ['No Data'],
-                            datasets: [{
-                                label: 'Average Rating',
-                                data: [0],
-                                backgroundColor: ['#e5e7eb']
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            scales: { y: { beginAtZero: true, max: 5 } }
-                        }
-                    });
                 }
             }
 
@@ -1928,6 +1866,11 @@
                 if (!ctx) return;
 
                 try {
+                    // Clear existing chart
+                    if (this.charts.waitTime) {
+                        this.charts.waitTime.destroy();
+                    }
+
                     const { data: surveys, error } = await this.supabase
                         .from('patient_survey_responses')
                         .select('experience_data')
@@ -1935,33 +1878,39 @@
 
                     if (error) throw error;
 
-                    const waitTimes = ['0-5 minutes', '6-10 minutes', '11-15 minutes', '16-30 minutes', '31-45 minutes', '46-60 minutes', 'More than 1 hour'];
+                    const waitTimes = [
+                        '0-5 minutes', '6-10 minutes', '11-15 minutes', 
+                        '16-30 minutes', '31-45 minutes', '46-60 minutes', 
+                        'More than 1 hour'
+                    ];
+                    
                     const counts = waitTimes.map(time => 
                         surveys.filter(s => s.experience_data?.wait_time_actual === time).length
                     );
 
-                    new Chart(ctx, {
+                    this.charts.waitTime = new Chart(ctx, {
                         type: 'doughnut',
                         data: {
                             labels: waitTimes,
                             datasets: [{
                                 data: counts,
-                                backgroundColor: ['#10b981', '#22c55e', '#84cc16', '#f59e0b', '#ef4444', '#dc2626', '#991b1b']
+                                backgroundColor: [
+                                    '#10b981', '#22c55e', '#84cc16', 
+                                    '#f59e0b', '#ef4444', '#dc2626', '#991b1b'
+                                ]
                             }]
                         },
-                        options: { responsive: true }
+                        options: { 
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
                     });
                 } catch (error) {
                     console.error('❌ Error creating wait time chart:', error);
-                    // Create empty chart
-                    new Chart(ctx, {
-                        type: 'doughnut',
-                        data: {
-                            labels: ['No Data'],
-                            datasets: [{ data: [1], backgroundColor: ['#e5e7eb'] }]
-                        },
-                        options: { responsive: true }
-                    });
                 }
             }
 
@@ -1970,6 +1919,11 @@
                 if (!ctx) return;
 
                 try {
+                    // Clear existing chart
+                    if (this.charts.rating) {
+                        this.charts.rating.destroy();
+                    }
+
                     const { data: surveys, error } = await this.supabase
                         .from('patient_survey_responses')
                         .select('experience_data')
@@ -1981,7 +1935,7 @@
                         surveys.filter(s => parseInt(s.experience_data?.overall_satisfaction) === rating).length
                     );
 
-                    new Chart(ctx, {
+                    this.charts.rating = new Chart(ctx, {
                         type: 'bar',
                         data: {
                             labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
@@ -1993,134 +1947,23 @@
                         },
                         options: {
                             responsive: true,
-                            scales: { y: { beginAtZero: true } }
+                            scales: { 
+                                y: { 
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1
+                                    }
+                                } 
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
                         }
                     });
                 } catch (error) {
                     console.error('❌ Error creating rating distribution chart:', error);
-                    // Create empty chart
-                    new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
-                            datasets: [{
-                                label: 'Number of Responses',
-                                data: [0, 0, 0, 0, 0],
-                                backgroundColor: '#2c5aa0'
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            scales: { y: { beginAtZero: true } }
-                        }
-                    });
-                }
-            }
-
-            loadDemoAnalytics() {
-                // Update metrics with demo data
-                document.getElementById('totalResponsesMetric').textContent = '248';
-                document.getElementById('avgOverallMetric').textContent = '4.2';
-                document.getElementById('satisfactionRateMetric').textContent = '87%';
-                document.getElementById('responseRateMetric').textContent = '34%';
-
-                // Create demo charts
-                this.createDemoCharts();
-            }
-
-            createDemoCharts() {
-                // Demo Satisfaction Trend Chart
-                const ctx1 = document.getElementById('satisfactionChart');
-                if (ctx1) {
-                    new Chart(ctx1, {
-                        type: 'line',
-                        data: {
-                            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                            datasets: [{
-                                label: 'Average Satisfaction',
-                                data: [4.1, 4.3, 4.2, 4.4],
-                                borderColor: '#2c5aa0',
-                                backgroundColor: 'rgba(44, 90, 160, 0.1)',
-                                tension: 0.4
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    max: 5
-                                }
-                            }
-                        }
-                    });
-                }
-
-                // Demo Department Performance Chart
-                const ctx2 = document.getElementById('departmentChart');
-                if (ctx2) {
-                    new Chart(ctx2, {
-                        type: 'bar',
-                        data: {
-                            labels: ['Reception', 'General Practice', 'Nursing', 'Laboratory', 'Pharmacy'],
-                            datasets: [{
-                                label: 'Average Rating',
-                                data: [4.5, 4.2, 4.6, 4.1, 4.3],
-                                backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#ef4444', '#8b5cf6']
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    max: 5
-                                }
-                            }
-                        }
-                    });
-                }
-
-                // Demo Wait Time Chart
-                const ctx3 = document.getElementById('waitTimeChart');
-                if (ctx3) {
-                    new Chart(ctx3, {
-                        type: 'doughnut',
-                        data: {
-                            labels: ['0-5 min', '6-10 min', '11-15 min', '16-30 min', '30+ min'],
-                            datasets: [{
-                                data: [25, 35, 20, 15, 5],
-                                backgroundColor: ['#10b981', '#22c55e', '#f59e0b', '#ef4444', '#dc2626']
-                            }]
-                        },
-                        options: {
-                            responsive: true
-                        }
-                    });
-                }
-
-                // Demo Rating Distribution Chart
-                const ctx4 = document.getElementById('ratingChart');
-                if (ctx4) {
-                    new Chart(ctx4, {
-                        type: 'bar',
-                        data: {
-                            labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
-                            datasets: [{
-                                label: 'Number of Responses',
-                                data: [5, 8, 25, 95, 115],
-                                backgroundColor: '#2c5aa0'
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            }
-                        }
-                    });
                 }
             }
 
@@ -2130,7 +1973,7 @@
                         .from('follow_up_tasks')
                         .select(`
                             *,
-                            survey_response:patient_survey_responses(experience_data)
+                            admin_users!follow_up_tasks_assigned_to_fkey(full_name)
                         `)
                         .order('created_at', { ascending: false });
 
@@ -2142,33 +1985,6 @@
                     console.error('❌ Error loading follow-ups data:', error);
                     this.showError('Failed to load follow-ups data');
                 }
-            }
-
-            loadDemoFollowUps() {
-                const demoFollowUps = [
-                    {
-                        id: 'demo-1',
-                        patient_name: 'John Doe',
-                        contact_method: 'email',
-                        priority: 'high',
-                        assigned_to: null,
-                        scheduled_date: null,
-                        status: 'pending',
-                        survey_rating: 2
-                    },
-                    {
-                        id: 'demo-2',
-                        patient_name: 'Jane Smith',
-                        contact_method: 'phone',
-                        priority: 'medium',
-                        assigned_to: 'Admin User',
-                        scheduled_date: new Date().toISOString(),
-                        status: 'in_progress',
-                        survey_rating: 1
-                    }
-                ];
-
-                this.renderFollowUpsTable(demoFollowUps);
             }
 
             renderFollowUpsTable(followUps) {
@@ -2183,38 +1999,35 @@
                     <tr>
                         <td>${followUp.patient_name}</td>
                         <td>
-                            <span class="status-badge ${followUp.contact_method === 'email' ? 'status-medium' : 'status-low'}">
+                            <span class="status-badge ${followUp.contact_method === 'email' ? 'status-medium' : followUp.contact_method === 'phone' ? 'status-low' : 'status-high'}">
                                 ${followUp.contact_method}
                             </span>
                         </td>
                         <td>
-                            <span class="follow-up-priority priority-${followUp.priority}">
+                            <span class="status-badge ${followUp.priority === 'urgent' ? 'status-high' : followUp.priority === 'high' ? 'status-medium' : 'status-low'}">
                                 ${followUp.priority}
                             </span>
                         </td>
-                        <td>${followUp.assigned_to || 'Unassigned'}</td>
-                        <td>${followUp.scheduled_date ? new Date(followUp.scheduled_date).toLocaleDateString() : 'Not scheduled'}</td>
+                        <td>${followUp.admin_users?.full_name || 'Unassigned'}</td>
                         <td>
                             <span class="status-badge status-${followUp.status}">
-                                ${followUp.status}
+                                ${followUp.status.replace('_', ' ')}
                             </span>
                         </td>
                         <td>
-                            <span class="status-badge ${this.getSatisfactionClass(followUp.survey_response?.experience_data?.overall_satisfaction || 'N/A')}">
-                                ${followUp.survey_response?.experience_data?.overall_satisfaction || 'N/A'}/5
+                            <span class="status-badge status-medium">
+                                Follow-up needed
                             </span>
                         </td>
+                        <td>${new Date(followUp.created_at).toLocaleDateString()}</td>
                         <td>
                             <button class="btn btn-primary btn-sm" onclick="viewFollowUp('${followUp.id}')">View</button>
-                            <button class="btn btn-success btn-sm" onclick="completeFollowUp('${followUp.id}')">Complete</button>
+                            ${followUp.status === 'pending' ? 
+                                `<button class="btn btn-success btn-sm" onclick="completeFollowUp('${followUp.id}')">Complete</button>` : ''
+                            }
                         </td>
                     </tr>
                 `).join('');
-            }
-
-            async loadReportsData() {
-                console.log('📄 Reports tab loaded');
-                // Reports functionality would be implemented here
             }
 
             async loadUsersData() {
@@ -2234,31 +2047,6 @@
                 }
             }
 
-            loadDemoUsers() {
-                const demoUsers = [
-                    {
-                        id: 'demo-admin-1',
-                        full_name: 'Demo Administrator',
-                        email: 'admin@demo.com',
-                        role: 'super_admin',
-                        department: 'IT',
-                        last_login: new Date().toISOString(),
-                        is_active: true
-                    },
-                    {
-                        id: 'demo-admin-2',
-                        full_name: 'Department Manager',
-                        email: 'manager@demo.com',
-                        role: 'manager',
-                        department: 'General Practice',
-                        last_login: new Date(Date.now() - 86400000).toISOString(),
-                        is_active: true
-                    }
-                ];
-
-                this.renderUsersTable(demoUsers);
-            }
-
             renderUsersTable(users) {
                 const tableBody = document.getElementById('usersTable');
                 
@@ -2272,7 +2060,7 @@
                         <td>${user.full_name}</td>
                         <td>${user.email}</td>
                         <td>
-                            <span class="status-badge status-${user.role === 'super_admin' ? 'high' : 'medium'}">
+                            <span class="status-badge ${user.role === 'super_admin' ? 'status-high' : 'status-medium'}">
                                 ${user.role.replace('_', ' ').toUpperCase()}
                             </span>
                         </td>
@@ -2284,10 +2072,9 @@
                             </span>
                         </td>
                         <td>
-                            <button class="btn btn-primary btn-sm" onclick="editUser('${user.id}')">Edit</button>
-                            ${user.id !== this.currentAdminUser.id ? 
+                            ${this.currentAdminUser.role === 'super_admin' && user.id !== this.currentAdminUser.id ? 
                                 `<button class="btn btn-danger btn-sm" onclick="toggleUserStatus('${user.id}', ${!user.is_active})">${user.is_active ? 'Disable' : 'Enable'}</button>` 
-                                : ''
+                                : 'No actions available'
                             }
                         </td>
                     </tr>
@@ -2358,27 +2145,38 @@
                 }
             }
 
-            showError(message, type = 'error') {
-                // Create alert element
-                const alertDiv = document.createElement('div');
-                alertDiv.className = `alert alert-${type}`;
-                alertDiv.innerHTML = `
-                    <strong>${type === 'error' ? 'Error:' : 'Info:'}</strong> ${message}
-                    <button onclick="this.parentElement.remove()" style="float: right; background: none; border: none; font-size: 16px; cursor: pointer;">&times;</button>
-                `;
+            showError(message) {
+                this.showMessage(message, 'error');
+            }
 
-                // Insert at top of container
-                const container = document.querySelector('.container');
-                if (container) {
-                    container.insertBefore(alertDiv, container.firstChild);
-                    
-                    // Auto-remove after 5 seconds
-                    setTimeout(() => {
-                        if (alertDiv.parentNode) {
-                            alertDiv.remove();
-                        }
-                    }, 5000);
+            showSuccess(message) {
+                this.showMessage(message, 'success');
+            }
+
+            showMessage(message, type = 'error') {
+                const errorDiv = document.getElementById('authError');
+                const successDiv = document.getElementById('authSuccess');
+                
+                if (type === 'error') {
+                    errorDiv.textContent = message;
+                    errorDiv.style.display = 'block';
+                    successDiv.style.display = 'none';
+                } else {
+                    successDiv.textContent = message;
+                    successDiv.style.display = 'block';
+                    errorDiv.style.display = 'none';
                 }
+
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    errorDiv.style.display = 'none';
+                    successDiv.style.display = 'none';
+                }, 5000);
+            }
+
+            hideMessages() {
+                document.getElementById('authError').style.display = 'none';
+                document.getElementById('authSuccess').style.display = 'none';
             }
 
             async refreshData() {
@@ -2387,41 +2185,32 @@
             }
         }
 
-        // Global functions for button clicks
-        function viewSurvey(responseId) {
-            // Show survey details in modal
-            if (responseId.startsWith('DEMO')) {
-                showDemoSurveyModal(responseId);
+        // Global functions for UI interactions
+        function switchAuthTab(tabName) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const loginTab = document.querySelector('.auth-tab:first-child');
+            const registerTab = document.querySelector('.auth-tab:last-child');
+
+            if (tabName === 'login') {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                loginTab.classList.add('active');
+                registerTab.classList.remove('active');
             } else {
-                showSurveyModal(responseId);
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                loginTab.classList.remove('active');
+                registerTab.classList.add('active');
+            }
+
+            // Hide messages when switching tabs
+            if (window.adminDashboard) {
+                window.adminDashboard.hideMessages();
             }
         }
 
-        function viewDemoSurvey(responseId) {
-            showDemoSurveyModal(responseId);
-        }
-
-        function showDemoSurveyModal(responseId) {
-            const modal = document.getElementById('surveyModal');
-            const details = document.getElementById('surveyDetails');
-            
-            details.innerHTML = `
-                <h3>Survey: ${responseId}</h3>
-                <p><strong>Patient:</strong> Demo Patient</p>
-                <p><strong>Department:</strong> General Practice</p>
-                <p><strong>Overall Rating:</strong> 4/5</p>
-                <p><strong>Visit Date:</strong> ${new Date().toLocaleDateString()}</p>
-                <p><strong>Wait Time:</strong> 6-10 minutes</p>
-                <p><strong>Comments:</strong> Good service overall, but could improve waiting area comfort.</p>
-                <p><strong>Follow-up Requested:</strong> Yes (Email)</p>
-                <p><strong>Demo Mode:</strong> This is demonstration data</p>
-            `;
-            
-            modal.style.display = 'block';
-        }
-
-        function showSurveyModal(responseId) {
-            // Get survey data and show in modal
+        function viewSurvey(responseId) {
             if (window.adminDashboard && window.adminDashboard.supabase) {
                 window.adminDashboard.supabase
                     .from('patient_survey_responses')
@@ -2438,7 +2227,7 @@
                         const details = document.getElementById('surveyDetails');
                         
                         details.innerHTML = `
-                            <h3>Survey: ${survey.response_id}</h3>
+                            <h3>Survey Details</h3>
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;">
                                 <div>
                                     <h4>Patient Information</h4>
@@ -2450,7 +2239,7 @@
                                     <p><strong>Department:</strong> ${survey.patient_info?.department_visited || 'N/A'}</p>
                                 </div>
                                 <div>
-                                    <h4>Ratings</h4>
+                                    <h4>Ratings (1-5 scale)</h4>
                                     <p><strong>Overall Satisfaction:</strong> ${survey.experience_data?.overall_satisfaction || 'N/A'}/5</p>
                                     <p><strong>Reception:</strong> ${survey.experience_data?.reception_rating || 'N/A'}/5</p>
                                     <p><strong>Doctor/Provider:</strong> ${survey.experience_data?.doctor_rating || 'N/A'}/5</p>
@@ -2458,14 +2247,14 @@
                                     <p><strong>Staff Professionalism:</strong> ${survey.experience_data?.staff_professionalism || 'N/A'}/5</p>
                                 </div>
                                 <div>
-                                    <h4>Wait Times</h4>
-                                    <p><strong>Actual Wait Time:</strong> ${survey.experience_data?.wait_time_actual || 'N/A'}</p>
+                                    <h4>Experience Details</h4>
+                                    <p><strong>Wait Time:</strong> ${survey.experience_data?.wait_time_actual || 'N/A'}</p>
                                     <p><strong>Appointment Timeliness:</strong> ${survey.experience_data?.appointment_timeliness || 'N/A'}</p>
                                 </div>
                                 <div>
                                     <h4>Contact Preferences</h4>
                                     <p><strong>Wants Contact:</strong> ${survey.contact_preferences?.wants_contact === 'yes' ? 'Yes' : 'No'}</p>
-                                    <p><strong>Preferred Methods:</strong> ${survey.contact_preferences?.contact_methods?.join(', ') || 'None'}</p>
+                                    <p><strong>Methods:</strong> ${survey.contact_preferences?.contact_methods?.join(', ') || 'None'}</p>
                                 </div>
                             </div>
                             ${survey.experience_data?.additional_comments ? `
@@ -2475,15 +2264,17 @@
                                 </div>
                             ` : ''}
                             <div style="margin-top: 20px; font-size: 12px; color: #666;">
+                                <p><strong>Survey ID:</strong> ${survey.response_id}</p>
                                 <p><strong>Submitted:</strong> ${new Date(survey.created_at).toLocaleString()}</p>
-                                <p><strong>Survey Version:</strong> ${survey.metadata?.survey_version || 'N/A'}</p>
                             </div>
                         `;
                         
                         modal.style.display = 'block';
+                    })
+                    .catch(error => {
+                        console.error('Error viewing survey:', error);
+                        alert('Error loading survey details');
                     });
-            } else {
-                showDemoSurveyModal(responseId);
             }
         }
 
@@ -2492,43 +2283,42 @@
         }
 
         function viewFollowUp(followUpId) {
-            const modal = document.getElementById('followUpModal');
-            const details = document.getElementById('followUpDetails');
-            
-            details.innerHTML = `
-                <h3>Follow-up Task: ${followUpId}</h3>
-                <p><strong>Patient:</strong> Demo Patient</p>
-                <p><strong>Contact Method:</strong> Email</p>
-                <p><strong>Priority:</strong> High</p>
-                <p><strong>Reason:</strong> Low satisfaction rating (2/5)</p>
-                <p><strong>Notes:</strong> Patient reported long wait times and communication issues.</p>
-            `;
-            
-            modal.style.display = 'block';
+            // Implementation for viewing follow-up details
+            alert(`Viewing follow-up task: ${followUpId}`);
         }
 
         function closeFollowUpModal() {
             document.getElementById('followUpModal').style.display = 'none';
         }
 
-        function completeFollowUp(followUpId) {
+        async function completeFollowUp(followUpId) {
             if (confirm('Mark this follow-up as completed?')) {
-                alert(`Follow-up ${followUpId} marked as completed`);
-                // Implementation would update the database
+                try {
+                    await window.adminDashboard.supabase
+                        .from('follow_up_tasks')
+                        .update({ 
+                            status: 'completed',
+                            completed_date: new Date().toISOString()
+                        })
+                        .eq('id', followUpId);
+
+                    await window.adminDashboard.loadFollowUpsData();
+                    alert('Follow-up marked as completed');
+                } catch (error) {
+                    console.error('Error completing follow-up:', error);
+                    alert('Error completing follow-up');
+                }
             }
         }
 
         function applyFilters() {
             if (window.adminDashboard) {
-                // Get filter values
                 const filters = {
                     department: document.getElementById('departmentFilter').value,
                     dateRange: document.getElementById('dateRangeFilter').value,
-                    satisfaction: document.getElementById('satisfactionFilter').value,
-                    followUp: document.getElementById('followUpFilter').value
+                    satisfaction: document.getElementById('satisfactionFilter').value
                 };
 
-                // Handle custom date range
                 if (filters.dateRange === 'custom') {
                     filters.startDate = document.getElementById('startDate').value;
                     filters.endDate = document.getElementById('endDate').value;
@@ -2610,62 +2400,86 @@
         }
 
         function exportRecentSurveys() {
-            alert('Export recent surveys functionality would be implemented here');
-        }
-
-        function exportFollowUps() {
-            alert('Export follow-ups functionality would be implemented here');
-        }
-
-        function generateReport() {
-            const reportType = document.getElementById('reportType').value;
-            const reportPeriod = document.getElementById('reportPeriod').value;
-            const reportFormat = document.getElementById('reportFormat').value;
-            
-            alert(`Generating ${reportType} report for ${reportPeriod} in ${reportFormat} format...`);
-            
-            // Show preview
-            const preview = document.getElementById('reportPreview');
-            const content = document.getElementById('reportContent');
-            
-            content.innerHTML = `
-                <div style="padding: 20px;">
-                    <h3>Report Preview: ${reportType}</h3>
-                    <p><strong>Period:</strong> ${reportPeriod}</p>
-                    <p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
-                    <p>This is a preview of the ${reportType} report. Click Download to get the full report in ${reportFormat} format.</p>
-                </div>
-            `;
-            
-            preview.style.display = 'block';
-        }
-
-        function downloadReport() {
-            alert('Download report functionality would be implemented here');
-        }
-
-        function editUser(userId) {
-            alert(`Edit user: ${userId}`);
-        }
-
-        function toggleUserStatus(userId, newStatus) {
-            if (confirm(`Are you sure you want to ${newStatus ? 'enable' : 'disable'} this user?`)) {
-                alert(`User status would be changed to: ${newStatus ? 'enabled' : 'disabled'}`);
+            if (window.adminDashboard && window.adminDashboard.supabase) {
+                window.adminDashboard.supabase
+                    .from('patient_survey_responses')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(10)
+                    .then(({ data, error }) => {
+                        if (error) {
+                            alert('Error exporting data');
+                            return;
+                        }
+                        exportToExcel(data, 'recent-surveys');
+                    });
             }
         }
 
-        function showInviteUserModal() {
-            alert('Invite user functionality would be implemented here');
+        function exportFollowUps() {
+            if (window.adminDashboard && window.adminDashboard.supabase) {
+                window.adminDashboard.supabase
+                    .from('follow_up_tasks')
+                    .select('*')
+                    .then(({ data, error }) => {
+                        if (error) {
+                            alert('Error exporting data');
+                            return;
+                        }
+                        exportToExcel(data, 'follow-up-tasks');
+                    });
+            }
+        }
+
+        async function toggleUserStatus(userId, newStatus) {
+            if (confirm(`Are you sure you want to ${newStatus ? 'enable' : 'disable'} this user?`)) {
+                try {
+                    await window.adminDashboard.supabase
+                        .from('admin_users')
+                        .update({ is_active: newStatus })
+                        .eq('id', userId);
+
+                    await window.adminDashboard.loadUsersData();
+                    alert(`User ${newStatus ? 'enabled' : 'disabled'} successfully`);
+                } catch (error) {
+                    console.error('Error updating user status:', error);
+                    alert('Error updating user status');
+                }
+            }
+        }
+
+        async function saveSettings() {
+            try {
+                const settings = {
+                    'survey_auto_restart_time': document.getElementById('autoRestartTime').value,
+                    'survey_idle_timeout': document.getElementById('idleTimeout').value,
+                    'dashboard_refresh_interval': document.getElementById('dashboardRefresh').value,
+                    'low_rating_threshold': document.getElementById('lowRatingThreshold').value,
+                    'max_follow_up_attempts': document.getElementById('maxFollowUpAttempts').value,
+                    'email_notifications_enabled': document.getElementById('emailNotifications').value
+                };
+
+                for (const [key, value] of Object.entries(settings)) {
+                    await window.adminDashboard.supabase
+                        .from('system_settings')
+                        .upsert({
+                            setting_key: key,
+                            setting_value: value,
+                            updated_by: window.adminDashboard.currentAdminUser.id
+                        });
+                }
+
+                alert('Settings saved successfully!');
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                alert('Error saving settings');
+            }
         }
 
         function refreshData() {
             if (window.adminDashboard) {
                 window.adminDashboard.refreshData();
             }
-        }
-
-        function saveSettings() {
-            alert('Save settings functionality would be implemented here');
         }
 
         // Close dropdowns when clicking outside
