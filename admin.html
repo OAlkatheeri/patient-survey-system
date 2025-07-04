@@ -597,7 +597,106 @@
             border-radius: 6px;
             right: 0;
         }
+        /* Enhanced export dropdown styles */
+        .export-dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1000;
+            border-radius: 6px;
+            right: 0;
+            border: 1px solid #e5e7eb;
+        }
 
+        .export-dropdown-content a {
+            color: #374151;
+            padding: 10px 15px;
+            text-decoration: none;
+            display: block;
+            font-size: 14px;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background-color 0.2s;
+        }
+
+        .export-dropdown-content a:last-child {
+            border-bottom: none;
+        }
+
+        .export-dropdown-content a:hover {
+            background-color: #f8fafc;
+            color: #2c5aa0;
+        }
+
+        .export-dropdown-content hr {
+            margin: 5px 0;
+            border: none;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .export-dropdown.show .export-dropdown-content {
+            display: block;
+            animation: slideDown 0.2s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Export progress styles */
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #2c5aa0;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Export actions */
+        .export-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .export-actions .btn {
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+
+        /* Responsive export buttons */
+        @media (max-width: 768px) {
+            .export-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .export-actions .btn {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            .export-dropdown-content {
+                min-width: 180px;
+                right: 0;
+                left: auto;
+            }
+        }
         .export-dropdown-content a {
             color: #374151;
             padding: 8px 12px;
@@ -791,7 +890,14 @@
                         <h3>Recent Survey Responses</h3>
                         <div class="table-actions">
                             <button class="btn btn-primary btn-sm" onclick="refreshData()">🔄 Refresh</button>
-                            <button class="btn btn-success btn-sm" onclick="exportRecentSurveys()">📥 Export</button>
+                            <div class="export-dropdown">
+                                <button class="btn btn-success btn-sm" onclick="toggleExportDropdown(this)">📥 Export Recent ▼</button>
+                                <div class="export-dropdown-content">
+                                    <a href="#" onclick="exportRecentSurveys('excel')">📊 Excel Report</a>
+                                    <a href="#" onclick="exportRecentSurveys('csv')">📋 CSV Data</a>
+                                    <a href="#" onclick="exportRecentSurveys('pdf')">📄 PDF Report</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <table>
@@ -867,11 +973,15 @@
                         <h3>All Survey Responses</h3>
                         <div class="table-actions">
                             <div class="export-dropdown">
-                                <button class="btn btn-success btn-sm" onclick="toggleExportDropdown()">📥 Export ▼</button>
+                                <button class="btn btn-success btn-sm" onclick="toggleExportDropdown(this)">📥 Export Data ▼</button>
                                 <div class="export-dropdown-content">
-                                    <a href="#" onclick="exportSurveys('excel')">📊 Excel (.xlsx)</a>
-                                    <a href="#" onclick="exportSurveys('csv')">📋 CSV</a>
-                                    <a href="#" onclick="exportSurveys('json')">🔧 JSON</a>
+                                    <a href="#" onclick="exportSurveys('excel')">📊 Excel Report (Multi-Sheet)</a>
+                                    <a href="#" onclick="exportSurveys('csv')">📋 CSV Data</a>
+                                    <a href="#" onclick="exportSurveys('pdf')">📄 PDF Report</a>
+                                    <a href="#" onclick="exportSurveys('json')">🔧 JSON Data</a>
+                                    <hr style="margin: 5px 0;">
+                                    <a href="#" onclick="exportCustomRange()">📅 Custom Date Range</a>
+                                    <a href="#" onclick="exportAnalytics()">📈 Analytics Report</a>
                                 </div>
                             </div>
                             <button class="btn btn-primary btn-sm" onclick="loadSurveysData()">🔄 Refresh</button>
@@ -952,7 +1062,13 @@
                         <h3>Follow-up Tasks</h3>
                         <div class="table-actions">
                             <button class="btn btn-primary btn-sm" onclick="loadFollowUpsData()">🔄 Refresh</button>
-                            <button class="btn btn-success btn-sm" onclick="exportFollowUps()">📥 Export</button>
+                            <div class="export-dropdown">
+                                <button class="btn btn-success btn-sm" onclick="toggleExportDropdown(this)">📥 Export Tasks ▼</button>
+                                <div class="export-dropdown-content">
+                                    <a href="#" onclick="exportFollowUps('excel')">📊 Excel Report</a>
+                                    <a href="#" onclick="exportFollowUps('csv')">📋 CSV Data</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <table>
@@ -1506,30 +1622,61 @@
 
             async loadOverviewData() {
                 try {
+                    console.log('🔄 Loading overview data...');
+                    
                     // Get today's date range
                     const today = new Date();
                     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
                     const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 
-                    // Get today's surveys using visit_date from JSONB
-                    const { data: surveys, error } = await this.supabase
+                    // Get today's surveys using created_at (more reliable than visit_date)
+                    const { data: todaySurveys, error: todayError } = await this.supabase
                         .from('patient_survey_responses')
                         .select('*')
-                        .gte('patient_info->visit_date', startOfDay.toISOString().split('T')[0])
-                        .lt('patient_info->visit_date', endOfDay.toISOString().split('T')[0]);
+                        .gte('created_at', startOfDay.toISOString())
+                        .lt('created_at', endOfDay.toISOString());
 
-                    if (error) throw error;
+                    if (todayError) {
+                        console.error('❌ Error fetching today surveys:', todayError);
+                        throw todayError;
+                    }
+
+                    console.log('📊 Today surveys:', todaySurveys?.length || 0);
+
+                    // Get all surveys for averages (last 7 days)
+                    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                    const { data: allSurveys, error: allError } = await this.supabase
+                        .from('patient_survey_responses')
+                        .select('*')
+                        .gte('created_at', sevenDaysAgo.toISOString());
+
+                    if (allError) {
+                        console.error('❌ Error fetching all surveys:', allError);
+                        // Continue with today's data only
+                    }
+
+                    const surveysForStats = allSurveys || todaySurveys || [];
+                    console.log('📊 Surveys for stats:', surveysForStats.length);
 
                     // Calculate stats
-                    const totalSurveys = surveys.length;
-                    const validRatings = surveys.filter(s => s.experience_data?.overall_satisfaction);
+                    const totalSurveys = todaySurveys?.length || 0;
+                    
+                    // Calculate average satisfaction
+                    const validRatings = surveysForStats.filter(s => {
+                        const rating = s.experience_data?.overall_satisfaction;
+                        return rating && !isNaN(parseInt(rating));
+                    });
+                    
                     const avgSatisfaction = validRatings.length > 0 
                         ? (validRatings.reduce((sum, s) => sum + parseInt(s.experience_data.overall_satisfaction), 0) / validRatings.length).toFixed(1)
                         : '0.0';
                     
+                    // Calculate low satisfaction (≤2)
                     const lowSatisfaction = validRatings.filter(s => 
                         parseInt(s.experience_data.overall_satisfaction) <= 2
                     ).length;
+
+                    console.log('📊 Stats calculated:', { totalSurveys, avgSatisfaction, lowSatisfaction });
 
                     // Get pending follow-ups
                     const { data: followUps, error: followUpError } = await this.supabase
@@ -1537,84 +1684,112 @@
                         .select('*')
                         .eq('status', 'pending');
 
-                    const pendingFollowUps = followUpError ? 0 : followUps.length;
+                    if (followUpError) {
+                        console.error('❌ Error fetching follow-ups:', followUpError);
+                    }
 
-                    // Update stats
+                    const pendingFollowUps = followUps?.length || 0;
+                    console.log('📊 Pending follow-ups:', pendingFollowUps);
+
+                    // Update stats in UI
                     document.getElementById('totalSurveys').textContent = totalSurveys;
                     document.getElementById('avgSatisfaction').textContent = avgSatisfaction;
                     document.getElementById('pendingFollowUps').textContent = pendingFollowUps;
                     document.getElementById('lowSatisfaction').textContent = lowSatisfaction;
 
-                    // Calculate trends (compare with yesterday)
-                    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-                    const yesterdayStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
-                    const yesterdayEnd = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() + 1);
-
-                    const { data: yesterdaySurveys } = await this.supabase
-                        .from('patient_survey_responses')
-                        .select('*')
-                        .gte('patient_info->visit_date', yesterdayStart.toISOString().split('T')[0])
-                        .lt('patient_info->visit_date', yesterdayEnd.toISOString().split('T')[0]);
-
-                    const yesterdayCount = yesterdaySurveys ? yesterdaySurveys.length : 0;
-                    const surveyTrend = yesterdayCount > 0 ? 
-                        `${totalSurveys > yesterdayCount ? '+' : ''}${totalSurveys - yesterdayCount} from yesterday` : 
-                        totalSurveys > 0 ? 'First surveys today' : 'No surveys yet';
-
-                    document.getElementById('surveyTrend').textContent = surveyTrend;
-                    document.getElementById('satisfactionTrend').textContent = avgSatisfaction !== '0.0' ? 'Monitoring trends' : 'No data yet';
-                    document.getElementById('followUpTrend').textContent = pendingFollowUps > 0 ? `${pendingFollowUps} pending tasks` : 'All caught up!';
-                    document.getElementById('lowSatTrend').textContent = lowSatisfaction > 0 ? 'Needs attention' : 'Great job!';
+                    // Calculate and show trends
+                    this.updateTrends(totalSurveys, avgSatisfaction, pendingFollowUps, lowSatisfaction);
 
                     // Load recent surveys table
                     await this.loadRecentSurveys();
 
                 } catch (error) {
                     console.error('❌ Error loading overview data:', error);
-                    this.showError('Failed to load dashboard data');
+                    this.showError('Failed to load dashboard data: ' + error.message);
+                    
+                    // Set fallback values
+                    document.getElementById('totalSurveys').textContent = '0';
+                    document.getElementById('avgSatisfaction').textContent = '0.0';
+                    document.getElementById('pendingFollowUps').textContent = '0';
+                    document.getElementById('lowSatisfaction').textContent = '0';
                 }
+            }
+
+            updateTrends(totalSurveys, avgSatisfaction, pendingFollowUps, lowSatisfaction) {
+                // Update trends with meaningful messages
+                document.getElementById('surveyTrend').textContent = totalSurveys > 0 
+                    ? `${totalSurveys} surveys submitted today` 
+                    : 'No surveys today yet';
+                    
+                document.getElementById('satisfactionTrend').textContent = avgSatisfaction !== '0.0' 
+                    ? `Average over last 7 days` 
+                    : 'No rating data yet';
+                    
+                document.getElementById('followUpTrend').textContent = pendingFollowUps > 0 
+                    ? `${pendingFollowUps} tasks need attention` 
+                    : 'All caught up!';
+                    
+                document.getElementById('lowSatTrend').textContent = lowSatisfaction > 0 
+                    ? `${lowSatisfaction} need attention` 
+                    : 'Great job!';
             }
 
             async loadRecentSurveys() {
                 try {
+                    console.log('🔄 Loading recent surveys...');
+                    
                     const { data: surveys, error } = await this.supabase
                         .from('patient_survey_responses')
                         .select('*')
                         .order('created_at', { ascending: false })
                         .limit(10);
 
-                    if (error) throw error;
+                    if (error) {
+                        console.error('❌ Error fetching recent surveys:', error);
+                        throw error;
+                    }
 
+                    console.log('📊 Recent surveys fetched:', surveys?.length || 0);
+                    
                     const tableBody = document.getElementById('recentSurveysTable');
                     
-                    if (surveys.length === 0) {
+                    if (!surveys || surveys.length === 0) {
                         tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #64748b;">No surveys found</td></tr>';
                         return;
                     }
 
-                    tableBody.innerHTML = surveys.map(survey => `
-                        <tr>
-                            <td>${survey.patient_info?.full_name || 'N/A'}</td>
-                            <td>${survey.patient_info?.department_visited || 'N/A'}</td>
-                            <td>
-                                <span class="status-badge ${this.getSatisfactionClass(survey.experience_data?.overall_satisfaction)}">
-                                    ${survey.experience_data?.overall_satisfaction || 'N/A'}/5
-                                </span>
-                            </td>
-                            <td>${survey.patient_info?.visit_date ? new Date(survey.patient_info.visit_date).toLocaleDateString() : 'N/A'}</td>
-                            <td>${new Date(survey.created_at).toLocaleDateString()}</td>
-                            <td>
-                                <span class="status-badge status-completed">Submitted</span>
-                            </td>
-                            <td>
-                                <button class="btn btn-primary btn-sm" onclick="viewSurvey('${survey.response_id}')">View</button>
-                            </td>
-                        </tr>
-                    `).join('');
+                    tableBody.innerHTML = surveys.map(survey => {
+                        const patientName = survey.patient_info?.full_name || 'N/A';
+                        const department = survey.patient_info?.department_visited || 'N/A';
+                        const overallRating = survey.experience_data?.overall_satisfaction || 'N/A';
+                        const visitDate = survey.patient_info?.visit_date || 'N/A';
+                        const submittedDate = new Date(survey.created_at).toLocaleDateString();
+                        
+                        return `
+                            <tr>
+                                <td>${patientName}</td>
+                                <td>${department}</td>
+                                <td>
+                                    <span class="status-badge ${this.getSatisfactionClass(overallRating)}">
+                                        ${overallRating}/5
+                                    </span>
+                                </td>
+                                <td>${visitDate}</td>
+                                <td>${submittedDate}</td>
+                                <td>
+                                    <span class="status-badge status-completed">Submitted</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm" onclick="viewSurvey('${survey.response_id}')">View</button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
 
                 } catch (error) {
                     console.error('❌ Error loading recent surveys:', error);
-                    document.getElementById('recentSurveysTable').innerHTML = '<tr><td colspan="7" style="text-align: center; color: #dc2626;">Error loading surveys</td></tr>';
+                    document.getElementById('recentSurveysTable').innerHTML = 
+                        '<tr><td colspan="7" style="text-align: center; color: #dc2626;">Error loading surveys: ' + error.message + '</td></tr>';
                 }
             }
 
@@ -1661,6 +1836,12 @@
 
             async loadSurveysData() {
                 try {
+                    console.log('🔄 Loading surveys data with filters:', this.currentFilters);
+                    
+                    // Show loading state
+                    document.getElementById('allSurveysTable').innerHTML = 
+                        '<tr><td colspan="8" class="loading"><div class="spinner"></div></td></tr>';
+                    
                     let query = this.supabase
                         .from('patient_survey_responses')
                         .select('*')
@@ -1669,19 +1850,39 @@
                     // Apply current filters
                     query = this.applyFiltersToQuery(query);
 
+                    console.log('🔍 Executing query with filters...');
                     const { data: surveys, error } = await query;
 
-                    if (error) throw error;
+                    if (error) {
+                        console.error('❌ Query error:', error);
+                        throw error;
+                    }
 
-                    this.filteredData = surveys;
-                    this.renderSurveysTable(surveys);
+                    console.log('📊 Surveys loaded:', surveys?.length || 0);
+                    this.filteredData = surveys || [];
+                    this.renderSurveysTable(this.filteredData);
+
+                    // Update status message
+                    if (surveys && surveys.length > 0) {
+                        const hasFilters = Object.values(this.currentFilters || {}).some(v => v);
+                        if (hasFilters) {
+                            console.log('✅ Filtered results:', surveys.length, 'surveys found');
+                        }
+                    }
 
                 } catch (error) {
                     console.error('❌ Error loading surveys data:', error);
-                    this.showError('Failed to load surveys data');
+                    this.showError('Failed to load surveys data: ' + error.message);
+                    
+                    // Show error state
+                    document.getElementById('allSurveysTable').innerHTML = 
+                        `<tr><td colspan="8" style="text-align: center; color: #dc2626;">
+                            Error loading surveys: ${error.message}
+                            <br><small>Try refreshing or clearing filters</small>
+                        </td></tr>`;
                 }
             }
-
+            
             renderSurveysTable(surveys) {
                 const tableBody = document.getElementById('allSurveysTable');
                 
@@ -1715,39 +1916,50 @@
             }
 
             applyFiltersToQuery(query) {
+                console.log('🔍 Applying filters:', this.currentFilters);
+
                 // Apply department filter using JSONB operator
                 if (this.currentFilters.department) {
-                    query = query.eq('patient_info->department_visited', this.currentFilters.department);
+                    console.log('🏥 Department filter:', this.currentFilters.department);
+                    query = query.eq('patient_info->>department_visited', this.currentFilters.department);
                 }
 
-                // Apply date range filter
-                if (this.currentFilters.dateRange) {
+                // Apply date range filter using created_at (more reliable than JSONB visit_date)
+                if (this.currentFilters.dateRange && this.currentFilters.dateRange !== 'custom') {
                     const { startDate, endDate } = this.getDateRange(this.currentFilters.dateRange);
                     if (startDate && endDate) {
+                        console.log('📅 Date range filter:', startDate, 'to', endDate);
+                        // Convert visit_date to comparison with created_at
+                        const startDateTime = new Date(startDate + 'T00:00:00').toISOString();
+                        const endDateTime = new Date(endDate + 'T23:59:59').toISOString();
                         query = query
-                            .gte('patient_info->visit_date', startDate)
-                            .lte('patient_info->visit_date', endDate);
+                            .gte('created_at', startDateTime)
+                            .lte('created_at', endDateTime);
                     }
                 }
 
                 // Apply custom date range
                 if (this.currentFilters.startDate && this.currentFilters.endDate) {
+                    console.log('📅 Custom date range:', this.currentFilters.startDate, 'to', this.currentFilters.endDate);
+                    const startDateTime = new Date(this.currentFilters.startDate + 'T00:00:00').toISOString();
+                    const endDateTime = new Date(this.currentFilters.endDate + 'T23:59:59').toISOString();
                     query = query
-                        .gte('patient_info->visit_date', this.currentFilters.startDate)
-                        .lte('patient_info->visit_date', this.currentFilters.endDate);
+                        .gte('created_at', startDateTime)
+                        .lte('created_at', endDateTime);
                 }
 
-                // Apply satisfaction filter using JSONB operator
+                // Apply satisfaction filter using JSONB operator with ->> for text comparison
                 if (this.currentFilters.satisfaction) {
+                    console.log('⭐ Satisfaction filter:', this.currentFilters.satisfaction);
                     switch (this.currentFilters.satisfaction) {
                         case 'low':
-                            query = query.lte('experience_data->overall_satisfaction', '2');
+                            query = query.in('experience_data->>overall_satisfaction', ['1', '2']);
                             break;
                         case 'medium':
-                            query = query.eq('experience_data->overall_satisfaction', '3');
+                            query = query.eq('experience_data->>overall_satisfaction', '3');
                             break;
                         case 'high':
-                            query = query.gte('experience_data->overall_satisfaction', '4');
+                            query = query.in('experience_data->>overall_satisfaction', ['4', '5']);
                             break;
                     }
                 }
@@ -1789,9 +2001,10 @@
                         break;
                 }
 
+                console.log('📅 Date range calculated:', { range, startDate, endDate });
                 return { startDate, endDate };
             }
-
+            
             async loadAnalyticsData() {
                 try {
                     await this.updateAnalyticsMetrics();
@@ -2153,8 +2366,8 @@
                             </span>
                         </td>
                         <td>
-                            <span class="status-badge ${followUp.priority === 'urgent' ? 'status-high' : followUp.priority === 'high' ? 'status-medium' : 'status-low'}">
-                                ${followUp.priority}
+                            <span class="status-badge ${this.getPriorityClass(followUp.priority)}">
+                                ${followUp.priority.toUpperCase()}
                             </span>
                         </td>
                         <td>${followUp.admin_users?.full_name || 'Unassigned'}</td>
@@ -2163,73 +2376,163 @@
                                 ${followUp.status.replace('_', ' ')}
                             </span>
                         </td>
-                        <td>
-                            <span class="status-badge status-medium">
-                                Follow-up needed
-                            </span>
-                        </td>
+                        <td title="${followUp.notes || ''}">${followUp.notes ? followUp.notes.substring(0, 30) + '...' : 'No notes'}</td>
                         <td>${new Date(followUp.created_at).toLocaleDateString()}</td>
                         <td>
                             <button class="btn btn-primary btn-sm" onclick="viewFollowUp('${followUp.id}')">View</button>
                             ${followUp.status === 'pending' ? 
                                 `<button class="btn btn-success btn-sm" onclick="completeFollowUp('${followUp.id}')">Complete</button>` : ''
                             }
+                            <button class="btn btn-danger btn-sm" onclick="removeFollowUp('${followUp.id}', '${followUp.patient_name.replace(/'/g, "\\'")}')">Remove</button>
                         </td>
                     </tr>
                 `).join('');
+            }
+
+            // Add priority class helper
+            getPriorityClass(priority) {
+                switch(priority) {
+                    case 'urgent': return 'status-high';
+                    case 'high': return 'status-medium'; 
+                    case 'medium': return 'status-low';
+                    case 'low': return 'status-completed';
+                    default: return 'status-medium';
+                }
             }
 
             async loadUsersData() {
                 try {
-                    const { data: users, error } = await this.supabase
-                        .from('admin_users')
-                        .select('*')
-                        .order('created_at', { ascending: false });
+                    console.log('👥 Loading users data...');
+                    
+                    // Show loading state
+                    document.getElementById('usersTable').innerHTML = 
+                        '<tr><td colspan="7" class="loading"><div class="spinner"></div></td></tr>';
 
-                    if (error) throw error;
+                    // Try multiple approaches to get user data
+                    let users = null;
+                    let error = null;
 
-                    this.renderUsersTable(users);
+                    // Approach 1: Try normal query
+                    try {
+                        const { data, error: queryError } = await this.supabase
+                            .from('admin_users')
+                            .select('*')
+                            .order('created_at', { ascending: false });
+                        
+                        if (queryError) throw queryError;
+                        users = data;
+                        console.log('✅ Normal query succeeded, got', users?.length || 0, 'users');
+                    } catch (normalError) {
+                        console.warn('⚠️ Normal query failed:', normalError);
+                        error = normalError;
+
+                        // Approach 2: Try with view (if created)
+                        try {
+                            const { data, error: viewError } = await this.supabase
+                                .from('admin_users_view')
+                                .select('*')
+                                .order('created_at', { ascending: false });
+                            
+                            if (viewError) throw viewError;
+                            users = data;
+                            console.log('✅ View query succeeded, got', users?.length || 0, 'users');
+                            error = null;
+                        } catch (viewError) {
+                            console.warn('⚠️ View query also failed:', viewError);
+                            
+                            // Approach 3: Try to get just own user record
+                            try {
+                                const { data, error: ownError } = await this.supabase
+                                    .from('admin_users')
+                                    .select('*')
+                                    .eq('user_id', this.currentUser.id)
+                                    .single();
+                                
+                                if (ownError) throw ownError;
+                                users = [data];
+                                console.log('✅ Own user query succeeded');
+                                error = null;
+                            } catch (ownError) {
+                                console.error('❌ Even own user query failed:', ownError);
+                                error = ownError;
+                            }
+                        }
+                    }
+
+                    if (users) {
+                        this.renderUsersTable(users);
+                    } else {
+                        throw error || new Error('Failed to load users with all methods');
+                    }
 
                 } catch (error) {
                     console.error('❌ Error loading users data:', error);
-                    this.showError('Failed to load users data');
+                    
+                    // Show helpful error message based on error type
+                    let errorMessage = 'Failed to load users';
+                    if (error.message.includes('infinite recursion')) {
+                        errorMessage = 'Database configuration issue. Please check RLS policies.';
+                    } else if (error.message.includes('policy')) {
+                        errorMessage = 'Permission denied. You may not have access to view users.';
+                    } else {
+                        errorMessage = `Error: ${error.message}`;
+                    }
+                    
+                    this.showError(errorMessage);
+                    
+                    document.getElementById('usersTable').innerHTML = 
+                        `<tr><td colspan="7" style="text-align: center; color: #dc2626;">
+                            ${errorMessage}
+                            <br><small>Check browser console for details</small>
+                            <br><button class="btn btn-secondary btn-sm" onclick="tryFixUserPermissions()" style="margin-top: 10px;">Try Fix</button>
+                        </td></tr>`;
                 }
             }
-
+            
             renderUsersTable(users) {
                 const tableBody = document.getElementById('usersTable');
                 
-                if (users.length === 0) {
+                if (!users || users.length === 0) {
                     tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #64748b;">No users found</td></tr>';
                     return;
                 }
 
-                tableBody.innerHTML = users.map(user => `
-                    <tr>
-                        <td>${user.full_name}</td>
-                        <td>${user.email}</td>
-                        <td>
-                            <span class="status-badge ${user.role === 'super_admin' ? 'status-high' : 'status-medium'}">
-                                ${user.role.replace('_', ' ').toUpperCase()}
-                            </span>
-                        </td>
-                        <td>${user.department || '-'}</td>
-                        <td>${user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never'}</td>
-                        <td>
-                            <span class="status-badge ${user.is_active ? 'status-high' : 'status-low'}">
-                                ${user.is_active ? 'Active' : 'Inactive'}
-                            </span>
-                        </td>
-                        <td>
-                            ${this.currentAdminUser.role === 'super_admin' && user.id !== this.currentAdminUser.id ? 
-                                `<button class="btn btn-danger btn-sm" onclick="toggleUserStatus('${user.id}', ${!user.is_active})">${user.is_active ? 'Disable' : 'Enable'}</button>` 
-                                : 'No actions available'
-                            }
-                        </td>
-                    </tr>
-                `).join('');
-            }
+                console.log('👥 Rendering users table with', users.length, 'users');
+                console.log('🔑 Current admin role:', this.currentAdminUser?.role);
 
+                tableBody.innerHTML = users.map(user => {
+                    const canManageUser = this.currentAdminUser?.role === 'super_admin' && user.id !== this.currentAdminUser.id;
+                    const lastLogin = user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never';
+                    
+                    return `
+                        <tr>
+                            <td>${user.full_name}</td>
+                            <td>${user.email}</td>
+                            <td>
+                                <span class="status-badge ${user.role === 'super_admin' ? 'status-high' : 'status-medium'}">
+                                    ${user.role.replace('_', ' ').toUpperCase()}
+                                </span>
+                            </td>
+                            <td>${user.department || '-'}</td>
+                            <td>${lastLogin}</td>
+                            <td>
+                                <span class="status-badge ${user.is_active ? 'status-high' : 'status-low'}">
+                                    ${user.is_active ? 'Active' : 'Inactive'}
+                                </span>
+                            </td>
+                            <td>
+                                ${canManageUser ? `
+                                    <button class="btn ${user.is_active ? 'btn-danger' : 'btn-success'} btn-sm" 
+                                            onclick="toggleUserStatus('${user.id}', ${!user.is_active})">
+                                        ${user.is_active ? '🚫 Disable' : '✅ Enable'}
+                                    </button>
+                                ` : '<span style="color: #64748b; font-size: 12px;">No actions available</span>'}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+            
             async loadSettingsData() {
                 try {
                     const { data: settings, error } = await this.supabase
@@ -2265,33 +2568,21 @@
             }
 
             handleDateRangeChange() {
-                const dateRange = document.getElementById('dateRangeFilter').value;
+                const dateRange = document.getElementById('dateRangeFilter')?.value;
                 const customDateGroup = document.getElementById('customDateGroup');
                 const customDateGroup2 = document.getElementById('customDateGroup2');
 
-                if (dateRange === 'custom') {
-                    customDateGroup.style.display = 'flex';
-                    customDateGroup2.style.display = 'flex';
-                } else {
-                    customDateGroup.style.display = 'none';
-                    customDateGroup2.style.display = 'none';
-                }
-            }
+                console.log('📅 Date range changed to:', dateRange);
 
-            async logActivity(action, resourceType = null, resourceId = null, details = null) {
-                try {
-                    await this.supabase
-                        .from('admin_activity_log')
-                        .insert({
-                            admin_id: this.currentAdminUser.id,
-                            action,
-                            resource_type: resourceType,
-                            resource_id: resourceId,
-                            details
-                        });
-                } catch (error) {
-                    console.warn('❌ Could not log activity (this is okay):', error);
-                    // Don't throw error - activity logging is not critical
+                if (dateRange === 'custom') {
+                    if (customDateGroup) customDateGroup.style.display = 'flex';
+                    if (customDateGroup2) customDateGroup2.style.display = 'flex';
+                } else {
+                    if (customDateGroup) customDateGroup.style.display = 'none';
+                    if (customDateGroup2) customDateGroup2.style.display = 'none';
+                    
+                    // Auto-apply filters when not custom
+                    setTimeout(() => applyFilters(), 100);
                 }
             }
 
@@ -2347,10 +2638,844 @@
             }
 
             async refreshData() {
-                await this.loadDashboardData();
-                console.log('✅ Dashboard data refreshed');
+                try {
+                    console.log('🔄 Starting refresh...');
+                    
+                    // Show loading indicator if available
+                    const refreshButtons = document.querySelectorAll('button:contains("Refresh"), button:contains("🔄")');
+                    refreshButtons.forEach(btn => {
+                        btn.disabled = true;
+                        btn.textContent = btn.textContent.replace('🔄', '⏳');
+                    });
+                    
+                    // Get current active tab
+                    const activeTab = document.querySelector('.nav-tab.active');
+                    const currentTabName = activeTab ? activeTab.dataset.tab : 'overview';
+                    
+                    console.log('📋 Refreshing tab:', currentTabName);
+                    
+                    // Refresh data based on current tab
+                    switch (currentTabName) {
+                        case 'overview':
+                            await this.loadOverviewData();
+                            console.log('✅ Overview refreshed');
+                            break;
+                        case 'surveys':
+                            await this.loadSurveysData();
+                            console.log('✅ Surveys refreshed');
+                            break;
+                        case 'analytics':
+                            await this.loadAnalyticsData();
+                            console.log('✅ Analytics refreshed');
+                            break;
+                        case 'follow-ups':
+                            await this.loadFollowUpsData();
+                            console.log('✅ Follow-ups refreshed');
+                            break;
+                        case 'users':
+                            await this.loadUsersData();
+                            console.log('✅ Users refreshed');
+                            break;
+                        case 'settings':
+                            await this.loadSettingsData();
+                            console.log('✅ Settings refreshed');
+                            break;
+                        default:
+                            await this.loadOverviewData();
+                            console.log('✅ Default refresh (overview)');
+                    }
+                    
+                    // Also refresh filter options if on surveys tab
+                    if (currentTabName === 'surveys') {
+                        await this.populateFilterOptions();
+                    }
+                    
+                    console.log('✅ Refresh completed successfully');
+                    this.showSuccess('Data refreshed successfully!');
+                    
+                } catch (error) {
+                    console.error('❌ Refresh error:', error);
+                    this.showError('Failed to refresh: ' + error.message);
+                } finally {
+                    // Re-enable refresh buttons
+                    const refreshButtons = document.querySelectorAll('button');
+                    refreshButtons.forEach(btn => {
+                        if (btn.textContent.includes('⏳')) {
+                            btn.disabled = false;
+                            btn.textContent = btn.textContent.replace('⏳', '🔄');
+                        }
+                    });
+                }
+            }
+            
+            async removeFollowUp(followUpId, patientName) {
+                if (!confirm(`Are you sure you want to remove the follow-up task for ${patientName}?\n\nThis action will be logged for audit purposes.`)) {
+                    return false;
+                }
+
+                try {
+                    // First, get the follow-up details for logging
+                    const { data: followUp, error: fetchError } = await this.supabase
+                        .from('follow_up_tasks')
+                        .select('*')
+                        .eq('id', followUpId)
+                        .single();
+
+                    if (fetchError) throw fetchError;
+
+                    // Delete the follow-up task
+                    const { error: deleteError } = await this.supabase
+                        .from('follow_up_tasks')
+                        .delete()
+                        .eq('id', followUpId);
+
+                    if (deleteError) throw deleteError;
+
+                    // Log the removal activity
+                    await this.logActivity('delete', 'follow_up_task', followUpId, {
+                        patient_name: followUp.patient_name,
+                        priority: followUp.priority,
+                        status: followUp.status,
+                        reason: 'Admin removed follow-up task',
+                        removed_by: this.currentAdminUser.full_name,
+                        removed_at: new Date().toISOString()
+                    });
+
+                    // Refresh the follow-ups table
+                    await this.loadFollowUpsData();
+                    
+                    this.showSuccess(`Follow-up task for ${patientName} has been removed and logged.`);
+                    return true;
+
+                } catch (error) {
+                    console.error('❌ Error removing follow-up:', error);
+                    this.showError('Failed to remove follow-up task: ' + error.message);
+                    return false;
+                }
+            }
+            // Enhanced activity logging with better details
+            async logActivity(action, resourceType = null, resourceId = null, details = null) {
+                try {
+                    const logData = {
+                        admin_id: this.currentAdminUser.id,
+                        action,
+                        resource_type: resourceType,
+                        resource_id: resourceId,
+                        details: {
+                            ...details,
+                            admin_name: this.currentAdminUser.full_name,
+                            admin_email: this.currentAdminUser.email,
+                            timestamp: new Date().toISOString(),
+                            user_agent: navigator.userAgent
+                        }
+                    };
+
+                    await this.supabase
+                        .from('admin_activity_log')
+                        .insert(logData);
+
+                    console.log('✅ Activity logged:', action, resourceType, resourceId);
+                } catch (error) {
+                    console.warn('❌ Could not log activity:', error);
+                    // Don't throw error - activity logging is not critical
+                }
+            }
+
+            async toggleUserStatus(userId, newStatus) {
+                // Check permissions first
+                if (!this.currentAdminUser || this.currentAdminUser.role !== 'super_admin') {
+                    this.showError('Only super administrators can manage user status.');
+                    return;
+                }
+
+                if (userId === this.currentAdminUser.id) {
+                    this.showError('You cannot disable your own account.');
+                    return;
+                }
+
+                try {
+                    console.log(`🔄 ${newStatus ? 'Enabling' : 'Disabling'} user:`, userId);
+
+                    // Use RPC call if direct update fails
+                    let updateError = null;
+                    
+                    // Try direct update first
+                    try {
+                        const { error } = await this.supabase
+                            .from('admin_users')
+                            .update({ 
+                                is_active: newStatus,
+                                updated_at: new Date().toISOString()
+                            })
+                            .eq('id', userId);
+                        
+                        updateError = error;
+                    } catch (directError) {
+                        updateError = directError;
+                    }
+
+                    // If direct update fails, try RPC call
+                    if (updateError) {
+                        console.warn('⚠️ Direct update failed, trying RPC...', updateError);
+                        
+                        const { error: rpcError } = await this.supabase
+                            .rpc('update_admin_user_status', {
+                                target_user_id: userId,
+                                new_status: newStatus
+                            });
+                        
+                        if (rpcError) throw rpcError;
+                    }
+
+                    // Log the activity (optional, may fail)
+                    try {
+                        await this.logActivity(
+                            newStatus ? 'enable_user' : 'disable_user', 
+                            'admin_user', 
+                            userId, 
+                            {
+                                action: newStatus ? 'enabled' : 'disabled',
+                                target_user_id: userId,
+                                performed_by: this.currentAdminUser.full_name
+                            }
+                        );
+                    } catch (logError) {
+                        console.warn('⚠️ Could not log activity:', logError);
+                    }
+
+                    // Refresh the users table
+                    await this.loadUsersData();
+                    
+                    const actionText = newStatus ? 'enabled' : 'disabled';
+                    this.showSuccess(`User ${actionText} successfully!`);
+                    console.log(`✅ User ${actionText} successfully`);
+
+                } catch (error) {
+                    console.error(`❌ Error ${newStatus ? 'enabling' : 'disabling'} user:`, error);
+                    
+                    let errorMessage = `Failed to ${newStatus ? 'enable' : 'disable'} user`;
+                    if (error.message.includes('infinite recursion')) {
+                        errorMessage = 'Database configuration issue. Please check RLS policies.';
+                    } else if (error.message.includes('policy')) {
+                        errorMessage = 'Permission denied. Check your admin role and RLS policies.';
+                    }
+                    
+                    this.showError(`${errorMessage}: ${error.message}`);
+                }
+            }
+        
+                
+        
+            
+        }
+
+        // === PERFECT EXPORT SYSTEM ===
+        class ExportManager {
+        constructor(adminDashboard) {
+            this.dashboard = adminDashboard;
+            this.supabase = adminDashboard.supabase;
+        }
+
+        // Enhanced survey export with multiple sheets and formatting
+        async exportSurveys(format = 'excel', includeFilters = true) {
+            try {
+                this.showExportProgress('Preparing survey data...');
+
+                // Get filtered data if filters are applied
+                let data;
+                if (includeFilters && this.dashboard.filteredData?.length > 0) {
+                    data = this.dashboard.filteredData;
+                    console.log('📊 Exporting filtered data:', data.length, 'surveys');
+                } else {
+                    // Get all surveys
+                    const { data: allSurveys, error } = await this.supabase
+                        .from('patient_survey_responses')
+                        .select('*')
+                        .order('created_at', { ascending: false });
+
+                    if (error) throw error;
+                    data = allSurveys;
+                    console.log('📊 Exporting all data:', data.length, 'surveys');
+                }
+
+                this.showExportProgress('Processing survey responses...');
+
+                switch (format) {
+                    case 'excel':
+                        await this.exportSurveysToExcel(data);
+                        break;
+                    case 'csv':
+                        this.exportSurveysToCSV(data);
+                        break;
+                    case 'pdf':
+                        await this.exportSurveysToPDF(data);
+                        break;
+                    case 'json':
+                        this.exportSurveysToJSON(data);
+                        break;
+                    default:
+                        throw new Error('Unsupported export format');
+                }
+
+                this.hideExportProgress();
+                this.dashboard.showSuccess(`Survey data exported successfully in ${format.toUpperCase()} format!`);
+
+            } catch (error) {
+                this.hideExportProgress();
+                console.error('❌ Export error:', error);
+                this.dashboard.showError('Export failed: ' + error.message);
             }
         }
+
+        async exportSurveysToExcel(data) {
+            const wb = XLSX.utils.book_new();
+
+            // Sheet 1: Summary Statistics
+            const summaryData = this.generateSummaryStats(data);
+            const summaryWS = XLSX.utils.aoa_to_sheet([
+                ['📊 PATIENT SURVEY EXPORT SUMMARY'],
+                ['Generated on:', new Date().toLocaleString()],
+                ['Total Surveys:', data.length],
+                ['Date Range:', this.getDataDateRange(data)],
+                [''],
+                ['📈 KEY METRICS'],
+                ...summaryData
+            ]);
+            XLSX.utils.book_append_sheet(wb, summaryWS, 'Summary');
+
+            // Sheet 2: Main Survey Data (flattened)
+            const flattenedData = data.map(survey => ({
+                'Survey ID': survey.response_id,
+                'Patient Name': survey.patient_info?.full_name || '',
+                'Email': survey.patient_info?.email || '',
+                'Phone': survey.patient_info?.phone || '',
+                'Visit Date': survey.patient_info?.visit_date || '',
+                'Visit Time': survey.patient_info?.visit_time || '',
+                'Department': survey.patient_info?.department_visited || '',
+                'Overall Rating': survey.experience_data?.overall_satisfaction || '',
+                'Reception Rating': survey.experience_data?.reception_rating || '',
+                'Doctor Rating': survey.experience_data?.doctor_rating || '',
+                'Nursing Rating': survey.experience_data?.nursing_rating || '',
+                'Staff Professionalism': survey.experience_data?.staff_professionalism || '',
+                'Wait Time': survey.experience_data?.wait_time_actual || '',
+                'Appointment Timeliness': survey.experience_data?.appointment_timeliness || '',
+                'Wants Follow-up': survey.contact_preferences?.wants_contact || '',
+                'Contact Methods': survey.contact_preferences?.contact_methods?.join(', ') || '',
+                'Additional Comments': survey.experience_data?.additional_comments || '',
+                'Submitted Date': new Date(survey.created_at).toLocaleString(),
+                'Last Updated': new Date(survey.updated_at).toLocaleString()
+            }));
+
+            const mainWS = XLSX.utils.json_to_sheet(flattenedData);
+            XLSX.utils.book_append_sheet(wb, mainWS, 'Survey Responses');
+
+            // Sheet 3: Department Analysis
+            const deptAnalysis = this.generateDepartmentAnalysis(data);
+            const deptWS = XLSX.utils.json_to_sheet(deptAnalysis);
+            XLSX.utils.book_append_sheet(wb, deptWS, 'Department Analysis');
+
+            // Sheet 4: Rating Distribution
+            const ratingDist = this.generateRatingDistribution(data);
+            const ratingWS = XLSX.utils.json_to_sheet(ratingDist);
+            XLSX.utils.book_append_sheet(wb, ratingWS, 'Rating Distribution');
+
+            // Sheet 5: Follow-up Requests
+            const followUpData = data
+                .filter(s => s.contact_preferences?.wants_contact === 'yes')
+                .map(survey => ({
+                    'Patient Name': survey.patient_info?.full_name || '',
+                    'Email': survey.patient_info?.email || '',
+                    'Phone': survey.patient_info?.phone || '',
+                    'Overall Rating': survey.experience_data?.overall_satisfaction || '',
+                    'Department': survey.patient_info?.department_visited || '',
+                    'Preferred Contact': survey.contact_preferences?.contact_methods?.join(', ') || '',
+                    'Visit Date': survey.patient_info?.visit_date || '',
+                    'Comments': survey.experience_data?.additional_comments || '',
+                    'Submitted': new Date(survey.created_at).toLocaleString()
+                }));
+
+            if (followUpData.length > 0) {
+                const followUpWS = XLSX.utils.json_to_sheet(followUpData);
+                XLSX.utils.book_append_sheet(wb, followUpWS, 'Follow-up Requests');
+            }
+
+            // Generate filename with timestamp and filters
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+            const filterSuffix = this.dashboard.filteredData?.length > 0 ? '_filtered' : '_all';
+            const filename = `patient_surveys_${timestamp}${filterSuffix}.xlsx`;
+
+            XLSX.writeFile(wb, filename);
+        }
+
+        exportSurveysToCSV(data) {
+            const flattenedData = data.map(survey => ({
+                'survey_id': survey.response_id,
+                'patient_name': survey.patient_info?.full_name || '',
+                'email': survey.patient_info?.email || '',
+                'phone': survey.patient_info?.phone || '',
+                'visit_date': survey.patient_info?.visit_date || '',
+                'visit_time': survey.patient_info?.visit_time || '',
+                'department': survey.patient_info?.department_visited || '',
+                'overall_rating': survey.experience_data?.overall_satisfaction || '',
+                'reception_rating': survey.experience_data?.reception_rating || '',
+                'doctor_rating': survey.experience_data?.doctor_rating || '',
+                'nursing_rating': survey.experience_data?.nursing_rating || '',
+                'staff_professionalism': survey.experience_data?.staff_professionalism || '',
+                'wait_time': survey.experience_data?.wait_time_actual || '',
+                'appointment_timeliness': survey.experience_data?.appointment_timeliness || '',
+                'wants_followup': survey.contact_preferences?.wants_contact || '',
+                'contact_methods': survey.contact_preferences?.contact_methods?.join('; ') || '',
+                'additional_comments': survey.experience_data?.additional_comments || '',
+                'submitted_date': new Date(survey.created_at).toISOString(),
+                'last_updated': new Date(survey.updated_at).toISOString()
+            }));
+
+            const csv = this.convertToCSV(flattenedData);
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+            const filterSuffix = this.dashboard.filteredData?.length > 0 ? '_filtered' : '_all';
+            const filename = `patient_surveys_${timestamp}${filterSuffix}.csv`;
+            
+            this.downloadFile(csv, filename, 'text/csv;charset=utf-8;');
+        }
+
+        async exportSurveysToPDF(data) {
+            // Create HTML for PDF conversion
+            const html = this.generatePDFContent(data);
+            
+            // For now, open in new window for printing
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(html);
+            printWindow.document.close();
+            
+            // Auto-print dialog
+            setTimeout(() => {
+                printWindow.print();
+            }, 1000);
+        }
+
+        exportSurveysToJSON(data) {
+            const exportData = {
+                exported_at: new Date().toISOString(),
+                total_surveys: data.length,
+                date_range: this.getDataDateRange(data),
+                summary_stats: this.generateSummaryStats(data),
+                surveys: data
+            };
+
+            const json = JSON.stringify(exportData, null, 2);
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+            const filterSuffix = this.dashboard.filteredData?.length > 0 ? '_filtered' : '_all';
+            const filename = `patient_surveys_${timestamp}${filterSuffix}.json`;
+            
+            this.downloadFile(json, filename, 'application/json');
+        }
+
+        // Enhanced follow-up export
+        async exportFollowUps(format = 'excel') {
+            try {
+                this.showExportProgress('Fetching follow-up tasks...');
+
+                const { data: followUps, error } = await this.supabase
+                    .from('follow_up_tasks')
+                    .select(`
+                        *,
+                        admin_users!follow_up_tasks_assigned_to_fkey(full_name, email)
+                    `)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                this.showExportProgress('Processing follow-up data...');
+
+                switch (format) {
+                    case 'excel':
+                        this.exportFollowUpsToExcel(followUps);
+                        break;
+                    case 'csv':
+                        this.exportFollowUpsToCSV(followUps);
+                        break;
+                    default:
+                        throw new Error('Unsupported format for follow-ups');
+                }
+
+                this.hideExportProgress();
+                this.dashboard.showSuccess('Follow-up tasks exported successfully!');
+
+            } catch (error) {
+                this.hideExportProgress();
+                console.error('❌ Follow-up export error:', error);
+                this.dashboard.showError('Follow-up export failed: ' + error.message);
+            }
+        }
+
+        exportFollowUpsToExcel(data) {
+            const wb = XLSX.utils.book_new();
+
+            // Summary sheet
+            const priorityStats = this.generateFollowUpStats(data);
+            const summaryWS = XLSX.utils.aoa_to_sheet([
+                ['📋 FOLLOW-UP TASKS EXPORT'],
+                ['Generated on:', new Date().toLocaleString()],
+                ['Total Tasks:', data.length],
+                [''],
+                ['📊 BY PRIORITY'],
+                ...priorityStats.priority,
+                [''],
+                ['📈 BY STATUS'],
+                ...priorityStats.status
+            ]);
+            XLSX.utils.book_append_sheet(wb, summaryWS, 'Summary');
+
+            // Main data sheet
+            const flattenedData = data.map(task => ({
+                'Task ID': task.id,
+                'Patient Name': task.patient_name,
+                'Email': task.patient_email,
+                'Phone': task.patient_phone,
+                'Contact Method': task.contact_method,
+                'Priority': task.priority.toUpperCase(),
+                'Status': task.status.replace('_', ' ').toUpperCase(),
+                'Assigned To': task.admin_users?.full_name || 'Unassigned',
+                'Assigned Email': task.admin_users?.email || '',
+                'Notes': task.notes || '',
+                'Attempts': task.attempts || 0,
+                'Max Attempts': task.max_attempts || 3,
+                'Created Date': new Date(task.created_at).toLocaleString(),
+                'Scheduled Date': task.scheduled_date ? new Date(task.scheduled_date).toLocaleString() : '',
+                'Completed Date': task.completed_date ? new Date(task.completed_date).toLocaleString() : '',
+                'Updated Date': new Date(task.updated_at).toLocaleString()
+            }));
+
+            const mainWS = XLSX.utils.json_to_sheet(flattenedData);
+            XLSX.utils.book_append_sheet(wb, mainWS, 'Follow-up Tasks');
+
+            // Pending tasks sheet
+            const pendingTasks = data
+                .filter(task => task.status === 'pending')
+                .map(task => ({
+                    'Priority': task.priority.toUpperCase(),
+                    'Patient': task.patient_name,
+                    'Contact': task.contact_method,
+                    'Assigned To': task.admin_users?.full_name || 'UNASSIGNED',
+                    'Days Old': Math.floor((new Date() - new Date(task.created_at)) / (1000 * 60 * 60 * 24)),
+                    'Notes': task.notes || ''
+                }));
+
+            if (pendingTasks.length > 0) {
+                const pendingWS = XLSX.utils.json_to_sheet(pendingTasks);
+                XLSX.utils.book_append_sheet(wb, pendingWS, 'Pending Tasks');
+            }
+
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+            const filename = `follow_up_tasks_${timestamp}.xlsx`;
+            XLSX.writeFile(wb, filename);
+        }
+
+        exportFollowUpsToCSV(data) {
+            const flattenedData = data.map(task => ({
+                'task_id': task.id,
+                'patient_name': task.patient_name,
+                'patient_email': task.patient_email || '',
+                'patient_phone': task.patient_phone || '',
+                'contact_method': task.contact_method,
+                'priority': task.priority,
+                'status': task.status,
+                'assigned_to': task.admin_users?.full_name || '',
+                'assigned_email': task.admin_users?.email || '',
+                'notes': task.notes || '',
+                'attempts': task.attempts || 0,
+                'max_attempts': task.max_attempts || 3,
+                'created_date': new Date(task.created_at).toISOString(),
+                'scheduled_date': task.scheduled_date ? new Date(task.scheduled_date).toISOString() : '',
+                'completed_date': task.completed_date ? new Date(task.completed_date).toISOString() : '',
+                'updated_date': new Date(task.updated_at).toISOString()
+            }));
+
+            const csv = this.convertToCSV(flattenedData);
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+            const filename = `follow_up_tasks_${timestamp}.csv`;
+            
+            this.downloadFile(csv, filename, 'text/csv;charset=utf-8;');
+        }
+
+        // Analytics export
+        async exportAnalytics(format = 'excel') {
+            try {
+                this.showExportProgress('Generating analytics report...');
+
+                // Get last 30 days of data for analytics
+                const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+                
+                const { data: surveys, error } = await this.supabase
+                    .from('patient_survey_responses')
+                    .select('*')
+                    .gte('created_at', thirtyDaysAgo.toISOString());
+
+                if (error) throw error;
+
+                const analytics = this.generateAnalyticsData(surveys);
+
+                switch (format) {
+                    case 'excel':
+                        this.exportAnalyticsToExcel(analytics, surveys);
+                        break;
+                    case 'csv':
+                        this.exportAnalyticsToCSV(analytics);
+                        break;
+                }
+
+                this.hideExportProgress();
+                this.dashboard.showSuccess('Analytics report exported successfully!');
+
+            } catch (error) {
+                this.hideExportProgress();
+                console.error('❌ Analytics export error:', error);
+                this.dashboard.showError('Analytics export failed: ' + error.message);
+            }
+        }
+
+        // === HELPER METHODS ===
+
+        generateSummaryStats(data) {
+            const validRatings = data.filter(s => s.experience_data?.overall_satisfaction);
+            const avgRating = validRatings.length > 0 
+                ? (validRatings.reduce((sum, s) => sum + parseInt(s.experience_data.overall_satisfaction), 0) / validRatings.length).toFixed(2)
+                : 0;
+
+            const ratingCounts = [1, 2, 3, 4, 5].map(rating => [
+                `${rating} Star${rating > 1 ? 's' : ''}`,
+                validRatings.filter(s => parseInt(s.experience_data.overall_satisfaction) === rating).length
+            ]);
+
+            const followUpRequests = data.filter(s => s.contact_preferences?.wants_contact === 'yes').length;
+            const departments = [...new Set(data.map(s => s.patient_info?.department_visited).filter(Boolean))];
+
+            return [
+                ['Average Rating:', avgRating],
+                ['Total Responses:', data.length],
+                ['Follow-up Requests:', followUpRequests],
+                ['Departments Covered:', departments.length],
+                [''],
+                ...ratingCounts
+            ];
+        }
+
+        generateDepartmentAnalysis(data) {
+            const deptData = {};
+            data.forEach(survey => {
+                const dept = survey.patient_info?.department_visited;
+                const rating = survey.experience_data?.overall_satisfaction;
+                
+                if (dept && rating) {
+                    if (!deptData[dept]) {
+                        deptData[dept] = { ratings: [], followUps: 0, total: 0 };
+                    }
+                    deptData[dept].ratings.push(parseInt(rating));
+                    deptData[dept].total++;
+                    
+                    if (survey.contact_preferences?.wants_contact === 'yes') {
+                        deptData[dept].followUps++;
+                    }
+                }
+            });
+
+            return Object.entries(deptData).map(([dept, stats]) => ({
+                'Department': dept,
+                'Total Surveys': stats.total,
+                'Average Rating': (stats.ratings.reduce((sum, r) => sum + r, 0) / stats.ratings.length).toFixed(2),
+                'Follow-up Requests': stats.followUps,
+                'Follow-up Rate': ((stats.followUps / stats.total) * 100).toFixed(1) + '%'
+            }));
+        }
+
+        generateRatingDistribution(data) {
+            const validRatings = data.filter(s => s.experience_data?.overall_satisfaction);
+            
+            return [1, 2, 3, 4, 5].map(rating => {
+                const count = validRatings.filter(s => parseInt(s.experience_data.overall_satisfaction) === rating).length;
+                const percentage = validRatings.length > 0 ? ((count / validRatings.length) * 100).toFixed(1) : 0;
+                
+                return {
+                    'Rating': `${rating} Star${rating > 1 ? 's' : ''}`,
+                    'Count': count,
+                    'Percentage': percentage + '%'
+                };
+            });
+        }
+
+        generateFollowUpStats(data) {
+            const priorityStats = ['urgent', 'high', 'medium', 'low'].map(priority => [
+                priority.toUpperCase(),
+                data.filter(task => task.priority === priority).length
+            ]);
+
+            const statusStats = ['pending', 'in_progress', 'completed', 'cancelled'].map(status => [
+                status.replace('_', ' ').toUpperCase(),
+                data.filter(task => task.status === status).length
+            ]);
+
+            return { priority: priorityStats, status: statusStats };
+        }
+
+        generateAnalyticsData(surveys) {
+            const validRatings = surveys.filter(s => s.experience_data?.overall_satisfaction);
+            
+            return {
+                totalSurveys: surveys.length,
+                averageRating: validRatings.length > 0 
+                    ? (validRatings.reduce((sum, s) => sum + parseInt(s.experience_data.overall_satisfaction), 0) / validRatings.length).toFixed(2)
+                    : 0,
+                satisfactionRate: validRatings.length > 0 
+                    ? ((validRatings.filter(s => parseInt(s.experience_data.overall_satisfaction) >= 4).length / validRatings.length) * 100).toFixed(1)
+                    : 0,
+                followUpRequests: surveys.filter(s => s.contact_preferences?.wants_contact === 'yes').length
+            };
+        }
+
+        generatePDFContent(data) {
+            const summaryStats = this.generateSummaryStats(data);
+            
+            return `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Patient Survey Report</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        .header { text-align: center; margin-bottom: 30px; }
+                        .summary { background: #f8f9fa; padding: 20px; margin-bottom: 30px; border-radius: 8px; }
+                        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+                        .stat-item { background: white; padding: 15px; border-radius: 6px; text-align: center; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                        @media print { body { margin: 0; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>📊 Patient Survey Report</h1>
+                        <p>Generated on: ${new Date().toLocaleString()}</p>
+                        <p>Total Surveys: ${data.length}</p>
+                    </div>
+                    
+                    <div class="summary">
+                        <h2>Summary Statistics</h2>
+                        <div class="stats-grid">
+                            ${summaryStats.map(([label, value]) => 
+                                `<div class="stat-item"><strong>${label}</strong><br>${value}</div>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    
+                    <h2>Recent Survey Responses</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Department</th>
+                                <th>Rating</th>
+                                <th>Visit Date</th>
+                                <th>Follow-up</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.slice(0, 20).map(survey => `
+                                <tr>
+                                    <td>${survey.patient_info?.full_name || 'N/A'}</td>
+                                    <td>${survey.patient_info?.department_visited || 'N/A'}</td>
+                                    <td>${survey.experience_data?.overall_satisfaction || 'N/A'}/5</td>
+                                    <td>${survey.patient_info?.visit_date || 'N/A'}</td>
+                                    <td>${survey.contact_preferences?.wants_contact === 'yes' ? 'Yes' : 'No'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </body>
+                </html>
+            `;
+        }
+
+        getDataDateRange(data) {
+            if (data.length === 0) return 'No data';
+            
+            const dates = data.map(d => new Date(d.created_at)).sort();
+            const oldest = dates[0].toLocaleDateString();
+            const newest = dates[dates.length - 1].toLocaleDateString();
+            
+            return oldest === newest ? oldest : `${oldest} to ${newest}`;
+        }
+
+        convertToCSV(data) {
+            if (!data.length) return '';
+            
+            const headers = Object.keys(data[0]);
+            const csvContent = [
+                headers.join(','),
+                ...data.map(row => 
+                    headers.map(field => {
+                        const value = row[field];
+                        // Escape quotes and wrap in quotes if contains comma or quote
+                        if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+                            return `"${value.replace(/"/g, '""')}"`;
+                        }
+                        return value;
+                    }).join(',')
+                )
+            ].join('\n');
+            
+            // Add UTF-8 BOM for better Excel compatibility
+            return '\ufeff' + csvContent;
+        }
+
+        downloadFile(content, filename, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        showExportProgress(message) {
+            // Create or update progress indicator
+            let progressDiv = document.getElementById('exportProgress');
+            if (!progressDiv) {
+                progressDiv = document.createElement('div');
+                progressDiv.id = 'exportProgress';
+                progressDiv.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: white;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                    z-index: 10000;
+                    text-align: center;
+                    min-width: 300px;
+                `;
+                document.body.appendChild(progressDiv);
+            }
+            
+            progressDiv.innerHTML = `
+                <div class="spinner" style="margin: 0 auto 15px; width: 40px; height: 40px;"></div>
+                <h3>Exporting Data</h3>
+                <p>${message}</p>
+            `;
+        }
+
+        hideExportProgress() {
+            const progressDiv = document.getElementById('exportProgress');
+            if (progressDiv) {
+                progressDiv.remove();
+            }
+        }
+    }
 
         // Global functions for UI interactions
         function switchAuthTab(tabName) {
@@ -2450,8 +3575,238 @@
         }
 
         function viewFollowUp(followUpId) {
-            // Implementation for viewing follow-up details
-            alert(`Viewing follow-up task: ${followUpId}`);
+            if (window.adminDashboard && window.adminDashboard.supabase) {
+                window.adminDashboard.supabase
+                    .from('follow_up_tasks')
+                    .select(`
+                        *,
+                        admin_users!follow_up_tasks_assigned_to_fkey(full_name, email),
+                        patient_survey_responses!follow_up_tasks_survey_response_id_fkey(*)
+                    `)
+                    .eq('id', followUpId)
+                    .single()
+                    .then(({ data: followUp, error }) => {
+                        if (error) {
+                            console.error('Error loading follow-up task:', error);
+                            // Fallback: try without joins
+                            return window.adminDashboard.supabase
+                                .from('follow_up_tasks')
+                                .select('*')
+                                .eq('id', followUpId)
+                                .single();
+                        }
+                        return { data: followUp, error: null };
+                    })
+                    .then(({ data: followUp, error }) => {
+                        if (error) {
+                            console.error('Error loading follow-up task:', error);
+                            alert('Error loading follow-up details: ' + error.message);
+                            return;
+                        }
+
+                        const modal = document.getElementById('followUpModal');
+                        const details = document.getElementById('followUpDetails');
+                        
+                        // Get survey details if available
+                        let surveySection = '';
+                        if (followUp.patient_survey_responses) {
+                            const survey = followUp.patient_survey_responses;
+                            surveySection = `
+                                <div style="margin-top: 20px;">
+                                    <h4>📋 Related Survey Details</h4>
+                                    <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-top: 10px;">
+                                        <p><strong>Overall Rating:</strong> ${survey.experience_data?.overall_satisfaction || 'N/A'}/5</p>
+                                        <p><strong>Visit Date:</strong> ${survey.patient_info?.visit_date || 'N/A'}</p>
+                                        <p><strong>Department:</strong> ${survey.patient_info?.department_visited || 'N/A'}</p>
+                                        <p><strong>Wants Contact:</strong> ${survey.contact_preferences?.wants_contact === 'yes' ? 'Yes' : 'No'}</p>
+                                        ${survey.experience_data?.additional_comments ? 
+                                            `<p><strong>Comments:</strong> ${survey.experience_data.additional_comments}</p>` 
+                                            : ''
+                                        }
+                                    </div>
+                                </div>
+                            `;
+                        }
+
+                        // Build priority indicator
+                        const priorityColors = {
+                            'urgent': '#dc2626',
+                            'high': '#ea580c', 
+                            'medium': '#ca8a04',
+                            'low': '#16a34a'
+                        };
+                        const priorityColor = priorityColors[followUp.priority] || '#6b7280';
+
+                        details.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h3>Follow-up Task Details</h3>
+                                <span style="background: ${priorityColor}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase;">
+                                    ${followUp.priority} Priority
+                                </span>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                                <div>
+                                    <h4>👤 Patient Information</h4>
+                                    <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-top: 10px;">
+                                        <p><strong>Name:</strong> ${followUp.patient_name || 'N/A'}</p>
+                                        <p><strong>Email:</strong> ${followUp.patient_email || 'N/A'}</p>
+                                        <p><strong>Phone:</strong> ${followUp.patient_phone || 'N/A'}</p>
+                                        <p><strong>Preferred Contact:</strong> 
+                                            <span style="background: #e0e7ff; color: #3730a3; padding: 2px 8px; border-radius: 12px; font-size: 12px;">
+                                                ${followUp.contact_method}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4>📋 Task Information</h4>
+                                    <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-top: 10px;">
+                                        <p><strong>Status:</strong> 
+                                            <span style="background: ${followUp.status === 'pending' ? '#fef3c7' : followUp.status === 'completed' ? '#d1fae5' : '#fee2e2'}; 
+                                                        color: ${followUp.status === 'pending' ? '#92400e' : followUp.status === 'completed' ? '#065f46' : '#991b1b'}; 
+                                                        padding: 2px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                                                ${followUp.status.replace('_', ' ')}
+                                            </span>
+                                        </p>
+                                        <p><strong>Assigned To:</strong> ${followUp.admin_users?.full_name || 'Unassigned'}</p>
+                                        <p><strong>Created:</strong> ${new Date(followUp.created_at).toLocaleString()}</p>
+                                        <p><strong>Attempts:</strong> ${followUp.attempts || 0} / ${followUp.max_attempts || 3}</p>
+                                        ${followUp.scheduled_date ? `<p><strong>Scheduled:</strong> ${new Date(followUp.scheduled_date).toLocaleString()}</p>` : ''}
+                                        ${followUp.completed_date ? `<p><strong>Completed:</strong> ${new Date(followUp.completed_date).toLocaleString()}</p>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+
+                            ${followUp.notes ? `
+                                <div style="margin-top: 20px;">
+                                    <h4>📝 Notes & Reason</h4>
+                                    <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-top: 10px;">
+                                        <p>${followUp.notes}</p>
+                                    </div>
+                                </div>
+                            ` : ''}
+
+                            ${surveySection}
+
+                            <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #e5e7eb; display: flex; gap: 10px; flex-wrap: wrap;">
+                                ${followUp.status === 'pending' ? `
+                                    <button class="btn btn-success btn-sm" onclick="completeFollowUpFromModal('${followUp.id}')">✅ Mark Complete</button>
+                                    <button class="btn btn-warning btn-sm" onclick="assignFollowUpToMe('${followUp.id}')">👤 Assign to Me</button>
+                                ` : ''}
+                                <button class="btn btn-primary btn-sm" onclick="contactPatient('${followUp.patient_email}', '${followUp.contact_method}', '${followUp.patient_phone}')">📧 Contact Patient</button>
+                                <button class="btn btn-secondary btn-sm" onclick="addFollowUpNote('${followUp.id}')">📝 Add Note</button>
+                                <button class="btn btn-danger btn-sm" onclick="removeFollowUpFromModal('${followUp.id}', '${followUp.patient_name?.replace(/'/g, "\\'")}')">🗑️ Remove Task</button>
+                            </div>
+
+                            <div style="margin-top: 20px; font-size: 12px; color: #666; border-top: 1px solid #e5e7eb; padding-top: 15px;">
+                                <p><strong>Task ID:</strong> ${followUp.id}</p>
+                                ${followUp.survey_response_id ? `<p><strong>Survey ID:</strong> ${followUp.survey_response_id}</p>` : ''}
+                            </div>
+                        `;
+                        
+                        modal.style.display = 'block';
+                    })
+                    .catch(error => {
+                        console.error('Error viewing follow-up:', error);
+                        alert('Error loading follow-up details');
+                    });
+            }
+        }
+
+        // Also add these supporting functions if they don't exist:
+
+        async function completeFollowUpFromModal(followUpId) {
+            await completeFollowUp(followUpId);
+            closeFollowUpModal();
+        }
+
+        async function removeFollowUpFromModal(followUpId, patientName) {
+            const confirmed = await removeFollowUp(followUpId, patientName);
+            if (confirmed !== false) {
+                closeFollowUpModal();
+            }
+        }
+
+        async function assignFollowUpToMe(followUpId) {
+            if (window.adminDashboard) {
+                try {
+                    const { error } = await window.adminDashboard.supabase
+                        .from('follow_up_tasks')
+                        .update({ 
+                            assigned_to: window.adminDashboard.currentAdminUser.id,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', followUpId);
+
+                    if (error) throw error;
+
+                    alert('Task assigned to you successfully!');
+                    closeFollowUpModal();
+                    await window.adminDashboard.loadFollowUpsData();
+                } catch (error) {
+                    console.error('Error assigning follow-up:', error);
+                    alert('Error assigning task: ' + error.message);
+                }
+            }
+        }
+
+        async function contactPatient(email, method, phone) {
+            if (method === 'email' && email) {
+                // Open email client
+                const subject = encodeURIComponent('Follow-up: Your Recent Healthcare Visit');
+                const body = encodeURIComponent(`Dear Patient,\n\nWe are following up on your recent visit to ensure you received the best possible care.\n\nPlease reply to this email or call us if you have any questions or concerns.\n\nThank you,\nPatient Care Team`);
+                window.open(`mailto:${email}?subject=${subject}&body=${body}`);
+            } else if (method === 'phone' && phone) {
+                // Copy phone number and show instructions
+                navigator.clipboard.writeText(phone).then(() => {
+                    alert(`Phone number ${phone} copied to clipboard.\n\nPlease call the patient to follow up on their healthcare experience.`);
+                }).catch(() => {
+                    alert(`Please call the patient at: ${phone}`);
+                });
+            } else {
+                alert('Contact information not available for this method.');
+            }
+        }
+
+        async function addFollowUpNote(followUpId) {
+            const note = prompt('Add a note to this follow-up task:');
+            if (note && note.trim() && window.adminDashboard) {
+                try {
+                    // Get current notes
+                    const { data: currentTask } = await window.adminDashboard.supabase
+                        .from('follow_up_tasks')
+                        .select('notes')
+                        .eq('id', followUpId)
+                        .single();
+
+                    const timestamp = new Date().toLocaleString();
+                    const adminName = window.adminDashboard.currentAdminUser.full_name;
+                    const newNote = `[${timestamp} - ${adminName}]: ${note.trim()}`;
+                    
+                    const updatedNotes = currentTask?.notes 
+                        ? currentTask.notes + '\n\n' + newNote
+                        : newNote;
+
+                    const { error } = await window.adminDashboard.supabase
+                        .from('follow_up_tasks')
+                        .update({ 
+                            notes: updatedNotes,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', followUpId);
+
+                    if (error) throw error;
+
+                    alert('Note added successfully!');
+                    // Refresh the modal view
+                    viewFollowUp(followUpId);
+                } catch (error) {
+                    console.error('Error adding note:', error);
+                    alert('Error adding note: ' + error.message);
+                }
+            }
         }
 
         function closeFollowUpModal() {
@@ -2479,19 +3834,51 @@
         }
 
         function applyFilters() {
+            console.log('🎯 Apply filters clicked');
+            
             if (window.adminDashboard) {
                 const filters = {
-                    department: document.getElementById('departmentFilter').value,
-                    dateRange: document.getElementById('dateRangeFilter').value,
-                    satisfaction: document.getElementById('satisfactionFilter').value
+                    department: document.getElementById('departmentFilter')?.value || '',
+                    dateRange: document.getElementById('dateRangeFilter')?.value || '',
+                    satisfaction: document.getElementById('satisfactionFilter')?.value || ''
                 };
 
+                // Handle custom date range
                 if (filters.dateRange === 'custom') {
-                    filters.startDate = document.getElementById('startDate').value;
-                    filters.endDate = document.getElementById('endDate').value;
+                    filters.startDate = document.getElementById('startDate')?.value || '';
+                    filters.endDate = document.getElementById('endDate')?.value || '';
+                    
+                    if (!filters.startDate || !filters.endDate) {
+                        alert('Please select both start and end dates for custom range');
+                        return;
+                    }
                 }
 
+                console.log('🔍 Applying filters:', filters);
                 window.adminDashboard.currentFilters = filters;
+                window.adminDashboard.loadSurveysData();
+            } else {
+                console.error('❌ adminDashboard not available');
+                alert('Dashboard not ready. Please refresh the page.');
+            }
+        }
+
+        function clearFilters() {
+            console.log('🧹 Clearing all filters');
+            
+            // Reset filter form elements
+            document.getElementById('departmentFilter').value = '';
+            document.getElementById('dateRangeFilter').value = 'today';
+            document.getElementById('satisfactionFilter').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            
+            // Hide custom date fields
+            document.getElementById('customDateGroup').style.display = 'none';
+            document.getElementById('customDateGroup2').style.display = 'none';
+            
+            if (window.adminDashboard) {
+                window.adminDashboard.currentFilters = {};
                 window.adminDashboard.loadSurveysData();
             }
         }
@@ -2501,120 +3888,10 @@
             dropdown.classList.toggle('show');
         }
 
-        function exportSurveys(format) {
-            const dropdown = document.querySelector('.export-dropdown');
-            dropdown.classList.remove('show');
-            
-            if (window.adminDashboard && window.adminDashboard.filteredData) {
-                const data = window.adminDashboard.filteredData;
-                
-                switch (format) {
-                    case 'excel':
-                        exportToExcel(data, 'patient-surveys');
-                        break;
-                    case 'csv':
-                        exportToCSV(data, 'patient-surveys');
-                        break;
-                    case 'json':
-                        exportToJSON(data, 'patient-surveys');
-                        break;
-                }
-            } else {
-                alert('No data available for export');
-            }
-        }
 
-        function exportToExcel(data, filename) {
-            const ws = XLSX.utils.json_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Surveys');
-            XLSX.writeFile(wb, `${filename}-${new Date().toISOString().split('T')[0]}.xlsx`);
-        }
 
-        function exportToCSV(data, filename) {
-            const csv = convertToCSV(data);
-            downloadFile(csv, `${filename}-${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
-        }
 
-        function exportToJSON(data, filename) {
-            const json = JSON.stringify(data, null, 2);
-            downloadFile(json, `${filename}-${new Date().toISOString().split('T')[0]}.json`, 'application/json');
-        }
-
-        function convertToCSV(data) {
-            if (!data.length) return '';
-            
-            const headers = Object.keys(data[0]);
-            const csvContent = [
-                headers.join(','),
-                ...data.map(row => headers.map(field => {
-                    const value = row[field];
-                    return typeof value === 'object' ? JSON.stringify(value) : value;
-                }).join(','))
-            ].join('\n');
-            
-            return csvContent;
-        }
-
-        function downloadFile(content, filename, contentType) {
-            const blob = new Blob([content], { type: contentType });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.click();
-            window.URL.revokeObjectURL(url);
-        }
-
-        function exportRecentSurveys() {
-            if (window.adminDashboard && window.adminDashboard.supabase) {
-                window.adminDashboard.supabase
-                    .from('patient_survey_responses')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .limit(10)
-                    .then(({ data, error }) => {
-                        if (error) {
-                            alert('Error exporting data');
-                            return;
-                        }
-                        exportToExcel(data, 'recent-surveys');
-                    });
-            }
-        }
-
-        function exportFollowUps() {
-            if (window.adminDashboard && window.adminDashboard.supabase) {
-                window.adminDashboard.supabase
-                    .from('follow_up_tasks')
-                    .select('*')
-                    .then(({ data, error }) => {
-                        if (error) {
-                            alert('Error exporting data');
-                            return;
-                        }
-                        exportToExcel(data, 'follow-up-tasks');
-                    });
-            }
-        }
-
-        async function toggleUserStatus(userId, newStatus) {
-            if (confirm(`Are you sure you want to ${newStatus ? 'enable' : 'disable'} this user?`)) {
-                try {
-                    await window.adminDashboard.supabase
-                        .from('admin_users')
-                        .update({ is_active: newStatus })
-                        .eq('id', userId);
-
-                    await window.adminDashboard.loadUsersData();
-                    alert(`User ${newStatus ? 'enabled' : 'disabled'} successfully`);
-                } catch (error) {
-                    console.error('Error updating user status:', error);
-                    alert('Error updating user status');
-                }
-            }
-        }
-
+        
         async function saveSettings() {
             try {
                 const settings = {
@@ -2644,11 +3921,17 @@
         }
 
         function refreshData() {
-            if (window.adminDashboard) {
-                window.adminDashboard.refreshData();
+            console.log('🔄 Global refresh called');
+            
+            if (!window.adminDashboard) {
+                console.error('❌ AdminDashboard not available');
+                alert('Dashboard not ready. Please refresh the page.');
+                return;
             }
+            
+            console.log('✅ Calling adminDashboard.refreshData()');
+            window.adminDashboard.refreshData();
         }
-
         // Close dropdowns when clicking outside
         window.onclick = function(event) {
             if (!event.target.matches('.btn')) {
@@ -2665,6 +3948,323 @@
         // Initialize dashboard when page loads
         document.addEventListener('DOMContentLoaded', () => {
             window.adminDashboard = new AdminDashboard();
+        });
+    // Global function for remove button
+        async function removeFollowUp(followUpId, patientName) {
+            if (window.adminDashboard) {
+                await window.adminDashboard.removeFollowUp(followUpId, patientName);
+            }
+        }
+
+        // Supporting functions for follow-up modal actions
+        async function completeFollowUpFromModal(followUpId) {
+            await completeFollowUp(followUpId);
+            closeFollowUpModal();
+        }
+
+        async function removeFollowUpFromModal(followUpId, patientName) {
+            const confirmed = await removeFollowUp(followUpId, patientName);
+            if (confirmed !== false) {
+                closeFollowUpModal();
+            }
+        }
+
+        async function assignFollowUpToMe(followUpId) {
+            if (window.adminDashboard) {
+                try {
+                    const { error } = await window.adminDashboard.supabase
+                        .from('follow_up_tasks')
+                        .update({ 
+                            assigned_to: window.adminDashboard.currentAdminUser.id,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', followUpId);
+
+                    if (error) throw error;
+
+                    // Log the assignment
+                    await window.adminDashboard.logActivity('assign', 'follow_up_task', followUpId, {
+                        assigned_to: window.adminDashboard.currentAdminUser.full_name,
+                        action_type: 'self_assignment'
+                    });
+
+                    alert('Task assigned to you successfully!');
+                    closeFollowUpModal();
+                    await window.adminDashboard.loadFollowUpsData();
+                } catch (error) {
+                    console.error('Error assigning follow-up:', error);
+                    alert('Error assigning task: ' + error.message);
+                }
+            }
+        }
+
+        async function contactPatient(email, method, phone) {
+            if (method === 'email' && email) {
+                // Open email client
+                const subject = encodeURIComponent('Follow-up: Your Recent Healthcare Visit');
+                const body = encodeURIComponent(`Dear Patient,\n\nWe are following up on your recent visit to ensure you received the best possible care.\n\nPlease reply to this email or call us if you have any questions or concerns.\n\nThank you,\nPatient Care Team`);
+                window.open(`mailto:${email}?subject=${subject}&body=${body}`);
+            } else if (method === 'phone' && phone) {
+                // Copy phone number and show instructions
+                navigator.clipboard.writeText(phone).then(() => {
+                    alert(`Phone number ${phone} copied to clipboard.\n\nPlease call the patient to follow up on their healthcare experience.`);
+                }).catch(() => {
+                    alert(`Please call the patient at: ${phone}`);
+                });
+            } else {
+                alert('Contact information not available for this method.');
+            }
+        }
+
+        async function addFollowUpNote(followUpId) {
+            const note = prompt('Add a note to this follow-up task:');
+            if (note && note.trim() && window.adminDashboard) {
+                try {
+                    // Get current notes
+                    const { data: currentTask } = await window.adminDashboard.supabase
+                        .from('follow_up_tasks')
+                        .select('notes')
+                        .eq('id', followUpId)
+                        .single();
+
+                    const timestamp = new Date().toLocaleString();
+                    const adminName = window.adminDashboard.currentAdminUser.full_name;
+                    const newNote = `[${timestamp} - ${adminName}]: ${note.trim()}`;
+                    
+                    const updatedNotes = currentTask?.notes 
+                        ? currentTask.notes + '\n\n' + newNote
+                        : newNote;
+
+                    const { error } = await window.adminDashboard.supabase
+                        .from('follow_up_tasks')
+                        .update({ 
+                            notes: updatedNotes,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', followUpId);
+
+                    if (error) throw error;
+
+                    // Log the note addition
+                    await window.adminDashboard.logActivity('update', 'follow_up_task', followUpId, {
+                        action_type: 'note_added',
+                        note_content: note.trim(),
+                        added_by: adminName
+                    });
+
+                    alert('Note added successfully!');
+                    // Refresh the modal view
+                    viewFollowUp(followUpId);
+                } catch (error) {
+                    console.error('Error adding note:', error);
+                    alert('Error adding note: ' + error.message);
+                }
+            }
+        }
+        
+        async function tryFixUserPermissions() {
+            if (!window.adminDashboard) {
+                alert('Dashboard not ready');
+                return;
+            }
+
+            const confirmed = confirm(
+                'This will attempt to fix user management permissions.\n\n' +
+                'It will try to:\n' +
+                '1. Disable RLS temporarily\n' +
+                '2. Check your admin role\n' +
+                '3. Reload user data\n\n' +
+                'Continue?'
+            );
+
+            if (!confirmed) return;
+
+            try {
+                // Try to check user role first
+                const { data: currentAdmin, error } = await window.adminDashboard.supabase
+                    .from('admin_users')
+                    .select('role, is_active')
+                    .eq('user_id', window.adminDashboard.currentUser.id)
+                    .single();
+
+                if (error) {
+                    throw new Error(`Cannot verify your admin role: ${error.message}`);
+                }
+
+                if (!currentAdmin || !currentAdmin.is_active) {
+                    throw new Error('Your admin account is not active');
+                }
+
+                if (currentAdmin.role !== 'super_admin') {
+                    alert(`Your role is: ${currentAdmin.role}\n\nOnly super_admin can manage users.`);
+                    return;
+                }
+
+                // If we get here, try to reload users
+                await window.adminDashboard.loadUsersData();
+                
+            } catch (error) {
+                console.error('❌ Fix attempt failed:', error);
+                alert(`Fix failed: ${error.message}\n\nYou may need to run the SQL fix in Supabase.`);
+            }
+        }
+    
+        // === ENHANCED GLOBAL EXPORT FUNCTIONS ===
+
+        // Initialize export manager when dashboard is ready
+        function initializeExportManager() {
+            if (window.adminDashboard && !window.adminDashboard.exportManager) {
+                window.adminDashboard.exportManager = new ExportManager(window.adminDashboard);
+                console.log('✅ Export manager initialized');
+            }
+        }
+
+        // Enhanced export functions
+        function exportSurveys(format) {
+            const dropdown = document.querySelector('.export-dropdown');
+            if (dropdown) dropdown.classList.remove('show');
+            
+            initializeExportManager();
+            
+            if (window.adminDashboard?.exportManager) {
+                window.adminDashboard.exportManager.exportSurveys(format, true);
+            } else {
+                alert('Export system not ready. Please refresh the page.');
+            }
+        }
+
+        function exportRecentSurveys(format = 'excel') {
+            closeAllDropdowns();
+            initializeExportManager();
+            
+            if (window.adminDashboard?.exportManager) {
+                window.adminDashboard.supabase
+                    .from('patient_survey_responses')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(10)
+                    .then(({ data, error }) => {
+                        if (error) {
+                            window.adminDashboard.showError('Error fetching recent surveys: ' + error.message);
+                            return;
+                        }
+                        
+                        const originalFiltered = window.adminDashboard.filteredData;
+                        window.adminDashboard.filteredData = data;
+                        
+                        window.adminDashboard.exportManager.exportSurveys(format, true).then(() => {
+                            window.adminDashboard.filteredData = originalFiltered;
+                        });
+                    });
+            } else {
+                alert('Export system not ready. Please refresh the page.');
+            }
+        }
+
+        function exportFollowUps(format = 'excel') {
+            initializeExportManager();
+            
+            if (window.adminDashboard?.exportManager) {
+                window.adminDashboard.exportManager.exportFollowUps(format);
+            } else {
+                alert('Export system not ready. Please refresh the page.');
+            }
+        }
+
+        function exportAnalytics(format = 'excel') {
+            initializeExportManager();
+            
+            if (window.adminDashboard?.exportManager) {
+                window.adminDashboard.exportManager.exportAnalytics(format);
+            } else {
+                alert('Export system not ready. Please refresh the page.');
+            }
+        }
+
+        function exportCustomRange() {
+            const startDate = prompt('Enter start date (YYYY-MM-DD):');
+            const endDate = prompt('Enter end date (YYYY-MM-DD):');
+            
+            if (!startDate || !endDate) return;
+            
+            initializeExportManager();
+            
+            if (window.adminDashboard?.exportManager) {
+                window.adminDashboard.supabase
+                    .from('patient_survey_responses')
+                    .select('*')
+                    .gte('created_at', startDate + 'T00:00:00')
+                    .lte('created_at', endDate + 'T23:59:59')
+                    .order('created_at', { ascending: false })
+                    .then(({ data, error }) => {
+                        if (error) {
+                            alert('Error fetching custom range: ' + error.message);
+                            return;
+                        }
+                        
+                        window.adminDashboard.filteredData = data;
+                        window.adminDashboard.exportManager.exportSurveys('excel', true);
+                    });
+            }
+        }
+
+        function toggleExportDropdown(button) {
+            // Close all other dropdowns first
+            document.querySelectorAll('.export-dropdown').forEach(dropdown => {
+                if (dropdown !== button.parentElement) {
+                    dropdown.classList.remove('show');
+                }
+            });
+            
+            // Toggle the clicked dropdown
+            button.parentElement.classList.toggle('show');
+        }
+
+        function closeAllDropdowns() {
+            document.querySelectorAll('.export-dropdown.show').forEach(dropdown => {
+                dropdown.classList.remove('show');
+            });
+        }
+
+        // Enhanced event listener setup
+        document.addEventListener('click', function(event) {
+            if (!event.target.matches('.btn') && !event.target.closest('.export-dropdown')) {
+                closeAllDropdowns();
+            }
+        });
+
+        // Initialize export manager on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for dashboard to be ready
+            const checkDashboard = setInterval(() => {
+                if (window.adminDashboard) {
+                    initializeExportManager();
+                    clearInterval(checkDashboard);
+                }
+            }, 1000);
+        });
+
+        // Keyboard shortcuts for exports
+        document.addEventListener('keydown', function(event) {
+            // Ctrl+E for quick export
+            if (event.ctrlKey && event.key === 'e') {
+                event.preventDefault();
+                const activeTab = document.querySelector('.nav-tab.active')?.dataset.tab;
+                
+                switch (activeTab) {
+                    case 'surveys':
+                        exportSurveys('excel');
+                        break;
+                    case 'follow-ups':
+                        exportFollowUps('excel');
+                        break;
+                    case 'analytics':
+                        exportAnalytics('excel');
+                        break;
+                    default:
+                        exportRecentSurveys('excel');
+                }
+            }
         });
     </script>
 </body>
