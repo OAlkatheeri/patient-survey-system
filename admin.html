@@ -1268,6 +1268,9 @@
 
                             this.showSuccess(`🎉 Admin account created successfully! You can now sign in with your email and the password you created.`);
                             
+                            // Clear only the register form on successful registration
+                            this.clearAuthForms(false, true); // Don't clear login, do clear register
+                            
                         } catch (adminError) {
                             console.error('❌ Admin creation error:', adminError);
                             this.showSuccess(`Account created, but admin setup needs completion. Please contact your system administrator. You can try signing in - it might work.`);
@@ -1276,7 +1279,7 @@
                         // Switch to login tab after success
                         setTimeout(() => {
                             switchAuthTab('login');
-                            // Pre-fill email
+                            // Pre-fill email in login form for convenience
                             document.getElementById('loginEmail').value = email;
                         }, 3000);
                     }
@@ -1351,6 +1354,9 @@
 
                     this.showDashboard();
                     await this.loadDashboardData();
+                    
+                    // Clear both forms on successful login
+                    this.clearAuthForms(true, true);
                 } catch (error) {
                     console.error('❌ Auth success handling error:', error);
                     this.showError(error.message);
@@ -1369,6 +1375,9 @@
                     this.currentUser = null;
                     this.currentAdminUser = null;
                     this.showAuth();
+                    
+                    // Clear forms after logout for security
+                    this.clearAuthForms(true, true);
                 } catch (error) {
                     console.error('❌ Logout error:', error);
                 }
@@ -2258,6 +2267,23 @@
                 }, 5000);
             }
 
+            clearAuthForms(clearLogin = true, clearRegister = true) {
+                // Clear login form
+                if (clearLogin) {
+                    document.getElementById('loginEmail').value = '';
+                    document.getElementById('loginPassword').value = '';
+                }
+                
+                // Clear register form  
+                if (clearRegister) {
+                    document.getElementById('registerName').value = '';
+                    document.getElementById('registerEmail').value = '';
+                    document.getElementById('registerPassword').value = '';
+                    document.getElementById('registerDepartment').value = '';
+                    document.getElementById('adminCode').value = '';
+                }
+            }
+
             hideMessages() {
                 document.getElementById('authError').style.display = 'none';
                 document.getElementById('authSuccess').style.display = 'none';
@@ -2288,7 +2314,7 @@
                 registerTab.classList.add('active');
             }
 
-            // Hide messages when switching tabs
+            // Hide messages when switching tabs but DON'T clear form values
             if (window.adminDashboard) {
                 window.adminDashboard.hideMessages();
             }
