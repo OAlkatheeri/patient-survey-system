@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
     
     <!-- Chart.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     
     <!-- Export libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -1186,7 +1186,6 @@
                     submitBtn.textContent = 'Creating Account...';
 
                     // Create user account with admin metadata
-                    // The database trigger will automatically create the admin_users record
                     const { data, error } = await this.supabase.auth.signUp({
                         email,
                         password,
@@ -1194,7 +1193,7 @@
                             data: {
                                 full_name: name,
                                 department: department,
-                                admin_code: adminCode  // This triggers automatic admin_users creation
+                                admin_code: adminCode
                             }
                         }
                     });
@@ -1202,24 +1201,74 @@
                     if (error) throw error;
 
                     if (data.user) {
-                        // Wait a moment for the trigger to complete
+                        console.log('✅ User created, now creating admin record...');
+                        
+                        // Wait a moment for the user to be fully created
                         await new Promise(resolve => setTimeout(resolve, 2000));
 
-                        // Check if admin user was created by the trigger
-                        const { data: adminUser, error: adminError } = await this.supabase
-                            .from('admin_users')
-                            .select('role, is_active')
-                            .eq('user_id', data.user.id)
-                            .single();
+                        // Create admin user record manually (more reliable than trigger)
+                        try {
+                            // Check if admin record already exists (trigger might have worked)
+                            const { data: existingAdmin } = await this.supabase
+                                .from('admin_users')
+                                .select('id')
+                                .eq('user_id', data.user.id)
+                                .maybeSingle();
 
-                        if (adminError || !adminUser) {
-                            console.warn('Admin user not found after trigger, this might be normal for email verification');
-                            this.showSuccess(`Account created! Please check your email to verify your account before signing in.`);
-                        } else {
-                            const role = adminUser.role;
-                            const isFirstAdmin = role === 'super_admin';
+                            if (!existingAdmin) {
+                                console.log('🔧 No admin record found, creating manually...');
+                                
+                                // Check if this would be the first super_admin
+                                const { data: existingSuperAdmins } = await this.supabase
+                                    .from('admin_users')
+                                    .select('id')
+                                    .eq('role', 'super_admin')
+                                    .eq('is_active', true);
+
+                                const role = (!existingSuperAdmins || existingSuperAdmins.length === 0) ? 'super_admin' : 'admin';
+
+                                // Use a function call to bypass RLS restrictions
+                                const { data: functionResult, error: functionError } = await this.supabase
+                                    .rpc('create_admin_user_manual', {
+                                        p_user_id: data.user.id,
+                                        p_full_name: name,
+                                        p_email: email,
+                                        p_department: department,
+                                        p_role: role
+                                    });
+
+                                if (functionError) {
+                                    console.error('❌ Function error:', functionError);
+                                    console.log('🔧 Function failed, trying direct insert...');
+                                    
+                                    // Fallback: try direct insert (will work if RLS allows)
+                                    const { error: insertError } = await this.supabase
+                                        .from('admin_users')
+                                        .insert({
+                                            user_id: data.user.id,
+                                            full_name: name,
+                                            email: email,
+                                            role: role,
+                                            department: department,
+                                            is_active: true
+                                        });
+
+                                    if (insertError) {
+                                        console.error('❌ Direct insert also failed:', insertError);
+                                        throw new Error('Admin account created but setup incomplete. Please contact your system administrator to complete the setup.');
+                                    }
+                                }
+                                
+                                console.log('✅ Admin record created successfully');
+                            } else {
+                                console.log('✅ Admin record already exists (trigger worked)');
+                            }
+
+                            this.showSuccess(`🎉 Account created successfully! You can now sign in.`);
                             
-                            this.showSuccess(`🎉 Account created successfully as ${role}! ${isFirstAdmin ? '(You are the first admin!)' : ''} ${data.user.email_confirmed_at ? 'You can now sign in.' : 'Please check your email to verify your account before signing in.'}`);
+                        } catch (adminError) {
+                            console.error('❌ Admin creation error:', adminError);
+                            this.showSuccess(`Account created, but admin setup needs completion. Please contact your system administrator. You can try signing in - it might work.`);
                         }
                         
                         // Switch to login tab after success
@@ -1244,12 +1293,12 @@
                     this.currentUser = user;
                     console.log('🔍 Checking admin user for:', user.email);
 
-                    // Get admin user details with better error handling
+                    // Get admin user details with simplified query to avoid RLS recursion
                     const { data: adminUser, error } = await this.supabase
                         .from('admin_users')
                         .select('*')
                         .eq('user_id', user.id)
-                        .maybeSingle(); // Use maybeSingle instead of single to avoid error if no record
+                        .maybeSingle();
 
                     if (error) {
                         console.error('❌ Error querying admin_users:', error);
@@ -1264,7 +1313,8 @@
                         const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
                         
                         if (userCreatedAt > fiveMinutesAgo) {
-                            throw new Error('Admin account setup incomplete. Please try signing out and back in, or contact your system administrator if the problem persists.');
+                            // Recent signup - trigger might have failed
+                            throw new Error('Admin account setup incomplete. The automatic setup may have failed. Please contact your system administrator to complete your admin setup.');
                         } else {
                             throw new Error('Admin access denied. Your account does not have administrative privileges. Please contact your system administrator.');
                         }
@@ -1277,17 +1327,25 @@
                     this.currentAdminUser = adminUser;
                     console.log('✅ Admin user found:', adminUser.full_name, `(${adminUser.role})`);
 
-                    // Update last login
-                    await this.supabase
-                        .from('admin_users')
-                        .update({ last_login: new Date().toISOString() })
-                        .eq('id', this.currentAdminUser.id);
+                    // Update last login (this might fail due to RLS, but that's okay)
+                    try {
+                        await this.supabase
+                            .from('admin_users')
+                            .update({ last_login: new Date().toISOString() })
+                            .eq('id', this.currentAdminUser.id);
+                    } catch (updateError) {
+                        console.warn('Could not update last login (RLS restriction):', updateError);
+                    }
 
-                    // Log activity
-                    await this.logActivity('login', 'auth', null, { 
-                        login_time: new Date().toISOString(),
-                        user_agent: navigator.userAgent
-                    });
+                    // Log activity (this might fail due to RLS, but that's okay)
+                    try {
+                        await this.logActivity('login', 'auth', null, { 
+                            login_time: new Date().toISOString(),
+                            user_agent: navigator.userAgent
+                        });
+                    } catch (logError) {
+                        console.warn('Could not log activity (RLS restriction):', logError);
+                    }
 
                     this.showDashboard();
                     await this.loadDashboardData();
@@ -2164,7 +2222,8 @@
                             details
                         });
                 } catch (error) {
-                    console.error('❌ Error logging activity:', error);
+                    console.warn('❌ Could not log activity (this is okay):', error);
+                    // Don't throw error - activity logging is not critical
                 }
             }
 
