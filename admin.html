@@ -648,8 +648,9 @@
                     <input type="email" id="registerEmail" required placeholder="john@hospital.com">
                 </div>
                 <div class="form-group">
-                    <label for="registerPassword">Password</label>
-                    <input type="password" id="registerPassword" required placeholder="Create a strong password" minlength="6">
+                    <label for="registerPassword">Admin Password</label>
+                    <input type="password" id="registerPassword" required placeholder="Enter admin password">
+                    <small>Use the admin password provided by your system administrator.</small>
                 </div>
                 <div class="form-group">
                     <label for="registerDepartment">Department</label>
@@ -668,11 +669,6 @@
                         <option value="IT">IT</option>
                         <option value="Other">Other</option>
                     </select>
-                </div>
-                <div class="form-group">
-                    <label for="adminCode">Admin Access Code</label>
-                    <input type="text" id="adminCode" required placeholder="Enter admin code">
-                    <small>Contact your system administrator for the admin access code.</small>
                 </div>
                 <button type="submit" class="btn-primary">Create Account</button>
             </form>
@@ -1023,7 +1019,7 @@
             anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhZWVwaGx5ZmNveHJpb29oaGpqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTQ4MTgwOSwiZXhwIjoyMDY3MDU3ODA5fQ.srXbETt6h-zFXuW41b_fKFZTlRquNOCS1I_nwKZIyhY'
         };
 
-        const ADMIN_CODE = '5865'; // Admin access code
+        const ADMIN_PASSWORD = 'HMS2024!'; // Change this to a stronger password
 
         class AdminDashboard {
             constructor() {
@@ -1171,15 +1167,14 @@
                 const email = document.getElementById('registerEmail').value;
                 const password = document.getElementById('registerPassword').value;
                 const department = document.getElementById('registerDepartment').value;
-                const adminCode = document.getElementById('adminCode').value;
                 const submitBtn = document.querySelector('#registerForm button[type="submit"]');
 
                 try {
                     this.hideMessages();
                     
-                    // Validate admin code
-                    if (adminCode !== ADMIN_CODE) {
-                        throw new Error('Invalid admin access code. Please contact your system administrator.');
+                    // Validate admin password
+                    if (password !== ADMIN_PASSWORD) {
+                        throw new Error('Invalid admin password. Please contact your system administrator for the correct admin password.');
                     }
 
                     submitBtn.disabled = true;
@@ -1193,7 +1188,7 @@
                             data: {
                                 full_name: name,
                                 department: department,
-                                admin_code: adminCode
+                                is_admin: true // Mark as admin user
                             }
                         }
                     });
@@ -1264,7 +1259,7 @@
                                 console.log('✅ Admin record already exists (trigger worked)');
                             }
 
-                            this.showSuccess(`🎉 Account created successfully! You can now sign in.`);
+                            this.showSuccess(`🎉 Admin account created successfully! You can now sign in with your email and the admin password.`);
                             
                         } catch (adminError) {
                             console.error('❌ Admin creation error:', adminError);
