@@ -648,9 +648,9 @@
                     <input type="email" id="registerEmail" required placeholder="john@hospital.com">
                 </div>
                 <div class="form-group">
-                    <label for="registerPassword">Admin Password</label>
-                    <input type="password" id="registerPassword" required placeholder="Enter admin password">
-                    <small>Use the admin password provided by your system administrator.</small>
+                    <label for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" required placeholder="Create your login password" minlength="6">
+                    <small>This will be your personal login password.</small>
                 </div>
                 <div class="form-group">
                     <label for="registerDepartment">Department</label>
@@ -669,6 +669,11 @@
                         <option value="IT">IT</option>
                         <option value="Other">Other</option>
                     </select>
+                </div>
+                <div class="form-group">
+                    <label for="adminCode">Admin Access Code</label>
+                    <input type="password" id="adminCode" required placeholder="Enter admin code">
+                    <small>Contact your system administrator for the admin access code.</small>
                 </div>
                 <button type="submit" class="btn-primary">Create Account</button>
             </form>
@@ -1019,7 +1024,7 @@
             anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhZWVwaGx5ZmNveHJpb29oaGpqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTQ4MTgwOSwiZXhwIjoyMDY3MDU3ODA5fQ.srXbETt6h-zFXuW41b_fKFZTlRquNOCS1I_nwKZIyhY'
         };
 
-        const ADMIN_PASSWORD = 'HMS2024!'; // Change this to a stronger password
+        const ADMIN_CODE = '5865'; // Admin access code for registration
 
         class AdminDashboard {
             constructor() {
@@ -1167,14 +1172,15 @@
                 const email = document.getElementById('registerEmail').value;
                 const password = document.getElementById('registerPassword').value;
                 const department = document.getElementById('registerDepartment').value;
+                const adminCode = document.getElementById('adminCode').value;
                 const submitBtn = document.querySelector('#registerForm button[type="submit"]');
 
                 try {
                     this.hideMessages();
                     
-                    // Validate admin password
-                    if (password !== ADMIN_PASSWORD) {
-                        throw new Error('Invalid admin password. Please contact your system administrator for the correct admin password.');
+                    // Validate admin code
+                    if (adminCode !== ADMIN_CODE) {
+                        throw new Error('Invalid admin access code. Please contact your system administrator.');
                     }
 
                     submitBtn.disabled = true;
@@ -1183,12 +1189,13 @@
                     // Create user account with admin metadata
                     const { data, error } = await this.supabase.auth.signUp({
                         email,
-                        password,
+                        password,  // User's chosen password
                         options: {
                             data: {
                                 full_name: name,
                                 department: department,
-                                is_admin: true // Mark as admin user
+                                admin_code: adminCode,  // This marks them as admin
+                                is_admin: true
                             }
                         }
                     });
@@ -1259,7 +1266,7 @@
                                 console.log('✅ Admin record already exists (trigger worked)');
                             }
 
-                            this.showSuccess(`🎉 Admin account created successfully! You can now sign in with your email and the admin password.`);
+                            this.showSuccess(`🎉 Admin account created successfully! You can now sign in with your email and the password you created.`);
                             
                         } catch (adminError) {
                             console.error('❌ Admin creation error:', adminError);
