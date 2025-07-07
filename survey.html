@@ -2133,16 +2133,22 @@
                                 // Find appropriate error message container
                                 let errorMsg = null;
                                 
-                                // For rating sections
-                                const ratingSection = groupRadios[0].closest('.rating-section');
-                                if (ratingSection) {
-                                    errorMsg = ratingSection.querySelector('.error-message');
-                                }
-                                
-                                // For contact preferences
-                                const contactChoice = groupRadios[0].closest('.contact-main-choice');
-                                if (contactChoice) {
-                                    errorMsg = contactChoice.querySelector('.error-message');
+                                // For rating sections - check parent structure
+                                const firstRadio = groupRadios[0];
+                                if (firstRadio) {
+                                    // Try to find rating section
+                                    let ratingSection = firstRadio.closest('.rating-section');
+                                    if (ratingSection) {
+                                        errorMsg = ratingSection.querySelector('.error-message');
+                                    }
+                                    
+                                    // For contact preferences
+                                    if (!errorMsg) {
+                                        const contactChoice = firstRadio.closest('.contact-main-choice');
+                                        if (contactChoice) {
+                                            errorMsg = contactChoice.querySelector('.error-message');
+                                        }
+                                    }
                                 }
                                 
                                 if (errorMsg) {
@@ -2157,12 +2163,36 @@
                     requiredCheckboxes.forEach(checkbox => {
                         if (!checkbox.checked) {
                             isValid = false;
-                            const errorMsg = checkbox.closest('.consent-box')?.querySelector('.error-message');
-                            if (errorMsg) {
-                                errorMsg.style.display = 'block';
+                            const consentBox = checkbox.closest('.consent-box');
+                            if (consentBox) {
+                                const errorMsg = consentBox.querySelector('.error-message');
+                                if (errorMsg) {
+                                    errorMsg.style.display = 'block';
+                                }
                             }
                         }
                     });
+
+                    // Special validation for department "Other" option
+                    if (this.currentPage === 1) {
+                        const departmentSelect = currentPageElement.querySelector('#department');
+                        const otherInput = currentPageElement.querySelector('#otherDepartmentText');
+                        if (departmentSelect && departmentSelect.value === 'Other' && otherInput && !otherInput.value.trim()) {
+                            isValid = false;
+                            otherInput.classList.add('error');
+                            const errorMsg = otherInput.parentElement?.querySelector('.error-message');
+                            if (!errorMsg) {
+                                // Create error message if it doesn't exist
+                                const newErrorMsg = document.createElement('div');
+                                newErrorMsg.className = 'error-message';
+                                newErrorMsg.textContent = 'Please specify the department/service';
+                                newErrorMsg.style.display = 'block';
+                                otherInput.parentElement?.appendChild(newErrorMsg);
+                            } else {
+                                errorMsg.style.display = 'block';
+                            }
+                        }
+                    }
 
                     // Special validation for contact preferences page
                     if (this.currentPage === 9) {
@@ -2174,7 +2204,7 @@
                             
                             if (!hasMethodSelected) {
                                 isValid = false;
-                                const methodsErrorMsg = currentPageElement.querySelector('#contactMethods .error-message');
+                                const methodsErrorMsg = currentPageElement.querySelector('.contact-methods-label .error-message');
                                 if (methodsErrorMsg) {
                                     methodsErrorMsg.style.display = 'block';
                                 }
@@ -2195,6 +2225,12 @@
                             }
                         }
                     }
+
+                    // Debug logging
+                    if (!isValid) {
+                        console.log(`❌ Validation failed on page ${this.currentPage}`);
+                    }
+
                 } catch (error) {
                     console.error('❌ Error during validation:', error);
                     return false;
