@@ -1828,13 +1828,19 @@
     </div>
 
     <script>
-        // 🔧 SUPABASE CONFIGURATION
-        const SUPABASE_CONFIG = {
+        // ===========================
+        // CONFIGURATION
+        // ===========================
+        const CONFIG = {
             SUPABASE_URL: 'https://bviftbleggssnrccaqcd.supabase.co',
-    SUPABASE_ANON_KEY: '    SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2aWZ0YmxlZ2dzc25yY2NhcWNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4MTU2NDMsImV4cCI6MjA2NzM5MTY0M30.jcy9iRef2WYLYIXESTwiDBWqcufHLu6Hc3EAGAWy_AA',
-',
-    };
+            SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2aWZ0YmxlZ2dzc25yY2NhcWNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4MTU2NDMsImV4cCI6MjA2NzM5MTY0M30.jcy9iRef2WYLYIXESTwiDBWqcufHLu6Hc3EAGAWy_AA',
+            AUTO_RESTART_TIME: 30, // seconds
+            IDLE_TIMEOUT: 300 // seconds (5 minutes)
+        };
 
+        // ===========================
+        // SUPABASE SERVICE CLASS
+        // ===========================
         class SupabaseService {
             constructor() {
                 this.supabase = null;
@@ -1844,14 +1850,14 @@
             initSupabase() {
                 try {
                     if (typeof supabase === 'undefined') {
-                        console.warn('Supabase client not loaded. Running in demo mode.');
+                        console.warn('⚠️ Supabase client not loaded. Running in demo mode.');
                         console.log('📝 Demo mode enabled - survey data will be logged to console');
                         return;
                     }
 
                     this.supabase = supabase.createClient(
-                        SUPABASE_CONFIG.url,
-                        SUPABASE_CONFIG.anonKey
+                        CONFIG.SUPABASE_URL,
+                        CONFIG.SUPABASE_ANON_KEY
                     );
 
                     console.log('✅ Supabase initialized successfully');
@@ -1880,16 +1886,8 @@
                 }
 
                 try {
-                    console.log('🔄 Attempting to save survey data:', responseData);
+                    console.log('🔄 Attempting to save survey data...');
                     
-                    // Test connection first
-                    const connectionTest = await this.testConnection();
-                    console.log('🔗 Connection test result:', connectionTest);
-                    
-                    if (!connectionTest.connected) {
-                        throw new Error(`Database connection failed: ${connectionTest.reason}`);
-                    }
-
                     // Save the survey response to the database
                     const { data, error } = await this.supabase
                         .from('patient_survey_responses')
@@ -1897,31 +1895,64 @@
                         .select();
 
                     if (error) {
-                        console.error('❌ Supabase error details:', {
-                            message: error.message,
-                            details: error.details,
-                            hint: error.hint,
-                            code: error.code
-                        });
+                        console.error('❌ Supabase error:', error);
                         throw new Error(`Database error: ${error.message}`);
                     }
 
                     console.log('✅ Survey saved successfully:', data[0]);
+                    
+                    // Check if follow-up task should be created
+                    if (this.shouldCreateFollowUp(responseData)) {
+                        await this.createFollowUpTask(responseData, data[0].id);
+                    }
+                    
                     return { success: true, id: data[0].response_id, data: data[0] };
 
                 } catch (error) {
                     console.error('❌ Error saving survey:', error);
+                    throw error;
+                }
+            }
+
+            shouldCreateFollowUp(responseData) {
+                // Create follow-up for low satisfaction or if requested
+                const lowSatisfaction = parseInt(responseData.experience_data?.overall_satisfaction) <= 2;
+                const wantsContact = responseData.contact_preferences?.wants_contact === 'yes';
+                return lowSatisfaction || wantsContact;
+            }
+
+            async createFollowUpTask(surveyData, surveyId) {
+                if (!this.supabase) return;
+
+                try {
+                    const priority = parseInt(surveyData.experience_data?.overall_satisfaction) <= 2 ? 'high' : 'medium';
                     
-                    // Provide more specific error messages
-                    if (error.message.includes('permission denied')) {
-                        throw new Error('Database permission denied. Please check RLS policies.');
-                    } else if (error.message.includes('relation') && error.message.includes('does not exist')) {
-                        throw new Error('Database tables not found. Please run the database setup script.');
-                    } else if (error.message.includes('network')) {
-                        throw new Error('Network connection failed. Please check your internet connection.');
+                    const followUpData = {
+                        survey_response_id: surveyId,
+                        patient_name: surveyData.patient_info?.full_name,
+                        patient_email: surveyData.patient_info?.email,
+                        patient_phone: surveyData.patient_info?.phone,
+                        contact_method: surveyData.contact_preferences?.contact_methods?.[0] || 'email',
+                        priority: priority,
+                        status: 'pending',
+                        survey_rating: surveyData.experience_data?.overall_satisfaction?.toString(),
+                        department: surveyData.patient_info?.department_visited,
+                        notes: `Auto-generated follow-up task. Overall satisfaction: ${surveyData.experience_data?.overall_satisfaction}/5`,
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    };
+
+                    const { error } = await this.supabase
+                        .from('follow_up_tasks')
+                        .insert([followUpData]);
+
+                    if (error) {
+                        console.warn('Could not create follow-up task:', error);
                     } else {
-                        throw new Error(`Save failed: ${error.message}`);
+                        console.log('✅ Follow-up task created automatically');
                     }
+                } catch (error) {
+                    console.warn('Error creating follow-up task:', error);
                 }
             }
 
@@ -1947,13 +1978,16 @@
             }
         }
 
+        // ===========================
+        // MULTI-PAGE SURVEY CLASS
+        // ===========================
         class MultiPageSurvey {
             constructor() {
                 this.currentPage = 1;
                 this.totalPages = 10;
                 this.countdownTimer = null;
                 this.idleTimer = null;
-                this.idleTimeoutDuration = 5 * 60 * 1000; // 5 minutes
+                this.idleTimeoutDuration = CONFIG.IDLE_TIMEOUT * 1000;
                 this.supabaseService = new SupabaseService();
                 this.init();
             }
@@ -2760,7 +2794,7 @@
 
             startCountdown() {
                 try {
-                    let timeLeft = 30;
+                    let timeLeft = CONFIG.AUTO_RESTART_TIME;
                     const countdownElement = document.getElementById('countdown');
                     const restartInfo = document.querySelector('.auto-restart-info');
                     
@@ -2860,7 +2894,7 @@
                         // Reset countdown display
                         const countdownElement = document.getElementById('countdown');
                         if (countdownElement) {
-                            countdownElement.textContent = '30';
+                            countdownElement.textContent = CONFIG.AUTO_RESTART_TIME;
                             countdownElement.style.background = 'linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%)';
                         }
 
@@ -2881,6 +2915,10 @@
             }
         }
 
+        // ===========================
+        // DEBUG & DIAGNOSTIC FUNCTIONS
+        // ===========================
+        
         // Debug function - call window.debugSurvey() in browser console for troubleshooting
         window.debugSurvey = async function() {
             console.log('🔍 Debug Survey System');
@@ -2901,19 +2939,89 @@
                         console.log('❌ Database connection failed:', testResult.reason);
                     }
                 } else {
-                    console.log('❌ Supabase client not initialized');
+                    console.log('❌ Supabase client not initialized - running in demo mode');
                 }
             } else {
                 console.log('❌ Survey system not found');
             }
         };
 
-        // Initialize the survey when the page loads
+        // Test survey submission with sample data
+        window.testSurveySubmission = async function() {
+            console.log('🧪 Testing survey submission with sample data...');
+            
+            if (!window.survey) {
+                console.error('Survey not initialized');
+                return;
+            }
+            
+            const testData = {
+                response_id: 'TEST-' + Date.now(),
+                patient_info: {
+                    full_name: 'Test Patient',
+                    email: 'test@example.com',
+                    phone: '+971501234567',
+                    visit_date: new Date().toISOString().split('T')[0],
+                    visit_time: '10:00 AM - 11:00 AM',
+                    department_visited: 'General Practice'
+                },
+                experience_data: {
+                    wait_time_actual: '0-5 minutes',
+                    appointment_timeliness: 'Yes, exactly on time',
+                    reception_rating: 5,
+                    doctor_rating: 5,
+                    nursing_rating: 4,
+                    overall_satisfaction: 5,
+                    staff_professionalism: 5,
+                    additional_comments: 'Test submission - excellent service!',
+                    average_rating: 4.8,
+                    satisfaction_level: 'HIGH'
+                },
+                contact_preferences: {
+                    wants_contact: 'no',
+                    contact_methods: [],
+                    contact_status: 'DO_NOT_CONTACT'
+                },
+                privacy_consent: {
+                    feedback_use_consent: true,
+                    consent_timestamp: new Date().toISOString()
+                },
+                metadata: {
+                    submission_timestamp: new Date().toISOString(),
+                    survey_version: '2.0'
+                }
+            };
+            
+            try {
+                const result = await window.survey.supabaseService.saveSurveyResponse(testData);
+                console.log('✅ Test submission result:', result);
+            } catch (error) {
+                console.error('❌ Test submission failed:', error);
+            }
+        };
+
+        // ===========================
+        // INITIALIZE SURVEY
+        // ===========================
         try {
             const surveyInstance = new MultiPageSurvey();
             window.survey = surveyInstance; // Make available for debugging
+            
+            // Log initialization status
+            console.log('===================================');
+            console.log('🏥 Patient Survey Initialized');
+            console.log('===================================');
+            console.log('📊 Configuration:');
+            console.log('  • Supabase URL:', CONFIG.SUPABASE_URL);
+            console.log('  • Auto-restart:', CONFIG.AUTO_RESTART_TIME + 's');
+            console.log('  • Idle timeout:', CONFIG.IDLE_TIMEOUT + 's');
+            console.log('');
+            console.log('🛠️ Debug Commands:');
+            console.log('  • window.debugSurvey() - Check system status');
+            console.log('  • window.testSurveySubmission() - Test submission');
+            console.log('===================================');
+            
         } catch (error) {
-       
             console.error('❌ Error initializing survey:', error);
             // Fallback: basic retry mechanism
             setTimeout(() => {
