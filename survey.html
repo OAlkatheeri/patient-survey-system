@@ -1,6 +1,3466 @@
 <!DOCTYPE html>
 <html lang="en">
+<head><!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
+    <title>Patient Satisfaction Survey</title>
+    
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e5e7eb;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: clamp(12px, 3vw, 20px);
+            transform: scale(0.9);
+            transform-origin: center center;
+        }
+
+        .container {
+            max-width: clamp(350px, 90vw, 800px);
+            margin: 0 auto;
+            background: white;
+            border-radius: clamp(12px, 3vw, 24px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            width: 100%;
+            min-height: auto;
+            padding: clamp(12px, 3vw, 20px);
+            margin: auto;            
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: opacity 0.5s ease;
+        }
+
+        .container.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+            color: white;
+            padding: clamp(12px, 3vw, 20px);
+            text-align: center;
+            flex-shrink: 0;
+            border-radius: clamp(12px, 3vw, 24px);
+        }
+
+        .header h1 {
+            font-size: clamp(18px, 4.5vw, 26px);
+            margin-bottom: clamp(4px, 1vw, 8px);
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .header p {
+            font-size: clamp(12px, 3vw, 15px);
+            opacity: 0.9;
+            line-height: 1.3;
+            margin: 0;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: clamp(8px, 2vw, 15px) clamp(16px, 4vw, 25px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+            flex-shrink: 0;
+        }
+
+        .progress-bar {
+            background: #e2e8f0;
+            height: clamp(6px, 1.5vw, 8px);
+            border-radius: 50px;
+            overflow: hidden;
+            margin-bottom: clamp(6px, 1.5vw, 10px);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-fill {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+            height: 100%;
+            border-radius: 50px;
+            transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            width: 0%;
+            box-shadow: 0 2px 8px rgba(44, 90, 160, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Add shimmer effect to progress bar */
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: clamp(11px, 2.5vw, 13px);
+            color: #64748b;
+            font-weight: 500;
+            margin: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Loading indicator */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        /* Survey Content */
+        .survey-content {
+            padding: clamp(12px, 3vw, 20px) clamp(16px, 4vw, 25px);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow-y: auto;
+            gap: clamp(16px, 4vw, 24px);
+        }
+
+        /* Enhanced page transitions */
+        .survey-page {
+            display: none;
+            opacity: 0;
+            transform: translateX(30px) scale(0.95);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            min-height: 100%;
+        }
+
+        .survey-page.active {
+            display: flex;
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Directional slide animations */
+        .survey-page.slide-out-left {
+            animation: slideOutLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .survey-page.slide-out-right {
+            animation: slideOutRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .survey-page.slide-in-left {
+            animation: slideInLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .survey-page.slide-in-right {
+            animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes slideOutLeft {
+            from {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+                filter: blur(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-50px) scale(0.95);
+                filter: blur(2px);
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+                filter: blur(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(50px) scale(0.95);
+                filter: blur(2px);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px) scale(0.95);
+                filter: blur(2px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+                filter: blur(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px) scale(0.95);
+                filter: blur(2px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+                filter: blur(0);
+            }
+        }
+
+        /* Fade effect for content during transitions */
+        .survey-content {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .survey-content.transitioning {
+            opacity: 0;
+            transform: scale(0.98);
+        }
+
+        /* Smooth transitions for interactive elements */
+        .form-input, .form-select, textarea {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .rating-option {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .rating-content {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Navigation button enhanced transitions */
+        .nav-btn, .submit-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            transform: translateY(0);
+        }
+
+        .nav-btn::before, .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .nav-btn:active::before, .submit-btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* Smooth hover effects */
+        .nav-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(44, 90, 160, 0.4);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Page-specific entrance animations */
+        .survey-page.active .page-title {
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both;
+        }
+
+        .survey-page.active .page-description {
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+        }
+
+        .survey-page.active .form-group {
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+        }
+
+        .survey-page.active .rating-section {
+            animation: fadeInScale 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Smooth scrolling for content areas */
+        .survey-content {
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Enhanced focus states with smooth transitions */
+        .form-input:focus, .form-select:focus, textarea:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1), 0 8px 20px rgba(44, 90, 160, 0.15);
+        }
+
+        /* Smooth error state transitions */
+        .error-message {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: top left;
+        }
+
+        .error-message:not([style*="display: none"]) {
+            animation: errorShake 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes errorShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-5px); }
+            40% { transform: translateX(5px); }
+            60% { transform: translateX(-3px); }
+            80% { transform: translateX(3px); }
+        }
+
+            /* [Rest of your existing styles remain the same] */
+
+        .page-title {
+            font-size: clamp(16px, 4vw, 22px);
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: clamp(4px, 1vw, 8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .page-icon {
+            font-size: clamp(18px, 4vw, 26px);
+            margin-right: clamp(6px, 1.5vw, 10px);
+            color: #2c5aa0;
+        }
+
+        .page-description {
+            font-size: clamp(12px, 3vw, 15px);
+            color: #64748b;
+            margin-bottom: clamp(16px, 4vw, 24px);
+            line-height: 1.3;
+            text-align: center;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(180px, 40vw, 220px), 1fr));
+            gap: clamp(10px, 2.5vw, 16px);
+            margin-top: clamp(12px, 3vw, 20px);
+            height: fit-content;
+            margin-bottom: clamp(16px, 4vw, 24px);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: clamp(4px, 1vw, 6px);
+            color: #1e293b;
+            font-size: clamp(12px, 3vw, 14px);
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: clamp(12px, 3vw, 16px);
+            border: 2px solid #e2e8f0;
+            border-radius: clamp(8px, 2vw, 12px);
+            font-size: clamp(14px, 3.5vw, 16px);
+            transition: all 0.3s ease;
+            background: white;
+            height: clamp(44px, 10vw, 50px);
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Prevent zoom on iOS */
+        input, select, textarea {
+            font-size: 16px !important;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #2c5aa0;
+            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1), 0 4px 12px rgba(44, 90, 160, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .form-input.error, .form-select.error {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: clamp(10px, 2.5vw, 12px);
+            margin-top: clamp(2px, 0.5vw, 4px);
+            display: none;
+            font-weight: 500;
+        }
+
+        .other-department-input {
+            margin-top: clamp(6px, 1.5vw, 10px);
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .other-department-input.show {
+            opacity: 1;
+            max-height: clamp(45px, 12vw, 60px);
+        }
+
+        /* Rating Sections */
+        .rating-section {
+            margin: 0;
+            padding: clamp(16px, 4vw, 24px) clamp(12px, 3vw, 20px);
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: clamp(12px, 3vw, 20px);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+            text-align: center;
+            height: fit-content;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            gap: clamp(16px, 4vw, 24px);
+        }
+
+        .rating-title {
+            font-weight: 600;
+            margin-bottom: clamp(12px, 3vw, 18px);
+            color: #1e293b;
+            font-size: clamp(14px, 3.5vw, 19px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .rating-title-icon {
+            font-size: clamp(16px, 4vw, 22px);
+            margin-right: clamp(6px, 1.5vw, 10px);
+            color: #2c5aa0;
+            flex-shrink: 0;
+        }
+
+        .rating-scale {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: clamp(6px, 2vw, 12px);
+            margin-bottom: clamp(10px, 2.5vw, 15px);
+            flex-wrap: nowrap;
+        }
+
+        .rating-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: clamp(6px, 1.5vw, 10px);
+            border-radius: clamp(10px, 2.5vw, 16px);
+            transition: all 0.3s ease;
+            flex: 0 0 auto;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .rating-option:hover {
+            background: rgba(226, 232, 240, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .rating-option:active {
+            transform: translateY(0);
+        }
+
+        .rating-option input[type="radio"] {
+            display: none;
+        }
+
+        .rating-option input[type="radio"]:checked + .rating-content {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%) !important;
+            color: white !important;
+            transform: scale(1.08) !important;
+            box-shadow: 0 6px 20px rgba(44, 90, 160, 0.3) !important;
+        }
+
+        .rating-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(6px, 1.5vw, 10px);
+            border-radius: clamp(10px, 2.5vw, 16px);
+            transition: all 0.3s ease;
+            border: 2px solid #e2e8f0;
+            background: white;
+            height: clamp(42px, 10vw, 58px);
+            width: clamp(42px, 10vw, 58px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .emoji {
+            font-size: clamp(16px, 4vw, 22px);
+            margin-bottom: clamp(1px, 0.25vw, 2px);
+            line-height: 1;
+        }
+
+        .rating-number {
+            font-weight: 600;
+            font-size: clamp(10px, 2.5vw, 13px);
+            line-height: 1;
+        }
+
+        .rating-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: clamp(10px, 2.5vw, 12px);
+            color: #64748b;
+            margin-top: clamp(6px, 1.5vw, 10px);
+            padding: 0 clamp(4px, 1vw, 8px);
+            font-weight: 500;
+        }
+
+        /* Comment Section */
+        .comment-section textarea {
+            width: 100%;
+            height: clamp(60px, 15vh, 85px);
+            padding: clamp(8px, 2vw, 12px);
+            border: 2px solid #e2e8f0;
+            border-radius: clamp(8px, 2vw, 12px);
+            font-family: inherit;
+            font-size: 16px;
+            resize: none;
+            transition: all 0.3s ease;
+            background: white;
+            line-height: 1.4;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .comment-section textarea:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1), 0 4px 12px rgba(16, 185, 129, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .comment-section textarea::placeholder {
+            color: #9ca3af;
+            font-size: clamp(11px, 2.5vw, 13px);
+        }
+
+        /* Contact Preferences */
+        .contact-preferences-container {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: clamp(10px, 2.5vw, 16px);
+            padding: clamp(12px, 3vw, 20px);
+            margin: clamp(12px, 3vw, 20px) 0;
+            border-left: 4px solid #0ea5e9;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .contact-main-choice {
+            margin-bottom: clamp(12px, 3vw, 18px);
+        }
+
+        .contact-main-label {
+            font-size: clamp(12px, 3vw, 15px);
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: clamp(6px, 1.5vw, 10px);
+        }
+
+        .main-choice-options {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(6px, 1.5vw, 10px);
+            margin-bottom: clamp(6px, 1.5vw, 10px);
+        }
+
+        .main-choice-item {
+            display: flex;
+            align-items: center;
+            padding: clamp(10px, 2.5vw, 14px) clamp(12px, 3vw, 16px);
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: clamp(8px, 2vw, 12px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            user-select: none;
+            min-height: clamp(40px, 10vw, 48px);
+            font-size: clamp(12px, 3vw, 15px);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .main-choice-item:hover {
+            border-color: #0ea5e9;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(14, 165, 233, 0.15);
+        }
+
+        .main-choice-item.selected {
+            border-color: #0ea5e9;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            color: #0c4a6e;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+        }
+
+        .main-choice-item input[type="radio"] {
+            margin-right: clamp(8px, 2vw, 12px);
+            transform: scale(1.2);
+            pointer-events: none;
+            accent-color: #0ea5e9;
+        }
+
+        .contact-methods {
+            padding: clamp(12px, 3vw, 18px);
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            transform: translateY(-5px);
+            border: 1px solid #e5e7eb;
+            border-radius: clamp(8px, 2vw, 12px);
+            background: #ffffff;
+        }
+
+        .contact-methods.show {
+            opacity: 1;
+            max-height: clamp(140px, 35vw, 180px);
+            transform: translateY(0);
+        }
+
+        .contact-methods-label .error-message {
+            font-size: clamp(9px, 2vw, 11px);
+            margin-top: 0;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .contact-methods-label {
+            font-size: clamp(11px, 2.5vw, 13px);
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: clamp(6px, 1.5vw, 10px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .method-item[style*="display: none"] {
+            display: none !important;
+        }
+
+        .method-options {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(8px, 2vw, 12px);
+        }
+
+        .method-item {
+            display: flex;
+            align-items: center;
+            padding: clamp(10px, 2.5vw, 14px) clamp(16px, 4vw, 20px);
+            background: #f8fafc;
+            border: 2px solid #e5e7eb;
+            border-radius: clamp(8px, 2vw, 12px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: clamp(12px, 3vw, 15px);
+            font-weight: 500;
+            user-select: none;
+            min-height: clamp(40px, 10vw, 48px);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .method-item:hover {
+            border-color: #0ea5e9;
+            background: #f0f9ff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(14, 165, 233, 0.15);
+        }
+
+        .method-item.selected {
+            border-color: #0ea5e9;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            color: #0c4a6e;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+        }
+
+        .method-item input[type="checkbox"] {
+            margin-right: 12px;
+            pointer-events: none;
+            transform: scale(1.3);
+            accent-color: #0ea5e9;
+        }
+
+        /* Privacy Section */
+        .privacy-section {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #0ea5e9;
+            border-radius: clamp(12px, 3vw, 20px);
+            padding: clamp(12px, 3vw, 20px);
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1);
+        }
+
+        .privacy-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: clamp(10px, 2.5vw, 16px);
+        }
+
+        .privacy-icon {
+            font-size: clamp(20px, 4vw, 26px);
+            margin-right: clamp(6px, 1.5vw, 10px);
+            color: #0ea5e9;
+        }
+
+        .privacy-title {
+            font-size: clamp(14px, 3.5vw, 19px);
+            font-weight: 600;
+            color: #0c4a6e;
+        }
+
+        .privacy-content {
+            font-size: clamp(11px, 2.5vw, 13px);
+            color: #475569;
+            line-height: 1.4;
+        }
+
+        .privacy-list {
+            margin: clamp(6px, 1.5vw, 10px) 0;
+            padding-left: clamp(10px, 2.5vw, 16px);
+        }
+
+        .privacy-list li {
+            margin-bottom: clamp(3px, 0.75vw, 5px);
+            font-size: clamp(10px, 2.5vw, 12px);
+        }
+
+        .consent-box {
+            background: white;
+            padding: clamp(10px, 2.5vw, 16px);
+            border-radius: clamp(8px, 2vw, 12px);
+            border: 2px solid #0ea5e9;
+            margin: clamp(10px, 2.5vw, 16px) 0;
+            box-shadow: 0 2px 8px rgba(14, 165, 233, 0.1);
+        }
+
+        .consent-item {
+            display: flex;
+            align-items: flex-start;
+            padding: clamp(6px, 1.5vw, 10px);
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
+            border-radius: clamp(6px, 1.5vw, 8px);
+            min-height: clamp(36px, 9vw, 44px);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .consent-item:hover {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        .consent-item input[type="checkbox"] {
+            margin-right: clamp(6px, 1.5vw, 10px);
+            margin-top: clamp(1px, 0.25vw, 2px);
+            transform: scale(1.2);
+            pointer-events: none;
+            flex-shrink: 0;
+            accent-color: #0ea5e9;
+        }
+
+        .consent-item span {
+            font-size: clamp(11px, 2.5vw, 13px);
+            line-height: 1.3;
+        }
+
+        .data-notice {
+            font-size: clamp(9px, 2vw, 11px);
+            color: #64748b;
+            background: white;
+            padding: clamp(6px, 1.5vw, 10px);
+            border-radius: clamp(6px, 1.5vw, 8px);
+            border-left: 4px solid #0ea5e9;
+            margin-top: clamp(6px, 1.5vw, 10px);
+            line-height: 1.3;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Navigation */
+        .navigation {
+            padding: clamp(10px, 2.5vw, 18px) clamp(16px, 4vw, 25px);
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-top: 1px solid rgba(226, 232, 240, 0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: clamp(8px, 2vw, 15px);
+            flex-shrink: 0;
+            border-radius: inherit;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+            color: white;
+            padding: clamp(8px, 2vw, 12px) clamp(14px, 3.5vw, 20px);
+            border: none;
+            border-radius: clamp(8px, 2vw, 12px);
+            font-size: clamp(12px, 3vw, 15px);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: clamp(4px, 1vw, 8px);
+            min-height: clamp(36px, 9vw, 44px);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 4px 12px rgba(44, 90, 160, 0.25);
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(44, 90, 160, 0.35);
+        }
+
+        .nav-btn:active {
+            transform: translateY(0);
+        }
+
+        .nav-btn:disabled {
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+            color: #64748b;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-btn.secondary {
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+            color: #64748b;
+        }
+
+        .nav-btn.secondary:hover:not(:disabled) {
+            background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+            color: #475569;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: clamp(10px, 2.5vw, 14px) clamp(16px, 4vw, 24px);
+            border: none;
+            border-radius: clamp(8px, 2vw, 12px);
+            font-size: clamp(12px, 3vw, 15px);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: clamp(36px, 9vw, 44px);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Thank You Page */
+        .thank-you {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            padding: clamp(16px, 4vw, 24px);
+            transition: all 0.5s ease;
+            transform: scale(0.9);
+            transform-origin: center center;
+        }
+
+        .thank-you.show {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .thank-you h2 {
+            color: #2c5aa0;
+            font-size: clamp(20px, 5vw, 30px);
+            margin-bottom: clamp(12px, 3vw, 20px);
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(44, 90, 160, 0.1);
+            line-height: 1.2;
+        }
+
+        .thank-you p {
+            color: #475569;
+            font-size: clamp(14px, 3.5vw, 17px);
+            line-height: 1.4;
+            margin-bottom: clamp(16px, 4vw, 25px);
+            max-width: 90%;
+        }
+
+        .check-icon {
+            font-size: clamp(40px, 8vw, 65px);
+            color: #10b981;
+            margin-bottom: clamp(12px, 3vw, 20px);
+            animation: checkPulse 2s ease-in-out infinite;
+            filter: drop-shadow(0 4px 8px rgba(16, 185, 129, 0.3));
+        }
+
+        @keyframes checkPulse {
+            0%, 100% { 
+                transform: scale(1); 
+                filter: drop-shadow(0 4px 8px rgba(16, 185, 129, 0.3));
+            }
+            50% { 
+                transform: scale(1.1); 
+                filter: drop-shadow(0 6px 12px rgba(16, 185, 129, 0.4));
+            }
+        }
+
+        .thank-you-actions {
+            margin-top: clamp(16px, 4vw, 25px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(12px, 3vw, 18px);
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+            color: white;
+            padding: clamp(10px, 2.5vw, 14px) clamp(18px, 4.5vw, 28px);
+            border: none;
+            border-radius: clamp(8px, 2vw, 12px);
+            font-size: clamp(12px, 3vw, 15px);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: clamp(6px, 1.5vw, 10px);
+            box-shadow: 0 4px 16px rgba(44, 90, 160, 0.3);
+            min-height: clamp(36px, 9vw, 44px);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(44, 90, 160, 0.4);
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        }
+
+        .restart-btn:active {
+            transform: translateY(0);
+        }
+
+        .auto-restart-info {
+            color: #64748b;
+            font-size: clamp(12px, 3vw, 15px);
+            display: flex;
+            align-items: center;
+            gap: clamp(6px, 1.5vw, 8px);
+            background: rgba(255, 255, 255, 0.8);
+            padding: clamp(6px, 1.5vw, 10px) clamp(10px, 2.5vw, 16px);
+            border-radius: clamp(15px, 3.75vw, 25px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .countdown {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+            color: white;
+            padding: clamp(3px, 0.75vw, 5px) clamp(6px, 1.5vw, 10px);
+            border-radius: clamp(12px, 3vw, 20px);
+            font-weight: 700;
+            min-width: clamp(20px, 5vw, 28px);
+            display: inline-block;
+            font-size: clamp(12px, 3vw, 15px);
+            box-shadow: 0 2px 6px rgba(44, 90, 160, 0.3);
+            text-align: center;
+        }
+
+        /* Error states */
+        .error-state {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border: 2px solid #dc2626;
+            border-radius: clamp(12px, 3vw, 20px);
+            padding: clamp(16px, 4vw, 24px);
+            margin: clamp(16px, 4vw, 24px) 0;
+            text-align: center;
+        }
+
+        .error-state h3 {
+            color: #dc2626;
+            font-size: clamp(16px, 4vw, 20px);
+            margin-bottom: clamp(8px, 2vw, 12px);
+        }
+
+        .error-state p {
+            color: #7f1d1d;
+            font-size: clamp(12px, 3vw, 14px);
+            line-height: 1.4;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .rating-scale {
+                gap: clamp(4px, 1vw, 8px);
+            }
+            
+            .rating-content {
+                height: clamp(36px, 9vw, 48px);
+                width: clamp(36px, 9vw, 48px);
+            }
+        }
+
+        @media (max-width: 360px) {
+            body { padding: 4px; }
+            .container { 
+                border-radius: 16px;
+                height: calc(100vh - 8px);
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .survey-content {
+                overflow-y: auto;
+                justify-content: flex-start;
+                padding-top: clamp(8px, 2vw, 16px);
+            }
+        }
+
+        /* Compact styles for contact preferences page */
+        .survey-page[data-page="9"] {
+            justify-content: flex-start;
+        }
+        
+        .survey-page[data-page="9"] .survey-content {
+            padding: clamp(8px, 2vw, 12px) clamp(16px, 4vw, 25px);
+            gap: clamp(8px, 2vw, 12px);
+            justify-content: flex-start;
+        }
+        
+        .survey-page[data-page="9"] .page-title {
+            font-size: clamp(14px, 3.5vw, 18px);
+            margin-bottom: clamp(2px, 0.5vw, 4px);
+        }
+        
+        .survey-page[data-page="9"] .page-description {
+            font-size: clamp(11px, 2.5vw, 13px);
+            margin-bottom: clamp(8px, 2vw, 12px);
+        }
+        
+        .survey-page[data-page="9"] .contact-preferences-container {
+            padding: clamp(6px, 1.5vw, 10px);
+            margin: 0;
+            border-left-width: 3px;
+        }
+
+        .survey-page[data-page="9"] .contact-main-choice {
+            margin-bottom: clamp(6px, 1.5vw, 10px);
+        }
+        
+        .survey-page[data-page="9"] .contact-main-label {
+            font-size: clamp(11px, 2.5vw, 13px);
+            margin-bottom: clamp(4px, 1vw, 6px);
+        }
+
+        .survey-page[data-page="9"] .main-choice-item,
+        .survey-page[data-page="9"] .method-item {
+            padding: clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 10px);
+            font-size: clamp(11px, 2.5vw, 13px);
+            min-height: clamp(32px, 7vw, 36px);
+            border-width: 1px;
+        }
+
+        .survey-page[data-page="9"] .method-options,
+        .survey-page[data-page="9"] .main-choice-options {
+            gap: clamp(3px, 0.75vw, 5px);
+        }
+
+        .survey-page[data-page="9"] .contact-methods {
+            padding: clamp(6px, 1.5vw, 8px);
+            max-height: clamp(90px, 20vw, 120px);
+            border-width: 1px;
+        }
+        
+        .survey-page[data-page="9"] .contact-methods-label {
+            font-size: clamp(10px, 2vw, 12px);
+            margin-bottom: clamp(4px, 1vw, 6px);
+            gap: 6px;
+        }
+        
+        .survey-page[data-page="9"] .contact-methods-label .error-message {
+            font-size: clamp(8px, 1.5vw, 10px);
+        }
+        
+        .survey-page[data-page="9"] .main-choice-item input[type="radio"],
+        .survey-page[data-page="9"] .method-item input[type="checkbox"] {
+            margin-right: clamp(6px, 1.5vw, 8px);
+            transform: scale(1.1);
+        }
+        
+        .survey-page[data-page="9"] .error-message {
+            font-size: clamp(9px, 2vw, 11px);
+            margin-top: clamp(2px, 0.5vw, 3px);
+        }
+
+        /* Ensure page 9 content fits in viewport */
+        @media (max-height: 700px) {
+            .survey-page[data-page="9"] .survey-content {
+                padding: 8px 16px;
+                gap: 8px;
+            }
+            
+            .survey-page[data-page="9"] .page-title {
+                font-size: 16px;
+                margin-bottom: 2px;
+            }
+            
+            .survey-page[data-page="9"] .page-description {
+                font-size: 12px;
+                margin-bottom: 8px;
+            }
+            
+            .survey-page[data-page="9"] .contact-preferences-container {
+                padding: 6px;
+            }
+            
+            .survey-page[data-page="9"] .main-choice-item,
+            .survey-page[data-page="9"] .method-item {
+                padding: 6px 8px;
+                min-height: 32px;
+                font-size: 12px;
+            }
+            
+            .survey-page[data-page="9"] .contact-methods {
+                padding: 6px;
+                max-height: 80px;
+            }
+            
+            .survey-page[data-page="9"] .contact-methods-label {
+                font-size: 11px;
+                gap: 4px;
+            }
+            
+            .survey-page[data-page="9"] .contact-methods-label .error-message {
+                font-size: 9px;
+            }
+        }
+
+        /* Compact styles for privacy/consent page */
+        .survey-page[data-page="10"] {
+            justify-content: flex-start;
+        }
+        
+        .survey-page[data-page="10"] .survey-content {
+            padding: clamp(4px, 1vw, 8px) clamp(12px, 3vw, 20px);
+            gap: clamp(4px, 1vw, 8px);
+            justify-content: flex-start;
+            overflow-y: auto;
+        }
+        
+        .survey-page[data-page="10"] .page-title {
+            font-size: clamp(12px, 3vw, 16px);
+            margin-bottom: clamp(1px, 0.25vw, 2px);
+        }
+        
+        .survey-page[data-page="10"] .page-description {
+            font-size: clamp(10px, 2vw, 12px);
+            margin-bottom: clamp(4px, 1vw, 8px);
+        }
+        
+        .survey-page[data-page="10"] .privacy-section {
+            padding: clamp(4px, 1vw, 8px);
+            border-radius: clamp(6px, 1.5vw, 10px);
+            border-width: 1px;
+        }
+        
+        .survey-page[data-page="10"] .privacy-header {
+            margin-bottom: clamp(3px, 0.75vw, 5px);
+        }
+        
+        .survey-page[data-page="10"] .privacy-icon {
+            font-size: clamp(14px, 2.5vw, 18px);
+            margin-right: clamp(3px, 0.75vw, 5px);
+        }
+        
+        .survey-page[data-page="10"] .privacy-title {
+            font-size: clamp(11px, 2.5vw, 14px);
+        }
+        
+        .survey-page[data-page="10"] .privacy-content {
+            font-size: clamp(9px, 1.8vw, 11px);
+            line-height: 1.2;
+        }
+        
+        .survey-page[data-page="10"] .privacy-content p {
+            margin-bottom: clamp(3px, 0.75vw, 5px) !important;
+        }
+        
+        .survey-page[data-page="10"] .privacy-list {
+            margin: clamp(2px, 0.5vw, 4px) 0;
+            padding-left: clamp(6px, 1.5vw, 10px);
+        }
+        
+        .survey-page[data-page="10"] .privacy-list li {
+            margin-bottom: clamp(1px, 0.25vw, 2px);
+            font-size: clamp(8px, 1.5vw, 10px);
+            line-height: 1.1;
+        }
+        
+        .survey-page[data-page="10"] .consent-box {
+            padding: clamp(3px, 0.75vw, 6px);
+            margin: clamp(3px, 0.75vw, 6px) 0;
+            border-radius: clamp(4px, 1vw, 6px);
+            border-width: 1px;
+        }
+        
+        .survey-page[data-page="10"] .consent-item {
+            padding: clamp(2px, 0.5vw, 4px);
+            min-height: clamp(28px, 6vw, 32px);
+        }
+        
+        .survey-page[data-page="10"] .consent-item span {
+            font-size: clamp(9px, 1.8vw, 11px);
+            line-height: 1.1;
+        }
+        
+        .survey-page[data-page="10"] .consent-item input[type="checkbox"] {
+            margin-right: clamp(3px, 0.75vw, 5px);
+            margin-top: clamp(1px, 0.25vw, 2px);
+            transform: scale(1.0);
+        }
+        
+        .survey-page[data-page="10"] .data-notice {
+            font-size: clamp(7px, 1.2vw, 9px);
+            padding: clamp(2px, 0.5vw, 4px);
+            margin-top: clamp(2px, 0.5vw, 4px);
+            border-radius: clamp(3px, 0.75vw, 5px);
+            line-height: 1.1;
+            border-left-width: 2px;
+        }
+        
+        .survey-page[data-page="10"] .form-label {
+            font-size: clamp(10px, 2vw, 12px);
+            margin-bottom: clamp(2px, 0.5vw, 4px);
+        }
+        
+        .survey-page[data-page="10"] .error-message {
+            font-size: clamp(8px, 1.5vw, 10px);
+            margin-top: clamp(1px, 0.25vw, 2px);
+        }
+
+        /* Ultra-compact for smaller viewports */
+        @media (max-height: 800px) {
+            .survey-page[data-page="10"] .survey-content {
+                padding: 3px 12px;
+                gap: 3px;
+            }
+            
+            .survey-page[data-page="10"] .page-title {
+                font-size: 14px;
+                margin-bottom: 1px;
+            }
+            
+            .survey-page[data-page="10"] .page-description {
+                font-size: 11px;
+                margin-bottom: 3px;
+            }
+            
+            .survey-page[data-page="10"] .privacy-section {
+                padding: 4px;
+            }
+            
+            .survey-page[data-page="10"] .privacy-content {
+                font-size: 10px;
+            }
+            
+            .survey-page[data-page="10"] .privacy-list li {
+                font-size: 9px;
+                margin-bottom: 1px;
+            }
+            
+            .survey-page[data-page="10"] .consent-box {
+                padding: 3px;
+                margin: 3px 0;
+            }
+            
+            .survey-page[data-page="10"] .consent-item {
+                padding: 2px;
+                min-height: 26px;
+            }
+            
+            .survey-page[data-page="10"] .consent-item span {
+                font-size: 10px;
+            }
+            
+            .survey-page[data-page="10"] .data-notice {
+                font-size: 8px;
+                padding: 2px;
+            }
+        }
+
+        @media (max-height: 700px) {
+            .survey-page[data-page="10"] .survey-content {
+                padding: 2px 10px;
+                gap: 2px;
+            }
+            
+            .survey-page[data-page="10"] .privacy-section {
+                padding: 3px;
+            }
+            
+            .survey-page[data-page="10"] .privacy-content {
+                font-size: 9px;
+            }
+            
+            .survey-page[data-page="10"] .privacy-list li {
+                font-size: 8px;
+                margin-bottom: 0px;
+            }
+            
+            .survey-page[data-page="10"] .consent-box {
+                padding: 2px;
+                margin: 2px 0;
+            }
+            
+            .survey-page[data-page="10"] .consent-item {
+                padding: 1px;
+                min-height: 24px;
+            }
+            
+            .survey-page[data-page="10"] .consent-item span {
+                font-size: 9px;
+            }
+            
+            .survey-page[data-page="10"] .data-notice {
+                font-size: 7px;
+                padding: 1px;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .survey-page[data-page="10"] .survey-content {
+                padding: 1px 8px;
+                gap: 1px;
+            }
+            
+            .survey-page[data-page="10"] .privacy-section {
+                padding: 2px;
+            }
+            
+            .survey-page[data-page="10"] .privacy-content {
+                font-size: 8px;
+            }
+            
+            .survey-page[data-page="10"] .privacy-list li {
+                font-size: 7px;
+                margin-bottom: 0px;
+            }
+            
+            .survey-page[data-page="10"] .consent-box {
+                padding: 1px;
+                margin: 1px 0;
+            }
+            
+            .survey-page[data-page="10"] .consent-item {
+                padding: 1px;
+                min-height: 22px;
+            }
+            
+            .survey-page[data-page="10"] .consent-item span {
+                font-size: 8px;
+            }
+            
+            .survey-page[data-page="10"] .data-notice {
+                font-size: 6px;
+                padding: 1px;
+            }
+            }
+
+            /* Make consent page wider */
+            .survey-page[data-page="10"] .container {
+                max-width: clamp(400px, 98vw, 900px);
+            }
+
+            @media (min-width: 480px) {
+                .survey-page[data-page="10"] .privacy-section {
+                    max-width: none;
+                    width: 100%;
+                }
+            }
+
+            /* Question-specific comments */
+            .question-comment-section {
+                margin-top: clamp(16px, 4vw, 24px);
+                padding: clamp(12px, 3vw, 18px);
+                background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                border-radius: clamp(8px, 2vw, 12px);
+                border: 1px solid rgba(226, 232, 240, 0.5);
+            }
+
+            .comment-label {
+                display: block;
+                font-size: clamp(12px, 3vw, 14px);
+                font-weight: 500;
+                color: #64748b;
+                margin-bottom: clamp(6px, 1.5vw, 10px);
+            }
+
+            .question-comment {
+                width: 100%;
+                height: clamp(50px, 12vh, 70px);
+                padding: clamp(8px, 2vw, 12px);
+                border: 2px solid #e2e8f0;
+                border-radius: clamp(6px, 1.5vw, 8px);
+                font-family: inherit;
+                font-size: 16px;
+                resize: none;
+                transition: all 0.3s ease;
+                background: white;
+                line-height: 1.4;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            }
+
+            .question-comment:focus {
+                outline: none;
+                border-color: #2c5aa0;
+                box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1), 0 4px 12px rgba(44, 90, 160, 0.15);
+                transform: translateY(-1px);
+            }
+
+            .question-comment::placeholder {
+                color: #9ca3af;
+                font-size: clamp(11px, 2.5vw, 13px);
+            }
+
+            /* Compact styles for smaller screens */
+            @media (max-height: 700px) {
+                .question-comment-section {
+                    margin-top: clamp(8px, 2vw, 12px);
+                    padding: clamp(8px, 2vw, 12px);
+                }
+                
+                .question-comment {
+                    height: clamp(40px, 10vh, 60px);
+                }
+            }
+
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Saving your feedback...</div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>How Was Your Visit Today?</h1>
+            <p>Your feedback helps us provide the best possible care. Please take a moment to share your experience with us.</p>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Step 1 of 10</div>
+        </div>
+
+        <form id="surveyForm">
+            <!-- Page 1: Patient Information -->
+            <div class="survey-page active" data-page="1">
+                <div class="survey-content">
+                    <div class="page-title">
+                        <span class="page-icon">👤</span>
+                        Visit Information
+                    </div>
+                    <div class="page-description">Please provide details about your visit today</div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="patientName">Full Name *</label>
+                            <input type="text" id="patientName" name="patient_name" required class="form-input" placeholder="Enter your full name">
+                            <div class="error-message">Please enter your full name</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="patientEmail">Email Address *</label>
+                            <input type="email" id="patientEmail" name="patient_email" required class="form-input" placeholder="Enter your email">
+                            <div class="error-message">Please enter a valid email address</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="patientPhone">Phone Number</label>
+                            <input type="tel" id="patientPhone" name="patient_phone" class="form-input" placeholder="Enter your phone number" value="+971">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="visitDate">Visit Date *</label>
+                            <input type="date" id="visitDate" name="visit_date" required class="form-input">
+                            <div class="error-message">Please select your visit date</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="visitTime">Visit Time *</label>
+                            <select id="visitTime" name="visit_time" required class="form-select">
+                                <option value="">Select time</option>
+                                <option value="8:00 AM - 9:00 AM">8:00 AM - 9:00 AM</option>
+                                <option value="9:00 AM - 10:00 AM">9:00 AM - 10:00 AM</option>
+                                <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
+                                <option value="11:00 AM - 12:00 PM">11:00 AM - 12:00 PM</option>
+                                <option value="12:00 PM - 1:00 PM">12:00 PM - 1:00 PM</option>
+                                <option value="1:00 PM - 2:00 PM">1:00 PM - 2:00 PM</option>
+                                <option value="2:00 PM - 3:00 PM">2:00 PM - 3:00 PM</option>
+                                <option value="3:00 PM - 4:00 PM">3:00 PM - 4:00 PM</option>
+                                <option value="4:00 PM - 5:00 PM">4:00 PM - 5:00 PM</option>
+                                <option value="5:00 PM - 6:00 PM">5:00 PM - 6:00 PM</option>
+                                <option value="After 6:00 PM">After 6:00 PM</option>
+                            </select>
+                            <div class="error-message">Please select your visit time</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="department">Department/Service Visited *</label>
+                            <select id="department" name="department_visited" required class="form-select">
+                                <option value="">Select department</option>
+                                <option value="Reception/Front Desk">Reception/Front Desk</option>
+                                <option value="General Practice">General Practice</option>
+                                <option value="Specialist Consultation">Specialist Consultation</option>
+                                <option value="Nursing Services">Nursing Services</option>
+                                <option value="Laboratory">Laboratory</option>
+                                <option value="Radiology/Imaging">Radiology/Imaging</option>
+                                <option value="Pharmacy">Pharmacy</option>
+                                <option value="Physical Therapy">Physical Therapy</option>
+                                <option value="Emergency/Urgent Care">Emergency/Urgent Care</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <div class="error-message">Please select the department you visited</div>
+                            <div id="otherDepartment" class="other-department-input">
+                                <input type="text" id="otherDepartmentText" name="other_department" class="form-input" placeholder="Please specify the department/service">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 2: Wait Times -->
+            <div class="survey-page" data-page="2">
+                <div class="survey-content">
+                    <div class="page-title">
+                        <span class="page-icon">⏱️</span>
+                        Wait Times Experience
+                    </div>
+                    <div class="page-description">Help us understand your waiting experience today</div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="waitTime">How long did you wait for your appointment? *</label>
+                            <select id="waitTime" name="wait_time_actual" required class="form-select">
+                                <option value="">Select wait time</option>
+                                <option value="0-5 minutes">0-5 minutes</option>
+                                <option value="6-10 minutes">6-10 minutes</option>
+                                <option value="11-15 minutes">11-15 minutes</option>
+                                <option value="16-30 minutes">16-30 minutes</option>
+                                <option value="31-45 minutes">31-45 minutes</option>
+                                <option value="46-60 minutes">46-60 minutes</option>
+                                <option value="More than 1 hour">More than 1 hour</option>
+                            </select>
+                            <div class="error-message">Please select your wait time</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="scheduledTime">Was your appointment on time? *</label>
+                            <select id="scheduledTime" name="appointment_timeliness" required class="form-select">
+                                <option value="">Select option</option>
+                                <option value="Yes, exactly on time">Yes, exactly on time</option>
+                                <option value="Slightly delayed (under 15 min)">Slightly delayed (under 15 min)</option>
+                                <option value="Moderately delayed (15-30 min)">Moderately delayed (15-30 min)</option>
+                                <option value="Significantly delayed (over 30 min)">Significantly delayed (over 30 min)</option>
+                            </select>
+                            <div class="error-message">Please select appointment timeliness</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 3: Reception Rating -->
+            <div class="survey-page" data-page="3">
+                <div class="survey-content">
+                    <div class="rating-section">
+                        <div class="rating-title">
+                            <span class="rating-title-icon">🏢</span>
+                            How would you rate our Reception/Front Desk service? *
+                        </div>
+                        <div class="rating-scale">
+                            <label class="rating-option">
+                                <input type="radio" name="reception_rating" value="1" required>
+                                <div class="rating-content">
+                                    <div class="emoji">😞</div>
+                                    <div class="rating-number">1</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="reception_rating" value="2">
+                                <div class="rating-content">
+                                    <div class="emoji">😕</div>
+                                    <div class="rating-number">2</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="reception_rating" value="3">
+                                <div class="rating-content">
+                                    <div class="emoji">😐</div>
+                                    <div class="rating-number">3</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="reception_rating" value="4">
+                                <div class="rating-content">
+                                    <div class="emoji">🙂</div>
+                                    <div class="rating-number">4</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="reception_rating" value="5">
+                                <div class="rating-content">
+                                    <div class="emoji">😄</div>
+                                    <div class="rating-number">5</div>
+                                </div>
+                            </label>
+                        </div>
+                            <div class="question-comment-section">
+                                <label class="comment-label">Additional comments for this section (optional)</label>
+                                <textarea class="question-comment" name="comment_page_3" placeholder="Any specific feedback about this aspect of your visit?"></textarea>
+                            </div>
+                        <div class="rating-labels">
+                            <span>Poor Service</span>
+                            <span>Excellent Service</span>
+                        </div>
+                        <div class="error-message">Please rate our Reception/Front Desk service</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 4: Doctor Rating -->
+            <div class="survey-page" data-page="4">
+                <div class="survey-content">
+                    <div class="rating-section">
+                        <div class="rating-title">
+                            <span class="rating-title-icon">👨‍⚕️</span>
+                            How would you rate your Doctor/Healthcare Provider consultation? *
+                        </div>
+                        <div class="rating-scale">
+                            <label class="rating-option">
+                                <input type="radio" name="doctor_rating" value="1" required>
+                                <div class="rating-content">
+                                    <div class="emoji">😞</div>
+                                    <div class="rating-number">1</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="doctor_rating" value="2">
+                                <div class="rating-content">
+                                    <div class="emoji">😕</div>
+                                    <div class="rating-number">2</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="doctor_rating" value="3">
+                                <div class="rating-content">
+                                    <div class="emoji">😐</div>
+                                    <div class="rating-number">3</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="doctor_rating" value="4">
+                                <div class="rating-content">
+                                    <div class="emoji">🙂</div>
+                                    <div class="rating-number">4</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="doctor_rating" value="5">
+                                <div class="rating-content">
+                                    <div class="emoji">😄</div>
+                                    <div class="rating-number">5</div>
+                                </div>
+                            </label>
+                        </div>
+                            <div class="question-comment-section">
+                                <label class="comment-label">Additional comments for this section (optional)</label>
+                                <textarea class="question-comment" name="comment_page_4" placeholder="Any specific feedback about this aspect of your visit?"></textarea>
+                            </div>
+                        <div class="rating-labels">
+                            <span>Poor Consultation</span>
+                            <span>Excellent Consultation</span>
+                        </div>
+                        <div class="error-message">Please rate your Doctor/Healthcare Provider consultation</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 5: Nursing Rating -->
+            <div class="survey-page" data-page="5">
+                <div class="survey-content">
+                    <div class="rating-section">
+                        <div class="rating-title">
+                            <span class="rating-title-icon">👩‍⚕️</span>
+                            How would you rate our Nursing Services? *
+                        </div>
+                        <div class="rating-scale">
+                            <label class="rating-option">
+                                <input type="radio" name="nursing_rating" value="1" required>
+                                <div class="rating-content">
+                                    <div class="emoji">😞</div>
+                                    <div class="rating-number">1</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="nursing_rating" value="2">
+                                <div class="rating-content">
+                                    <div class="emoji">😕</div>
+                                    <div class="rating-number">2</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="nursing_rating" value="3">
+                                <div class="rating-content">
+                                    <div class="emoji">😐</div>
+                                    <div class="rating-number">3</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="nursing_rating" value="4">
+                                <div class="rating-content">
+                                    <div class="emoji">🙂</div>
+                                    <div class="rating-number">4</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="nursing_rating" value="5">
+                                <div class="rating-content">
+                                    <div class="emoji">😄</div>
+                                    <div class="rating-number">5</div>
+                                </div>
+                            </label>
+                        </div>
+                            <div class="question-comment-section">
+                                <label class="comment-label">Additional comments for this section (optional)</label>
+                                <textarea class="question-comment" name="comment_page_5" placeholder="Any specific feedback about this aspect of your visit?"></textarea>
+                            </div>
+                        <div class="rating-labels">
+                            <span>Poor Care</span>
+                            <span>Excellent Care</span>
+                        </div>
+                        <div class="error-message">Please rate our Nursing Services</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 6: Overall Satisfaction -->
+            <div class="survey-page" data-page="6">
+                <div class="survey-content">
+                    <div class="rating-section">
+                        <div class="rating-title">
+                            <span class="rating-title-icon">⭐</span>
+                            Overall, how satisfied are you with your visit today? *
+                        </div>
+                        <div class="rating-scale">
+                            <label class="rating-option">
+                                <input type="radio" name="overall_satisfaction" value="1" required>
+                                <div class="rating-content">
+                                    <div class="emoji">😞</div>
+                                    <div class="rating-number">1</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="overall_satisfaction" value="2">
+                                <div class="rating-content">
+                                    <div class="emoji">😕</div>
+                                    <div class="rating-number">2</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="overall_satisfaction" value="3">
+                                <div class="rating-content">
+                                    <div class="emoji">😐</div>
+                                    <div class="rating-number">3</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="overall_satisfaction" value="4">
+                                <div class="rating-content">
+                                    <div class="emoji">🙂</div>
+                                    <div class="rating-number">4</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="overall_satisfaction" value="5">
+                                <div class="rating-content">
+                                    <div class="emoji">😄</div>
+                                    <div class="rating-number">5</div>
+                                </div>
+                            </label>
+                        </div>
+                            <div class="question-comment-section">
+                                <label class="comment-label">Additional comments for this section (optional)</label>
+                                <textarea class="question-comment" name="comment_page_6" placeholder="Any specific feedback about this aspect of your visit?"></textarea>
+                            </div>
+                        <div class="rating-labels">
+                            <span>Very Dissatisfied</span>
+                            <span>Very Satisfied</span>
+                        </div>
+                        <div class="error-message">Please rate your overall satisfaction</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 7: Staff Professionalism -->
+            <div class="survey-page" data-page="7">
+                <div class="survey-content">
+                    <div class="rating-section">
+                        <div class="rating-title">
+                            <span class="rating-title-icon">👥</span>
+                            How would you rate the professionalism and courtesy of our staff? *
+                        </div>
+                        <div class="rating-scale">
+                            <label class="rating-option">
+                                <input type="radio" name="staff_professionalism" value="1" required>
+                                <div class="rating-content">
+                                    <div class="emoji">😞</div>
+                                    <div class="rating-number">1</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="staff_professionalism" value="2">
+                                <div class="rating-content">
+                                    <div class="emoji">😕</div>
+                                    <div class="rating-number">2</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="staff_professionalism" value="3">
+                                <div class="rating-content">
+                                    <div class="emoji">😐</div>
+                                    <div class="rating-number">3</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="staff_professionalism" value="4">
+                                <div class="rating-content">
+                                    <div class="emoji">🙂</div>
+                                    <div class="rating-number">4</div>
+                                </div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="staff_professionalism" value="5">
+                                <div class="rating-content">
+                                    <div class="emoji">😄</div>
+                                    <div class="rating-number">5</div>
+                                </div>
+                            </label>
+                        </div>
+                            <div class="question-comment-section">
+                                <label class="comment-label">Additional comments for this section (optional)</label>
+                                <textarea class="question-comment" name="comment_page_7" placeholder="Any specific feedback about this aspect of your visit?"></textarea>
+                            </div>
+                        <div class="rating-labels">
+                            <span>Poor</span>
+                            <span>Excellent</span>
+                        </div>
+                        <div class="error-message">Please rate our staff's professionalism</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 8: Additional Comments -->
+            <div class="survey-page" data-page="8">
+                <div class="survey-content">
+                    <div class="page-title">
+                        <span class="page-icon">💬</span>
+                        Additional Comments
+                    </div>
+                    <div class="page-description">Please share any additional thoughts, suggestions, or feedback about your visit today</div>
+                    
+                    <div class="comment-section">
+                        <textarea id="comments" name="comments" placeholder="Your feedback helps us improve our services. Please share any additional thoughts about your experience..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 9: Contact Preferences -->
+            <div class="survey-page" data-page="9">
+                <div class="survey-content">
+                    <div class="page-title">
+                        <span class="page-icon">📞</span>
+                        Contact Preferences
+                    </div>
+                    <div class="page-description">Let us know if you'd like follow-up communication</div>
+                    
+                    <div class="contact-preferences-container">
+                        <div class="contact-main-choice">
+                            <div class="contact-main-label">Would you like us to contact you for follow-up? *</div>
+                            <div class="main-choice-options">
+                                <label class="main-choice-item">
+                                    <input type="radio" name="want_contact" value="yes" id="contactYes" required>
+                                    <span>✅ Yes, please contact me</span>
+                                </label>
+                                <label class="main-choice-item">
+                                    <input type="radio" name="want_contact" value="no" id="contactNo">
+                                    <span>🚫 No, do not contact me</span>
+                                </label>
+                            </div>
+                            <div class="error-message">Please select your contact preference</div>
+                        </div>
+
+                        <div class="contact-methods" id="contactMethods">
+                            <div class="contact-methods-label">
+                                How would you prefer to be contacted? *
+                                <div class="error-message" style="margin: 0;">Please select at least one contact method</div>
+                            </div>
+                            <div class="method-options">
+                                <label class="method-item">
+                                    <input type="checkbox" name="contact_preference[]" value="email">
+                                    <span>📧 Email</span>
+                                </label>
+                                <label class="method-item">
+                                    <input type="checkbox" name="contact_preference[]" value="phone">
+                                    <span>📞 Phone</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 10: Privacy & Consent -->
+            <div class="survey-page" data-page="10">
+                <div class="survey-content">
+                    <div class="page-title">
+                        <span class="page-icon">🔒</span>
+                        Privacy & Consent
+                    </div>
+                    <div class="page-description">Your privacy matters to us. Please review and provide consent below</div>
+                    
+                    <div class="privacy-section">
+                        <div class="privacy-header">
+                            <span class="privacy-icon">🔒</span>
+                            <div class="privacy-title">Privacy & Confidentiality</div>
+                        </div>
+                        <div class="privacy-content">
+                            <p style="margin-bottom: 12px;"><strong>Your Privacy Matters:</strong> We are committed to protecting your personal information and ensuring compliance with healthcare privacy regulations.</p>
+                            <ul class="privacy-list">
+                                <li>Your feedback will be used solely for quality improvement purposes</li>
+                                <li>Personal identifiers will be kept secure and confidential</li>
+                                <li>Your responses may be shared with relevant staff for service improvement</li>
+                                <li>You have the right to request deletion of your feedback data</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="consent-box">
+                            <div style="margin-bottom: 16px;">
+                                <label class="form-label">Consent for feedback use: *</label>
+                                <div class="consent-item">
+                                    <input type="checkbox" name="consent_feedback_use" value="yes" required>
+                                    <span style="line-height: 1.4;">I consent to my feedback being used for quality improvement purposes and understand that my personal information will be kept confidential.</span>
+                                </div>
+                                <div class="error-message">You must provide consent to proceed</div>
+                            </div>
+                        </div>
+
+                        <div class="data-notice">
+                            <strong>Data Protection Notice:</strong> This feedback system complies with healthcare privacy standards. For questions about how your data is used or to request data deletion, please contact our Privacy Officer at privacy@medicalpractice.com
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <button type="button" id="prevBtn" class="nav-btn secondary" disabled>
+                ← Previous
+            </button>
+            <button type="button" id="nextBtn" class="nav-btn">
+                Next →
+            </button>
+            <button type="button" id="submitBtn" class="submit-btn" style="display: none;">
+                Submit Feedback ✓
+            </button>
+        </div>
+    </div>
+
+    <!-- Thank You Page -->
+    <div id="thankYou" class="thank-you">
+        <div class="check-icon">✅</div>
+        <h2>Thank You for Your Feedback!</h2>
+        <p>We truly appreciate you taking the time to share your experience with us. Your feedback helps us continue to improve our care and service quality.</p>
+        
+        <div class="thank-you-actions">
+            <button id="restartBtn" class="restart-btn">
+                🔄 Start New Survey
+            </button>
+            
+            <div class="auto-restart-info">
+                ⏱️ Automatically restarting in <span class="countdown" id="countdown">30</span> seconds
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===========================
+        // CONFIGURATION
+        // ===========================
+        const CONFIG = {
+            SUPABASE_URL: 'https://bviftbleggssnrccaqcd.supabase.co',
+            SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2aWZ0YmxlZ2dzc25yY2NhcWNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4MTU2NDMsImV4cCI6MjA2NzM5MTY0M30.jcy9iRef2WYLYIXESTwiDBWqcufHLu6Hc3EAGAWy_AA',
+            AUTO_RESTART_TIME: 30, // seconds
+            IDLE_TIMEOUT: 300 // seconds (5 minutes)
+        };
+
+        // ===========================
+        // SUPABASE SERVICE CLASS
+        // ===========================
+        class SupabaseService {
+            constructor() {
+                this.supabase = null;
+                this.initSupabase();
+            }
+
+            initSupabase() {
+                try {
+                    if (typeof supabase === 'undefined') {
+                        console.warn('⚠️ Supabase client not loaded. Running in demo mode.');
+                        console.log('📝 Demo mode enabled - survey data will be logged to console');
+                        return;
+                    }
+
+                    this.supabase = supabase.createClient(
+                        CONFIG.SUPABASE_URL,
+                        CONFIG.SUPABASE_ANON_KEY
+                    );
+
+                    console.log('✅ Supabase initialized successfully');
+                } catch (error) {
+                    console.error('❌ Error initializing Supabase:', error);
+                    console.warn('Running in demo mode - data will not be saved');
+                }
+            }
+
+            generateSurveyId() {
+                const timestamp = Date.now();
+                const randomStr = Math.random().toString(36).substr(2, 9);
+                return `SURVEY_${timestamp}_${randomStr}`;
+            }
+
+            async saveSurveyResponse(responseData) {
+                // If Supabase is not available, run in demo mode
+                if (!this.supabase) {
+                    console.warn('🔧 DEMO MODE: Configure Supabase credentials to save data');
+                    console.log('📊 SURVEY DATA (Demo Mode):', JSON.stringify(responseData, null, 2));
+                    
+                    // Simulate API delay
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    return { success: true, id: responseData.response_id, demo: true };
+                }
+
+                try {
+                    console.log('🔄 Attempting to save survey data...');
+                    
+                    // Save the survey response to the database
+                    const { data, error } = await this.supabase
+                        .from('patient_survey_responses')
+                        .insert([responseData])
+                        .select();
+
+                    if (error) {
+                        console.error('❌ Supabase error:', error);
+                        throw new Error(`Database error: ${error.message}`);
+                    }
+
+                    console.log('✅ Survey saved successfully:', data[0]);
+                    
+                    // Check if follow-up task should be created
+                    if (this.shouldCreateFollowUp(responseData)) {
+                        await this.createFollowUpTask(responseData, data[0].id);
+                    }
+                    
+                    return { success: true, id: data[0].response_id, data: data[0] };
+
+                } catch (error) {
+                    console.error('❌ Error saving survey:', error);
+                    throw error;
+                }
+            }
+
+            shouldCreateFollowUp(responseData) {
+                // Create follow-up for low satisfaction or if requested
+                const lowSatisfaction = parseInt(responseData.experience_data?.overall_satisfaction) <= 2;
+                const wantsContact = responseData.contact_preferences?.wants_contact === 'yes';
+                return lowSatisfaction || wantsContact;
+            }
+
+            async createFollowUpTask(surveyData, surveyId) {
+    if (!this.supabase) return;
+
+    try {
+        const priority = parseInt(surveyData.experience_data?.overall_satisfaction) <= 2 ? 'high' : 'medium';
+        
+        // Build notes including question comments
+        let notes = `Auto-generated follow-up task. Overall satisfaction: ${surveyData.experience_data?.overall_satisfaction}/5`;
+        
+        // Add question-specific comments if they exist
+        const questionComments = surveyData.experience_data?.question_comments;
+        if (questionComments && Object.keys(questionComments).length > 0) {
+            notes += '\n\nQuestion-Specific Feedback:';
+            Object.entries(questionComments).forEach(([key, comment]) => {
+                if (comment && comment.trim()) {
+                    const label = key.replace('page_', 'Page ').replace('_', ' - ');
+                    notes += `\n${label}: ${comment}`;
+                }
+            });
+        }
+        
+        // Add general comments
+        if (surveyData.experience_data?.additional_comments) {
+            notes += `\n\nAdditional Comments: ${surveyData.experience_data.additional_comments}`;
+        }
+        
+        const followUpData = {
+            survey_response_id: surveyId,
+            patient_name: surveyData.patient_info?.full_name,
+            patient_email: surveyData.patient_info?.email,
+            patient_phone: surveyData.patient_info?.phone,
+            contact_method: surveyData.contact_preferences?.contact_methods?.[0] || 'email',
+            priority: priority,
+            status: 'pending',
+            survey_rating: surveyData.experience_data?.overall_satisfaction?.toString(),
+            department: surveyData.patient_info?.department_visited,
+            notes: notes,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        };
+
+        const { error } = await this.supabase
+            .from('follow_up_tasks')
+            .insert([followUpData]);
+
+        if (error) {
+            console.warn('Could not create follow-up task:', error);
+        } else {
+            console.log('✅ Follow-up task created automatically');
+        }
+    } catch (error) {
+        console.warn('Error creating follow-up task:', error);
+    }
+}
+
+            async testConnection() {
+                if (!this.supabase) {
+                    return { connected: false, reason: 'Demo mode - no configuration' };
+                }
+
+                try {
+                    const { data, error } = await this.supabase
+                        .from('patient_survey_responses')
+                        .select('count')
+                        .limit(1);
+
+                    if (error) {
+                        return { connected: false, reason: error.message };
+                    }
+
+                    return { connected: true };
+                } catch (error) {
+                    return { connected: false, reason: error.message };
+                }
+            }
+        }
+
+        // ===========================
+        // MULTI-PAGE SURVEY CLASS
+        // ===========================
+        class MultiPageSurvey {
+            constructor() {
+                this.currentPage = 1;
+                this.totalPages = 10;
+                this.countdownTimer = null;
+                this.idleTimer = null;
+                this.idleTimeoutDuration = CONFIG.IDLE_TIMEOUT * 1000;
+                this.supabaseService = new SupabaseService();
+                this.init();
+            }
+
+            init() {
+                // Wait for DOM to be ready
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', () => this.setupEventListeners());
+                } else {
+                    this.setupEventListeners();
+                }
+            }
+
+            setupEventListeners() {
+                try {
+                    // Navigation buttons
+                    const nextBtn = document.getElementById('nextBtn');
+                    const prevBtn = document.getElementById('prevBtn');
+                    const submitBtn = document.getElementById('submitBtn');
+                    const restartBtn = document.getElementById('restartBtn');
+
+                    if (nextBtn) nextBtn.addEventListener('click', () => this.nextPage());
+                    if (prevBtn) prevBtn.addEventListener('click', () => this.prevPage());
+                    if (submitBtn) submitBtn.addEventListener('click', () => this.submitForm());
+                    if (restartBtn) restartBtn.addEventListener('click', () => this.restartSurvey());
+
+                    // Department selector
+                    const departmentSelect = document.getElementById('department');
+                    if (departmentSelect) {
+                        departmentSelect.addEventListener('change', () => this.toggleOtherDepartment());
+                    }
+
+                    // Setup visit date constraints
+                    this.setupVisitDateConstraints();
+
+                    // Setup interactions
+                    this.setupContactPreferences();
+                    this.setupConsentCheckbox();
+                    this.setupRatingEffects();
+                    this.setupErrorClearing();
+                    this.setupIdleTracking();
+
+                    // Update initial state
+                    this.updateProgressBar();
+                    this.updateNavigation();
+
+                    // Prevent scrolling on body
+                    document.body.style.overflow = 'hidden';
+
+                    console.log('✅ Survey initialized successfully');
+                } catch (error) {
+                    console.error('❌ Error setting up event listeners:', error);
+                }
+            }
+
+            setupVisitDateConstraints() {
+                try {
+                    const visitDateInput = document.getElementById('visitDate');
+                    if (visitDateInput) {
+                        const today = new Date();
+                        const ninetyDaysAgo = new Date();
+                        ninetyDaysAgo.setDate(today.getDate() - 90);
+
+                        // Format dates as YYYY-MM-DD for input date fields
+                        const todayFormatted = today.toISOString().split('T')[0];
+                        const minDateFormatted = ninetyDaysAgo.toISOString().split('T')[0];
+
+                        // Set constraints
+                        visitDateInput.value = todayFormatted; // Default to today
+                        visitDateInput.max = todayFormatted;   // Cannot be future
+                        visitDateInput.min = minDateFormatted; // Cannot be older than 90 days
+
+                        // Add validation listener
+                        visitDateInput.addEventListener('change', () => {
+                            const selectedDate = new Date(visitDateInput.value);
+                            const errorMsg = visitDateInput.parentElement?.querySelector('.error-message');
+                            
+                            if (selectedDate > today) {
+                                if (errorMsg) errorMsg.textContent = 'Visit date cannot be in the future';
+                                visitDateInput.classList.add('error');
+                            } else if (selectedDate < ninetyDaysAgo) {
+                                if (errorMsg) errorMsg.textContent = 'Visit date cannot be older than 90 days';
+                                visitDateInput.classList.add('error');
+                            } else {
+                                if (errorMsg) errorMsg.textContent = 'Please select your visit date';
+                                visitDateInput.classList.remove('error');
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error('❌ Error setting up visit date constraints:', error);
+                }
+            }
+
+            validateCurrentPage() {
+                const currentPageElement = document.querySelector(`.survey-page[data-page="${this.currentPage}"]`);
+                if (!currentPageElement) return false;
+
+                let isValid = true;
+
+                try {
+                    // Clear ALL error states first
+                    currentPageElement.querySelectorAll('.error-message').forEach(errorMsg => {
+                        errorMsg.style.display = 'none';
+                    });
+                    currentPageElement.querySelectorAll('.error').forEach(field => {
+                        field.classList.remove('error');
+                    });
+
+                    // Check required form fields (inputs, selects, textareas)
+                    const requiredFormFields = currentPageElement.querySelectorAll('input[required]:not([type="radio"]):not([type="checkbox"]), select[required], textarea[required]');
+                    requiredFormFields.forEach(field => {
+                        if (!field.value.trim()) {
+                            isValid = false;
+                            field.classList.add('error');
+                            const errorMsg = field.parentElement?.querySelector('.error-message');
+                            if (errorMsg) {
+                                errorMsg.style.display = 'block';
+                            }
+                        }
+                    });
+
+                    // Check required radio groups
+                    const radioGroups = {};
+                    const allRadios = currentPageElement.querySelectorAll('input[type="radio"]');
+                    
+                    allRadios.forEach(radio => {
+                        if (!radioGroups[radio.name]) {
+                            radioGroups[radio.name] = [];
+                        }
+                        radioGroups[radio.name].push(radio);
+                    });
+
+                    Object.keys(radioGroups).forEach(groupName => {
+                        const groupRadios = radioGroups[groupName];
+                        const hasRequiredRadio = groupRadios.some(radio => radio.hasAttribute('required'));
+                        
+                        if (hasRequiredRadio) {
+                            const hasSelection = groupRadios.some(radio => radio.checked);
+                            if (!hasSelection) {
+                                isValid = false;
+                                
+                                // Find appropriate error message container
+                                let errorMsg = null;
+                                
+                                // For rating sections - check parent structure
+                                const firstRadio = groupRadios[0];
+                                if (firstRadio) {
+                                    // Try to find rating section
+                                    let ratingSection = firstRadio.closest('.rating-section');
+                                    if (ratingSection) {
+                                        errorMsg = ratingSection.querySelector('.error-message');
+                                    }
+                                    
+                                    // For contact preferences
+                                    if (!errorMsg) {
+                                        const contactChoice = firstRadio.closest('.contact-main-choice');
+                                        if (contactChoice) {
+                                            errorMsg = contactChoice.querySelector('.error-message');
+                                        }
+                                    }
+                                }
+                                
+                                if (errorMsg) {
+                                    errorMsg.style.display = 'block';
+                                }
+                            }
+                        }
+                    });
+
+                    // Check required checkboxes
+                    const requiredCheckboxes = currentPageElement.querySelectorAll('input[type="checkbox"][required]');
+                    requiredCheckboxes.forEach(checkbox => {
+                        if (!checkbox.checked) {
+                            isValid = false;
+                            const consentBox = checkbox.closest('.consent-box');
+                            if (consentBox) {
+                                const errorMsg = consentBox.querySelector('.error-message');
+                                if (errorMsg) {
+                                    errorMsg.style.display = 'block';
+                                }
+                            }
+                        }
+                    });
+
+                    // Special validation for department "Other" option
+                    if (this.currentPage === 1) {
+                        const departmentSelect = currentPageElement.querySelector('#department');
+                        const otherInput = currentPageElement.querySelector('#otherDepartmentText');
+                        if (departmentSelect && departmentSelect.value === 'Other' && otherInput && !otherInput.value.trim()) {
+                            isValid = false;
+                            otherInput.classList.add('error');
+                            const errorMsg = otherInput.parentElement?.querySelector('.error-message');
+                            if (!errorMsg) {
+                                // Create error message if it doesn't exist
+                                const newErrorMsg = document.createElement('div');
+                                newErrorMsg.className = 'error-message';
+                                newErrorMsg.textContent = 'Please specify the department/service';
+                                newErrorMsg.style.display = 'block';
+                                otherInput.parentElement?.appendChild(newErrorMsg);
+                            } else {
+                                errorMsg.style.display = 'block';
+                            }
+                        }
+                    }
+
+                    // Special validation for contact preferences page
+                    if (this.currentPage === 9) {
+                        const contactYes = currentPageElement.querySelector('#contactYes');
+                        if (contactYes && contactYes.checked) {
+                            // If user wants contact, they must select at least one method
+                            const contactMethods = currentPageElement.querySelectorAll('input[name="contact_preference[]"]');
+                            const hasMethodSelected = Array.from(contactMethods).some(method => method.checked);
+                            
+                            if (!hasMethodSelected) {
+                                isValid = false;
+                                const methodsErrorMsg = currentPageElement.querySelector('.contact-methods-label .error-message');
+                                if (methodsErrorMsg) {
+                                    methodsErrorMsg.style.display = 'block';
+                                }
+                            }
+                        }
+                    }
+
+                    // Email validation
+                    const emailField = currentPageElement.querySelector('input[type="email"]');
+                    if (emailField && emailField.value) {
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!emailRegex.test(emailField.value)) {
+                            isValid = false;
+                            emailField.classList.add('error');
+                            const errorMsg = emailField.parentElement?.querySelector('.error-message');
+                            if (errorMsg) {
+                                errorMsg.style.display = 'block';
+                            }
+                        }
+                    }
+
+                    // Debug logging
+                    if (!isValid) {
+                        console.log(`❌ Validation failed on page ${this.currentPage}`);
+                    }
+
+                } catch (error) {
+                    console.error('❌ Error during validation:', error);
+                    return false;
+                }
+
+                return isValid;
+            }
+
+            nextPage() {
+                try {
+                    if (this.validateCurrentPage()) {
+                        if (this.currentPage < this.totalPages) {
+                            this.currentPage++;
+                            this.showPage(this.currentPage, 'forward');
+                            this.updateProgressBar();
+                            this.updateNavigation();
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ Error in nextPage:', error);
+                }
+            }
+
+            prevPage() {
+                try {
+                    if (this.currentPage > 1) {
+                        this.currentPage--;
+                        this.showPage(this.currentPage, 'backward');
+                        this.updateProgressBar();
+                        this.updateNavigation();
+                    }
+                } catch (error) {
+                    console.error('❌ Error in prevPage:', error);
+                }
+            }
+
+            showPage(pageNumber, direction = 'forward') {
+                try {
+                    const allPages = document.querySelectorAll('.survey-page');
+                    const currentPageEl = document.querySelector('.survey-page.active');
+                    const targetPage = document.querySelector(`.survey-page[data-page="${pageNumber}"]`);
+                    
+                    if (!targetPage) return;
+
+                    // If there's a current page, animate it out
+                    if (currentPageEl && currentPageEl !== targetPage) {
+                        const surveyContent = currentPageEl.querySelector('.survey-content');
+                        if (surveyContent) {
+                            surveyContent.classList.add('transitioning');
+                        }
+
+                        // Animate out the current page
+                        currentPageEl.classList.add(direction === 'forward' ? 'slide-out-left' : 'slide-out-right');
+                        
+                        // After animation, hide the current page and show the new one
+                        setTimeout(() => {
+                            // Hide all pages first
+                            allPages.forEach(page => {
+                                page.classList.remove('active', 'slide-out-left', 'slide-out-right', 'slide-in-left', 'slide-in-right');
+                                const content = page.querySelector('.survey-content');
+                                if (content) {
+                                    content.classList.remove('transitioning');
+                                }
+                            });
+                            
+                            // Show and animate in the target page
+                            targetPage.classList.add('active');
+                            targetPage.classList.add(direction === 'forward' ? 'slide-in-right' : 'slide-in-left');
+                            
+                            // Handle contact preferences based on phone number availability
+                            if (pageNumber === 9) {
+                                this.updateContactOptions();
+                            }
+                            
+                            // Remove animation classes after completion
+                            setTimeout(() => {
+                                targetPage.classList.remove('slide-in-left', 'slide-in-right');
+                            }, 300);
+                        }, 200);
+                    } else {
+                        // First page load - no animation
+                        allPages.forEach(page => {
+                            page.classList.remove('active');
+                        });
+                        targetPage.classList.add('active');
+                        
+                        if (pageNumber === 9) {
+                            this.updateContactOptions();
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ Error in showPage:', error);
+                }
+            }
+            updateContactOptions() {
+                try {
+                    const phoneInput = document.getElementById('patientPhone');
+                    const phoneOption = document.querySelector('input[value="phone"]');
+                    const phoneLabel = phoneOption?.closest('.method-item');
+                    
+                    if (phoneInput && phoneOption && phoneLabel) {
+                        const phoneValue = phoneInput.value.trim();
+                        // Check if phone number is valid (not empty, not just +971, not just +9715)
+                        const hasValidPhoneNumber = phoneValue !== '' && 
+                                                   phoneValue !== '+971' && 
+                                                   phoneValue !== '+9715' &&
+                                                   phoneValue.length > 4;
+                        
+                        if (hasValidPhoneNumber) {
+                            // Show phone option
+                            phoneLabel.style.display = 'flex';
+                            phoneOption.disabled = false;
+                        } else {
+                            // Hide phone option
+                            phoneLabel.style.display = 'none';
+                            phoneOption.disabled = true;
+                            phoneOption.checked = false;
+                            phoneLabel.classList.remove('selected');
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ Error updating contact options:', error);
+                }
+            }
+
+            updateProgressBar() {
+                try {
+                    const progress = (this.currentPage / this.totalPages) * 100;
+                    const progressFill = document.getElementById('progressFill');
+                    const progressText = document.getElementById('progressText');
+                    
+                    if (progressFill) progressFill.style.width = `${progress}%`;
+                    if (progressText) progressText.textContent = `Step ${this.currentPage} of ${this.totalPages}`;
+                } catch (error) {
+                    console.error('❌ Error updating progress bar:', error);
+                }
+            }
+
+            updateNavigation() {
+                try {
+                    const prevBtn = document.getElementById('prevBtn');
+                    const nextBtn = document.getElementById('nextBtn');
+                    const submitBtn = document.getElementById('submitBtn');
+
+                    if (prevBtn) prevBtn.disabled = this.currentPage === 1;
+
+                    if (this.currentPage === this.totalPages) {
+                        if (nextBtn) nextBtn.style.display = 'none';
+                        if (submitBtn) submitBtn.style.display = 'block';
+                    } else {
+                        if (nextBtn) nextBtn.style.display = 'block';
+                        if (submitBtn) submitBtn.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('❌ Error updating navigation:', error);
+                }
+            }
+
+            toggleOtherDepartment() {
+                try {
+                    const select = document.getElementById('department');
+                    const otherDiv = document.getElementById('otherDepartment');
+                    const otherInput = document.getElementById('otherDepartmentText');
+                    
+                    if (select && otherDiv && otherInput) {
+                        if (select.value === 'Other') {
+                            otherDiv.classList.add('show');
+                            otherInput.required = true;
+                        } else {
+                            otherDiv.classList.remove('show');
+                            otherInput.required = false;
+                            otherInput.value = '';
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ Error toggling other department:', error);
+                }
+            }
+
+            setupContactPreferences() {
+                try {
+                    const contactYes = document.getElementById('contactYes');
+                    const contactNo = document.getElementById('contactNo');
+                    const contactMethods = document.getElementById('contactMethods');
+                    const mainChoiceItems = document.querySelectorAll('.main-choice-item');
+                    const methodItems = document.querySelectorAll('.method-item');
+                    const contactCheckboxes = document.querySelectorAll('input[name="contact_preference[]"]');
+
+                    const handleContactChoice = () => {
+                        try {
+                            mainChoiceItems.forEach(item => {
+                                item.classList.remove('selected');
+                                const input = item.querySelector('input[type="radio"]');
+                                if (input && input.checked) {
+                                    item.classList.add('selected');
+                                }
+                            });
+
+                            // Clear error messages
+                            const contactChoice = document.querySelector('.contact-main-choice');
+                            const errorMsg = contactChoice?.querySelector('.error-message');
+                            if (errorMsg) {
+                                errorMsg.style.display = 'none';
+                            }
+
+                            const methodsErrorMsg = document.querySelector('.contact-methods-label .error-message');
+                            if (methodsErrorMsg) {
+                                methodsErrorMsg.style.display = 'none';
+                            }
+
+                            if (contactYes && contactYes.checked) {
+                                contactMethods?.classList.add('show');
+                                // Update contact options when showing the methods
+                                this.updateContactOptions();
+                            } else {
+                                contactMethods?.classList.remove('show');
+                                contactCheckboxes.forEach(cb => {
+                                    cb.checked = false;
+                                });
+                                methodItems.forEach(item => {
+                                    item.classList.remove('selected');
+                                });
+                            }
+                        } catch (error) {
+                            console.error('❌ Error in handleContactChoice:', error);
+                        }
+                    };
+
+                    const handleMethodChange = () => {
+                        try {
+                            methodItems.forEach(item => {
+                                item.classList.remove('selected');
+                                const input = item.querySelector('input[type="checkbox"]');
+                                if (input && input.checked && !input.disabled) {
+                                    item.classList.add('selected');
+                                }
+                            });
+
+                            const methodsErrorMsg = document.querySelector('.contact-methods-label .error-message');
+                            if (methodsErrorMsg) {
+                                methodsErrorMsg.style.display = 'none';
+                            }
+                        } catch (error) {
+                            console.error('❌ Error in handleMethodChange:', error);
+                        }
+                    };
+
+                    if (contactYes) contactYes.addEventListener('change', handleContactChoice);
+                    if (contactNo) contactNo.addEventListener('change', handleContactChoice);
+
+                    contactCheckboxes.forEach(checkbox => {
+                        checkbox.addEventListener('change', handleMethodChange);
+                    });
+
+                    mainChoiceItems.forEach(item => {
+                        item.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const radio = item.querySelector('input[type="radio"]');
+                            if (radio) {
+                                radio.checked = true;
+                                handleContactChoice();
+                            }
+                        });
+                    });
+
+                    methodItems.forEach(item => {
+                        item.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const checkbox = item.querySelector('input[type="checkbox"]');
+                            if (checkbox && !checkbox.disabled) {
+                                checkbox.checked = !checkbox.checked;
+                                handleMethodChange();
+                            }
+                        });
+                    });
+
+                    // Add event listener to phone input to update contact options in real-time
+                    const phoneInput = document.getElementById('patientPhone');
+                    if (phoneInput) {
+                        phoneInput.addEventListener('input', () => {
+                            // Only update if we're currently on the contact preferences page
+                            if (this.currentPage === 9) {
+                                this.updateContactOptions();
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error('❌ Error setting up contact preferences:', error);
+                }
+            }
+
+            setupConsentCheckbox() {
+                try {
+                    const consentItem = document.querySelector('.consent-item');
+                    const consentCheckbox = document.querySelector('input[name="consent_feedback_use"]');
+
+                    if (consentItem && consentCheckbox) {
+                        consentItem.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            consentCheckbox.checked = !consentCheckbox.checked;
+                            
+                            if (consentCheckbox.checked) {
+                                consentCheckbox.classList.remove('error');
+                                const errorMsg = consentCheckbox.closest('.consent-box')?.querySelector('.error-message');
+                                if (errorMsg) {
+                                    errorMsg.style.display = 'none';
+                                }
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error('❌ Error setting up consent checkbox:', error);
+                }
+            }
+
+            setupRatingEffects() {
+                try {
+                    document.querySelectorAll('.rating-option').forEach(option => {
+                        option.addEventListener('click', (e) => {
+                            try {
+                                const radio = option.querySelector('input[type="radio"]');
+                                if (radio) {
+                                    // Clear all selections in this group first
+                                    document.querySelectorAll(`input[name="${radio.name}"]`).forEach(r => {
+                                        r.checked = false;
+                                    });
+                                    
+                                    // Select this radio
+                                    radio.checked = true;
+                                    
+                                    // Clear error immediately for rating sections
+                                    const ratingSection = radio.closest('.rating-section');
+                                    const errorMsg = ratingSection?.querySelector('.error-message');
+                                    if (errorMsg) {
+                                        errorMsg.style.display = 'none';
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('❌ Error in rating option click:', error);
+                            }
+                        });
+                    });
+                } catch (error) {
+                    console.error('❌ Error setting up rating effects:', error);
+                }
+            }
+
+            setupIdleTracking() {
+                try {
+                    const resetEvents = ['click', 'keypress', 'scroll', 'mousemove', 'touchstart'];
+                    
+                    resetEvents.forEach(eventType => {
+                        document.addEventListener(eventType, () => {
+                            try {
+                                const thankYou = document.getElementById('thankYou');
+                                if (thankYou && !thankYou.classList.contains('show')) {
+                                    this.resetIdleTimer();
+                                }
+                            } catch (error) {
+                                console.error('❌ Error in idle event handler:', error);
+                            }
+                        }, true);
+                    });
+
+                    this.resetIdleTimer();
+                } catch (error) {
+                    console.error('❌ Error setting up idle tracking:', error);
+                }
+            }
+
+            resetIdleTimer() {
+                try {
+                    if (this.idleTimer) {
+                        clearTimeout(this.idleTimer);
+                    }
+
+                    const thankYou = document.getElementById('thankYou');
+                    if (thankYou && !thankYou.classList.contains('show')) {
+                        this.idleTimer = setTimeout(() => {
+                            this.restartSurvey();
+                        }, this.idleTimeoutDuration);
+                    }
+                } catch (error) {
+                    console.error('❌ Error resetting idle timer:', error);
+                }
+            }
+
+            setupErrorClearing() {
+                try {
+                    document.querySelectorAll('input, select, textarea').forEach(input => {
+                        const clearError = () => {
+                            try {
+                                input.classList.remove('error');
+                                const errorMsg = input.parentElement?.querySelector('.error-message');
+                                if (errorMsg) {
+                                    errorMsg.style.display = 'none';
+                                }
+                            } catch (error) {
+                                console.error('❌ Error clearing field error:', error);
+                            }
+                        };
+
+                        input.addEventListener('input', clearError);
+                        input.addEventListener('change', clearError);
+                    });
+                } catch (error) {
+                    console.error('❌ Error setting up error clearing:', error);
+                }
+            }
+
+            showLoading(message = 'Saving your feedback...') {
+                const loadingOverlay = document.getElementById('loadingOverlay');
+                const loadingText = document.querySelector('.loading-text');
+                if (loadingOverlay && loadingText) {
+                    loadingText.textContent = message;
+                    loadingOverlay.classList.add('show');
+                }
+            }
+
+            hideLoading() {
+                const loadingOverlay = document.getElementById('loadingOverlay');
+                if (loadingOverlay) {
+                    loadingOverlay.classList.remove('show');
+                }
+            }
+
+            // Update the submitForm method in the survey (paste.txt)
+// Replace the existing submitForm method with this enhanced version
+
+            async submitForm() {
+                try {
+                    if (!this.validateCurrentPage()) {
+                        return;
+                    }
+
+                    // Clear idle timer
+                    if (this.idleTimer) {
+                        clearTimeout(this.idleTimer);
+                    }
+
+                    // Show loading
+                    this.showLoading('Saving your feedback...');
+
+                    const form = document.getElementById('surveyForm');
+                    const formData = new FormData(form);
+                    
+                    // Generate unique survey ID
+                    const surveyId = this.supabaseService.generateSurveyId();
+                    
+                    // Collect question-specific comments
+                    const questionComments = {};
+                    const commentFields = {
+                        'comment_page_3': 'page_3_reception',
+                        'comment_page_4': 'page_4_doctor',
+                        'comment_page_5': 'page_5_nursing',
+                        'comment_page_6': 'page_6_overall',
+                        'comment_page_7': 'page_7_staff'
+                    };
+                    
+                    // Only add comments that have actual content
+                    Object.entries(commentFields).forEach(([fieldName, commentKey]) => {
+                        const commentValue = formData.get(fieldName);
+                        if (commentValue && commentValue.trim() !== '') {
+                            questionComments[commentKey] = commentValue.trim();
+                        }
+                    });
+                    
+                    // Create comprehensive response data for Supabase
+                    const responseData = {
+                        // Unique identifier for this response
+                        response_id: surveyId,
+                        
+                        // Patient Information
+                        patient_info: {
+                            full_name: formData.get('patient_name') || '',
+                            email: formData.get('patient_email') || '',
+                            phone: formData.get('patient_phone') || '',
+                            visit_date: formData.get('visit_date') || '',
+                            visit_time: formData.get('visit_time') || '',
+                            department_visited: formData.get('department_visited') || '',
+                            other_department: formData.get('other_department') || ''
+                        },
+                        
+                        // Experience Ratings & Feedback
+                        experience_data: {
+                            wait_time_actual: formData.get('wait_time_actual') || '',
+                            appointment_timeliness: formData.get('appointment_timeliness') || '',
+                            reception_rating: parseInt(formData.get('reception_rating')) || 0,
+                            doctor_rating: parseInt(formData.get('doctor_rating')) || 0,
+                            nursing_rating: parseInt(formData.get('nursing_rating')) || 0,
+                            overall_satisfaction: parseInt(formData.get('overall_satisfaction')) || 0,
+                            staff_professionalism: parseInt(formData.get('staff_professionalism')) || 0,
+                            additional_comments: formData.get('comments') || '',
+                            // Add question-specific comments only if there are any
+                            ...(Object.keys(questionComments).length > 0 && { question_comments: questionComments })
+                        },
+                        
+                        // Contact Preferences (detailed for admin)
+                        contact_preferences: {
+                            wants_contact: formData.get('want_contact') || 'not_specified',
+                            contact_methods: [],
+                            contact_status: '',
+                            phone_available: false,
+                            email_available: false,
+                            follow_up_completed: false,
+                            follow_up_date: null,
+                            follow_up_notes: ''
+                        },
+                        
+                        // Privacy & Consent
+                        privacy_consent: {
+                            feedback_use_consent: formData.get('consent_feedback_use') === 'yes',
+                            consent_timestamp: new Date().toISOString()
+                        },
+                        
+                        // Metadata
+                        metadata: {
+                            submission_timestamp: new Date().toISOString(),
+                            submission_date: new Date().toLocaleDateString('en-US'),
+                            submission_time: new Date().toLocaleTimeString('en-US'),
+                            survey_version: '2.0',
+                            user_agent: navigator.userAgent,
+                            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                        },
+
+                        // Database timestamps (will be set by Supabase)
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    };
+
+                    // Process contact preferences in detail
+                    const phoneValue = formData.get('patient_phone') || '';
+                    const emailValue = formData.get('patient_email') || '';
+                    
+                    // Check if valid contact methods are available
+                    responseData.contact_preferences.phone_available = phoneValue !== '' && 
+                                                                    phoneValue !== '+971' && 
+                                                                    phoneValue !== '+9715' &&
+                                                                    phoneValue.length > 4;
+                    responseData.contact_preferences.email_available = emailValue !== '';
+                    
+                    // Get selected contact methods
+                    const selectedMethods = Array.from(form.querySelectorAll('input[name="contact_preference[]"]:checked')).map(cb => cb.value);
+                    responseData.contact_preferences.contact_methods = selectedMethods;
+                    
+                    // Determine contact status for admin
+                    if (responseData.contact_preferences.wants_contact === 'no') {
+                        responseData.contact_preferences.contact_status = 'DO_NOT_CONTACT';
+                    } else if (responseData.contact_preferences.wants_contact === 'yes') {
+                        if (selectedMethods.length === 0) {
+                            responseData.contact_preferences.contact_status = 'WANTS_CONTACT_NO_METHOD_SELECTED';
+                        } else {
+                            responseData.contact_preferences.contact_status = 'WANTS_CONTACT_METHODS_SELECTED';
+                        }
+                    } else {
+                        responseData.contact_preferences.contact_status = 'CONTACT_PREFERENCE_NOT_SPECIFIED';
+                    }
+                    
+                    // Calculate average rating for admin dashboard
+                    const ratings = [
+                        responseData.experience_data.reception_rating,
+                        responseData.experience_data.doctor_rating,
+                        responseData.experience_data.nursing_rating,
+                        responseData.experience_data.overall_satisfaction,
+                        responseData.experience_data.staff_professionalism
+                    ].filter(rating => rating > 0);
+                    
+                    responseData.experience_data.average_rating = ratings.length > 0 
+                        ? parseFloat((ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length).toFixed(2))
+                        : 0;
+                    
+                    // Determine satisfaction level for admin
+                    const overallRating = responseData.experience_data.overall_satisfaction;
+                    if (overallRating >= 4) {
+                        responseData.experience_data.satisfaction_level = 'HIGH';
+                    } else if (overallRating >= 3) {
+                        responseData.experience_data.satisfaction_level = 'MEDIUM';
+                    } else if (overallRating >= 1) {
+                        responseData.experience_data.satisfaction_level = 'LOW';
+                    } else {
+                        responseData.experience_data.satisfaction_level = 'NOT_RATED';
+                    }
+
+                    // Save to Supabase
+                    try {
+                        const result = await this.supabaseService.saveSurveyResponse(responseData);
+                        
+                        if (result.success) {
+                            console.log(`✅ Survey saved successfully with ID: ${result.id}`);
+                            if (result.demo) {
+                                console.log('📝 Running in demo mode - configure Supabase credentials to save to database');
+                            }
+                            
+                            // Hide loading and show thank you page
+                            this.hideLoading();
+                            this.showThankYouPage();
+                        } else {
+                            throw new Error('Failed to save survey response');
+                        }
+                    } catch (error) {
+                        console.error('❌ Error saving survey:', error);
+                        this.hideLoading();
+                        this.showErrorMessage('Unable to save your feedback. Please try again.');
+                        return;
+                    }
+
+                } catch (error) {
+                    console.error('❌ Error submitting form:', error);
+                    this.hideLoading();
+                    this.showErrorMessage(error.message || 'An unexpected error occurred. Please try again.');
+                }
+            }
+            showErrorMessage(message) {
+                // Create a more detailed error message overlay
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-state';
+                errorDiv.innerHTML = `
+                    <h3>⚠️ Submission Error</h3>
+                    <p>${message}</p>
+                    <div style="margin-top: 15px; font-size: 12px; color: #666;">
+                        <strong>Troubleshooting Tips:</strong><br>
+                        • Check your internet connection<br>
+                        • Ensure database is properly set up<br>
+                        • Try refreshing the page<br>
+                        • Contact system administrator if issue persists
+                    </div>
+                    <button onclick="this.parentElement.remove()" style="margin-top: 15px; padding: 8px 16px; background: #dc2626; color: white; border: none; border-radius: 6px; cursor: pointer;">Close</button>
+                `;
+                
+                const container = document.querySelector('.container');
+                container.appendChild(errorDiv);
+                
+                // Auto-remove after 10 seconds
+                setTimeout(() => {
+                    if (errorDiv.parentNode) {
+                        errorDiv.remove();
+                    }
+                }, 10000);
+            }
+
+            showThankYouPage() {
+                const thankYou = document.getElementById('thankYou');
+                const container = document.querySelector('.container');
+
+                if (!thankYou || !container) {
+                    console.error("❌ Missing required elements for thank you page.");
+                    return;
+                }
+
+                // Show thank-you page
+                setTimeout(() => {
+                    container.classList.add('hidden');
+                    thankYou.classList.add('show');
+                    this.startCountdown();
+                }, 100);
+            }
+
+            startCountdown() {
+                try {
+                    let timeLeft = CONFIG.AUTO_RESTART_TIME;
+                    const countdownElement = document.getElementById('countdown');
+                    const restartInfo = document.querySelector('.auto-restart-info');
+                    
+                    if (restartInfo) {
+                        restartInfo.style.animation = 'pulse 2s ease-in-out infinite';
+                    }
+                    
+                    const timer = setInterval(() => {
+                        try {
+                            timeLeft--;
+                            if (countdownElement) {
+                                countdownElement.textContent = timeLeft;
+                                
+                                // Change color when time is running out
+                                if (timeLeft <= 10) {
+                                    countdownElement.style.background = 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)';
+                                    if (restartInfo) {
+                                        restartInfo.style.animation = 'pulse 1s ease-in-out infinite';
+                                    }
+                                }
+                            }
+                            
+                            if (timeLeft <= 0) {
+                                clearInterval(timer);
+                                this.restartSurvey();
+                            }
+                        } catch (error) {
+                            console.error('❌ Error in countdown timer:', error);
+                            clearInterval(timer);
+                        }
+                    }, 1000);
+                    
+                    this.countdownTimer = timer;
+                } catch (error) {
+                    console.error('❌ Error starting countdown:', error);
+                }
+            }
+
+            restartSurvey() {
+                try {
+                    console.log('🔄 Restarting Survey...');
+
+                    // Stop countdown and idle timers
+                    if (this.countdownTimer) clearInterval(this.countdownTimer);
+                    if (this.idleTimer) clearTimeout(this.idleTimer);
+
+                    const thankYou = document.getElementById('thankYou');
+                    const container = document.querySelector('.container');
+
+                    if (thankYou && container) {
+                        // Hide thank-you
+                        thankYou.classList.remove('show');
+
+                        // Reset form
+                        const form = document.getElementById('surveyForm');
+                        if (form) form.reset();
+
+                        // Reset UI elements
+                        document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+                        document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+                        document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+                        document.querySelectorAll('.show').forEach(el => el.classList.remove('show'));
+
+                        // Reset contact method options
+                        const phoneOption = document.querySelector('input[value="phone"]');
+                        const phoneLabel = phoneOption?.closest('.method-item');
+                        if (phoneLabel) {
+                            phoneLabel.style.display = 'flex';
+                            if (phoneOption) {
+                                phoneOption.disabled = false;
+                            }
+                        }
+
+                        // Reset date to today
+                        const visitDateInput = document.getElementById('visitDate');
+                        if (visitDateInput) {
+                            const today = new Date();
+                            const todayFormatted = today.toISOString().split('T')[0];
+                            visitDateInput.value = todayFormatted;
+                        }
+
+                        // Reset phone number
+                        const phoneInput = document.getElementById('patientPhone');
+                        if (phoneInput) {
+                            phoneInput.value = '+971';
+                        }
+
+                        // Reset progress
+                        this.currentPage = 1;
+                        this.showPage(1);
+                        this.updateProgressBar();
+                        this.updateNavigation();
+
+                        // Show form container again
+                        container.classList.remove('hidden');
+
+                        // Reset countdown display
+                        const countdownElement = document.getElementById('countdown');
+                        if (countdownElement) {
+                            countdownElement.textContent = CONFIG.AUTO_RESTART_TIME;
+                            countdownElement.style.background = 'linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%)';
+                        }
+
+                        // Stop animation
+                        const restartInfo = document.querySelector('.auto-restart-info');
+                        if (restartInfo) {
+                            restartInfo.style.animation = 'none';
+                        }
+
+                        // Restart idle timer
+                        this.resetIdleTimer();
+
+                        console.log('✅ Survey Reset Complete - Ready for new response');
+                    }
+                } catch (error) {
+                    console.error('❌ Error restarting survey:', error);
+                }
+            }
+        }
+
+        // ===========================
+        // DEBUG & DIAGNOSTIC FUNCTIONS
+        // ===========================
+        
+        // Debug function - call window.debugSurvey() in browser console for troubleshooting
+        window.debugSurvey = async function() {
+            console.log('🔍 Debug Survey System');
+            
+            if (window.survey && window.survey.supabaseService) {
+                const service = window.survey.supabaseService;
+                console.log('📊 Supabase Service:', service);
+                console.log('🔗 Supabase Client:', service.supabase);
+                
+                if (service.supabase) {
+                    console.log('🧪 Testing connection...');
+                    const testResult = await service.testConnection();
+                    console.log('📋 Connection Test Result:', testResult);
+                    
+                    if (testResult.connected) {
+                        console.log('✅ Database connection successful');
+                    } else {
+                        console.log('❌ Database connection failed:', testResult.reason);
+                    }
+                } else {
+                    console.log('❌ Supabase client not initialized - running in demo mode');
+                }
+            } else {
+                console.log('❌ Survey system not found');
+            }
+        };
+
+        // Test survey submission with sample data
+        window.testSurveySubmission = async function() {
+            console.log('🧪 Testing survey submission with sample data...');
+            
+            if (!window.survey) {
+                console.error('Survey not initialized');
+                return;
+            }
+            
+            const testData = {
+                response_id: 'TEST-' + Date.now(),
+                patient_info: {
+                    full_name: 'Test Patient',
+                    email: 'test@example.com',
+                    phone: '+971501234567',
+                    visit_date: new Date().toISOString().split('T')[0],
+                    visit_time: '10:00 AM - 11:00 AM',
+                    department_visited: 'General Practice'
+                },
+                experience_data: {
+                    wait_time_actual: '0-5 minutes',
+                    appointment_timeliness: 'Yes, exactly on time',
+                    reception_rating: 5,
+                    doctor_rating: 5,
+                    nursing_rating: 4,
+                    overall_satisfaction: 5,
+                    staff_professionalism: 5,
+                    additional_comments: 'Test submission - excellent service!',
+                    average_rating: 4.8,
+                    satisfaction_level: 'HIGH'
+                },
+                contact_preferences: {
+                    wants_contact: 'no',
+                    contact_methods: [],
+                    contact_status: 'DO_NOT_CONTACT'
+                },
+                privacy_consent: {
+                    feedback_use_consent: true,
+                    consent_timestamp: new Date().toISOString()
+                },
+                metadata: {
+                    submission_timestamp: new Date().toISOString(),
+                    survey_version: '2.0'
+                }
+            };
+            
+            try {
+                const result = await window.survey.supabaseService.saveSurveyResponse(testData);
+                console.log('✅ Test submission result:', result);
+            } catch (error) {
+                console.error('❌ Test submission failed:', error);
+            }
+        };
+
+        // ===========================
+        // INITIALIZE SURVEY
+        // ===========================
+        try {
+            const surveyInstance = new MultiPageSurvey();
+            window.survey = surveyInstance; // Make available for debugging
+            
+            // Log initialization status
+            console.log('===================================');
+            console.log('🏥 Patient Survey Initialized');
+            console.log('===================================');
+            console.log('📊 Configuration:');
+            console.log('  • Supabase URL:', CONFIG.SUPABASE_URL);
+            console.log('  • Auto-restart:', CONFIG.AUTO_RESTART_TIME + 's');
+            console.log('  • Idle timeout:', CONFIG.IDLE_TIMEOUT + 's');
+            console.log('');
+            console.log('🛠️ Debug Commands:');
+            console.log('  • window.debugSurvey() - Check system status');
+            console.log('  • window.testSurveySubmission() - Test submission');
+            console.log('===================================');
+            
+        } catch (error) {
+            console.error('❌ Error initializing survey:', error);
+            // Fallback: basic retry mechanism
+            setTimeout(() => {
+                try {
+                    new MultiPageSurvey();
+                } catch (retryError) {
+                    console.error('❌ Retry failed:', retryError);
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
     <title>Patient Satisfaction Survey</title>
