@@ -174,16 +174,17 @@
         }
 
         /* Progress bar updates */
-        #page1:checked ~ .form-content .progress-fill { --progress: 10%; }
-        #page2:checked ~ .form-content .progress-fill { --progress: 20%; }
-        #page3:checked ~ .form-content .progress-fill { --progress: 30%; }
-        #page4:checked ~ .form-content .progress-fill { --progress: 40%; }
-        #page5:checked ~ .form-content .progress-fill { --progress: 50%; }
-        #page6:checked ~ .form-content .progress-fill { --progress: 60%; }
-        #page7:checked ~ .form-content .progress-fill { --progress: 70%; }
-        #page8:checked ~ .form-content .progress-fill { --progress: 80%; }
-        #page9:checked ~ .form-content .progress-fill { --progress: 90%; }
-        #page10:checked ~ .form-content .progress-fill { --progress: 100%; }
+        #page1:checked ~ .form-content .progress-fill { --progress: 9%; }
+        #page2:checked ~ .form-content .progress-fill { --progress: 18%; }
+        #page3:checked ~ .form-content .progress-fill { --progress: 27%; }
+        #page4:checked ~ .form-content .progress-fill { --progress: 36%; }
+        #page5:checked ~ .form-content .progress-fill { --progress: 45%; }
+        #page6:checked ~ .form-content .progress-fill { --progress: 55%; }
+        #page7:checked ~ .form-content .progress-fill { --progress: 64%; }
+        #page8:checked ~ .form-content .progress-fill { --progress: 73%; }
+        #page9:checked ~ .form-content .progress-fill { --progress: 82%; }
+        #page10:checked ~ .form-content .progress-fill { --progress: 91%; }
+        #page11:checked ~ .form-content .progress-fill { --progress: 100%; }
 
         /* Page visibility */
         #page1:checked ~ .form-content [data-page="1"],
@@ -195,23 +196,25 @@
         #page7:checked ~ .form-content [data-page="7"],
         #page8:checked ~ .form-content [data-page="8"],
         #page9:checked ~ .form-content [data-page="9"],
-        #page10:checked ~ .form-content [data-page="10"] {
+        #page10:checked ~ .form-content [data-page="10"],
+        #page11:checked ~ .form-content [data-page="11"] {
             display: block;
             opacity: 1;
             transform: translateY(0) translateZ(0);
         }
 
         /* Progress text updates */
-        #page1:checked ~ .form-content .progress-text::after { content: "Step 1 of 10"; }
-        #page2:checked ~ .form-content .progress-text::after { content: "Step 2 of 10"; }
-        #page3:checked ~ .form-content .progress-text::after { content: "Step 3 of 10"; }
-        #page4:checked ~ .form-content .progress-text::after { content: "Step 4 of 10"; }
-        #page5:checked ~ .form-content .progress-text::after { content: "Step 5 of 10"; }
-        #page6:checked ~ .form-content .progress-text::after { content: "Step 6 of 10"; }
-        #page7:checked ~ .form-content .progress-text::after { content: "Step 7 of 10"; }
-        #page8:checked ~ .form-content .progress-text::after { content: "Step 8 of 10"; }
-        #page9:checked ~ .form-content .progress-text::after { content: "Step 9 of 10"; }
-        #page10:checked ~ .form-content .progress-text::after { content: "Step 10 of 10"; }
+        #page1:checked ~ .form-content .progress-text::after { content: "Step 1 of 11"; }
+        #page2:checked ~ .form-content .progress-text::after { content: "Step 2 of 11"; }
+        #page3:checked ~ .form-content .progress-text::after { content: "Step 3 of 11"; }
+        #page4:checked ~ .form-content .progress-text::after { content: "Step 4 of 11"; }
+        #page5:checked ~ .form-content .progress-text::after { content: "Step 5 of 11"; }
+        #page6:checked ~ .form-content .progress-text::after { content: "Step 6 of 11"; }
+        #page7:checked ~ .form-content .progress-text::after { content: "Step 7 of 11"; }
+        #page8:checked ~ .form-content .progress-text::after { content: "Step 8 of 11"; }
+        #page9:checked ~ .form-content .progress-text::after { content: "Step 9 of 11"; }
+        #page10:checked ~ .form-content .progress-text::after { content: "Step 10 of 11"; }
+        #page11:checked ~ .form-content .progress-text::after { content: "Step 11 of 11"; }
 
         /* === FORM CONTENT === */
         .form-content {
@@ -732,7 +735,10 @@
         #page9:checked ~ .navigation .next-pages label[for="page10"] { display: inline-flex !important; }
         
         #page10:checked ~ .navigation .prev-page[for="page9"] { display: inline-flex !important; }
-        #page10:checked ~ .navigation .submit-btn { display: inline-flex !important; }
+        #page10:checked ~ .navigation .next-pages label[for="page11"] { display: inline-flex !important; }
+        
+        #page11:checked ~ .navigation .prev-page[for="page10"] { display: inline-flex !important; }
+        #page11:checked ~ .navigation .submit-btn { display: inline-flex !important; }
 
         /* === CONTACT PREFERENCES === */
         #contactMethodsWrapper {
@@ -1264,6 +1270,7 @@
         <input type="radio" name="page" id="page8" class="page-radio">
         <input type="radio" name="page" id="page9" class="page-radio">
         <input type="radio" name="page" id="page10" class="page-radio">
+        <input type="radio" name="page" id="page11" class="page-radio">
 
         <!-- Header -->
         <div class="header">
@@ -1281,11 +1288,11 @@
                 <div class="progress-text"></div>
             </div>
 
-            <!-- Page 1: Your Information -->
+            <!-- Page 1: Personal Information -->
             <div class="page" data-page="1">
                 <h2 class="page-title">
                     <span class="page-icon">👤</span>
-                    Your Information
+                    Personal Information
                 </h2>
                 <div class="form-grid">
                     <div class="form-group">
@@ -1296,18 +1303,87 @@
                                autocomplete="name">
                     </div>
                     <div class="form-group">
+                        <label class="form-label">Date of Birth *</label>
+                        <input type="date" name="date_of_birth" class="form-input" required
+                               autocomplete="bday">
+                        <small style="color: var(--text-light); margin-top: 0.3rem; display: block; font-size: 0.8rem;">
+                            📅 Required for patient identification
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Gender *</label>
+                        <select name="gender" class="form-select" required>
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                            <option value="prefer_not_to_say">Prefer not to say</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nationality</label>
+                        <select name="nationality" class="form-select">
+                            <option value="">Select Nationality</option>
+                            <option value="uae">United Arab Emirates</option>
+                            <option value="saudi">Saudi Arabia</option>
+                            <option value="egypt">Egypt</option>
+                            <option value="india">India</option>
+                            <option value="pakistan">Pakistan</option>
+                            <option value="philippines">Philippines</option>
+                            <option value="bangladesh">Bangladesh</option>
+                            <option value="jordan">Jordan</option>
+                            <option value="lebanon">Lebanon</option>
+                            <option value="syria">Syria</option>
+                            <option value="yemen">Yemen</option>
+                            <option value="sudan">Sudan</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Emirates ID / Patient ID</label>
+                        <input type="text" name="patient_id" class="form-input" 
+                               placeholder="784-XXXX-XXXXXXX-X or Patient ID"
+                               pattern="[0-9\-]{10,20}">
+                        <small style="color: var(--text-light); margin-top: 0.3rem; display: block; font-size: 0.8rem;">
+                            🆔 Optional - helps with patient record matching
+                        </small>
+                    </div>
+                    <div class="form-group">
                         <label class="form-label">Email Address *</label>
-                        <input type="text" name="patient_email" class="form-input" required 
+                        <input type="email" name="patient_email" class="form-input" required 
                                placeholder="email@example.com"
                                autocomplete="email">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Phone Number</label>
-                        <input type="tel" name="patient_phone" class="form-input" 
-                               value="" pattern="^(\+971[0-9]{8,9}|\+[0-9]{10,15}|05[0-9]{8}|)$"
+                        <label class="form-label">Phone Number *</label>
+                        <input type="tel" name="patient_phone" class="form-input" required
+                               pattern="^(\+971[0-9]{8,9}|\+[0-9]{10,15}|05[0-9]{8})$"
                                placeholder="+971, 05xxxxxxxx, or international"
                                autocomplete="tel">
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Emergency Contact Name</label>
+                        <input type="text" name="emergency_contact_name" class="form-input" 
+                               placeholder="Emergency contact full name"
+                               autocomplete="name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Emergency Contact Phone</label>
+                        <input type="tel" name="emergency_contact_phone" class="form-input" 
+                               pattern="^(\+971[0-9]{8,9}|\+[0-9]{10,15}|05[0-9]{8}|)$"
+                               placeholder="+971, 05xxxxxxxx, or international"
+                               autocomplete="tel">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 2: Medical Information -->
+            <div class="page" data-page="2">
+                <h2 class="page-title">
+                    <span class="page-icon">🏥</span>
+                    Medical Information
+                </h2>
+                <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label">Visit Date *</label>
                         <input type="date" name="visit_date" class="form-input" required>
@@ -1321,11 +1397,97 @@
                             <option value="">Loading clinics...</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Department/Specialty *</label>
+                        <select name="department" class="form-select" required>
+                            <option value="">Select Department</option>
+                            <option value="general_medicine">General Medicine</option>
+                            <option value="cardiology">Cardiology</option>
+                            <option value="dermatology">Dermatology</option>
+                            <option value="orthopedics">Orthopedics</option>
+                            <option value="pediatrics">Pediatrics</option>
+                            <option value="gynecology">Gynecology</option>
+                            <option value="neurology">Neurology</option>
+                            <option value="psychiatry">Psychiatry</option>
+                            <option value="dentistry">Dentistry</option>
+                            <option value="ophthalmology">Ophthalmology</option>
+                            <option value="ent">ENT (Ear, Nose, Throat)</option>
+                            <option value="radiology">Radiology</option>
+                            <option value="laboratory">Laboratory</option>
+                            <option value="pharmacy">Pharmacy</option>
+                            <option value="emergency">Emergency</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Doctor/Healthcare Provider Name</label>
+                        <input type="text" name="doctor_name" class="form-input" 
+                               placeholder="Dr. Name or Healthcare Provider">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Appointment Type *</label>
+                        <div class="rating-group" role="radiogroup" aria-required="true">
+                            <label class="rating-option">
+                                <input type="radio" name="appointment_type" value="scheduled" required>
+                                <span class="rating-label">📅 Scheduled Appointment</span>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="appointment_type" value="walk_in" required>
+                                <span class="rating-label">🚶 Walk-in</span>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="appointment_type" value="emergency" required>
+                                <span class="rating-label">🚨 Emergency</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Visit Type *</label>
+                        <div class="rating-group" role="radiogroup" aria-required="true">
+                            <label class="rating-option">
+                                <input type="radio" name="visit_type" value="first_visit" required>
+                                <span class="rating-label">🆕 First Visit</span>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="visit_type" value="follow_up" required>
+                                <span class="rating-label">🔄 Follow Up</span>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="visit_type" value="routine_checkup" required>
+                                <span class="rating-label">✅ Routine Checkup</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Insurance Provider</label>
+                        <select name="insurance_provider" class="form-select">
+                            <option value="">Select Insurance Provider</option>
+                            <option value="adnic">ADNIC</option>
+                            <option value="daman">Daman</option>
+                            <option value="thiqa">Thiqa</option>
+                            <option value="cigna">Cigna</option>
+                            <option value="axa">AXA</option>
+                            <option value="oman_insurance">Oman Insurance</option>
+                            <option value="dubai_insurance">Dubai Insurance</option>
+                            <option value="abu_dhabi_national">Abu Dhabi National Insurance</option>
+                            <option value="self_pay">Self Pay</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Reason for Visit</label>
+                        <textarea name="visit_reason" class="form-input" rows="3" 
+                                  placeholder="Brief description of your visit reason (optional)"
+                                  maxlength="500"></textarea>
+                        <small style="color: var(--text-light); margin-top: 0.3rem; display: block; font-size: 0.8rem;">
+                            💬 Optional - helps us understand your healthcare needs better
+                        </small>
+                    </div>
                 </div>
             </div>
 
-            <!-- Page 2: Overall Experience -->
-            <div class="page" data-page="2">
+            <!-- Page 3: Overall Experience -->
+            <div class="page" data-page="3">
                 <h2 class="page-title">
                     <span class="page-icon">⭐</span>
                     Overall Experience
@@ -1347,23 +1509,10 @@
                         </label>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label text-center">Is this your first visit? *</label>
-                    <div class="rating-group">
-                        <label class="rating-option">
-                            <input type="radio" name="visit_type" value="first_visit" required>
-                            <span class="rating-label">🆕 First Visit</span>
-                        </label>
-                        <label class="rating-option">
-                            <input type="radio" name="visit_type" value="follow_up" required>
-                            <span class="rating-label">🔄 Follow Up</span>
-                        </label>
-                    </div>
-                </div>
             </div>
 
-            <!-- Page 3: Reception Staff -->
-            <div class="page" data-page="3">
+            <!-- Page 4: Reception Staff -->
+            <div class="page" data-page="4">
                 <h2 class="page-title">
                     <span class="page-icon">🏢</span>
                     Reception Staff
@@ -1413,8 +1562,8 @@
                 </div>
             </div>
 
-            <!-- Page 4: Nursing Staff -->
-            <div class="page" data-page="4">
+            <!-- Page 5: Nursing Staff -->
+            <div class="page" data-page="5">
                 <h2 class="page-title">
                     <span class="page-icon">👩‍⚕️</span>
                     Nursing Staff
@@ -1460,8 +1609,8 @@
                 </div>
             </div>
 
-            <!-- Page 5: Doctor Consultation -->
-            <div class="page" data-page="5">
+            <!-- Page 6: Doctor Consultation -->
+            <div class="page" data-page="6">
                 <h2 class="page-title">
                     <span class="page-icon">👨‍⚕️</span>
                     Doctor Consultation
@@ -1524,8 +1673,8 @@
                 </div>
             </div>
 
-            <!-- Page 6: Clinic Environment -->
-            <div class="page" data-page="6">
+            <!-- Page 7: Clinic Environment -->
+            <div class="page" data-page="7">
                 <h2 class="page-title">
                     <span class="page-icon">🏥</span>
                     Clinic Environment
@@ -1575,8 +1724,8 @@
                 </div>
             </div>
 
-            <!-- Page 7: Additional Feedback -->
-            <div class="page" data-page="7">
+            <!-- Page 8: Additional Feedback -->
+            <div class="page" data-page="8">
                 <h2 class="page-title">
                     <span class="page-icon">📝</span>
                     Additional Feedback
@@ -1593,8 +1742,8 @@
                 </div>
             </div>
 
-            <!-- Page 8: Recommendation -->
-            <div class="page" data-page="8">
+            <!-- Page 9: Recommendation -->
+            <div class="page" data-page="9">
                 <h2 class="page-title">
                     <span class="page-icon">👥</span>
                     Recommendation
@@ -1631,8 +1780,8 @@
                 </div>
             </div>
 
-            <!-- Page 9: Contact Preferences -->
-            <div class="page" data-page="9">
+            <!-- Page 10: Contact Preferences -->
+            <div class="page" data-page="10">
                 <h2 class="page-title">
                     <span class="page-icon">📞</span>
                     Contact Preferences
@@ -1671,8 +1820,8 @@
                 </div>
             </div>
 
-            <!-- Page 10: Privacy & Consent -->
-            <div class="page" data-page="10">
+            <!-- Page 11: Privacy & Consent -->
+            <div class="page" data-page="11">
                 <h2 class="page-title">
                     <span class="page-icon">🔒</span>
                     Privacy & Consent
@@ -1714,6 +1863,7 @@
             <label for="page7" class="btn-smooth btn-secondary-smooth prev-page">Previous</label>
             <label for="page8" class="btn-smooth btn-secondary-smooth prev-page">Previous</label>
             <label for="page9" class="btn-smooth btn-secondary-smooth prev-page">Previous</label>
+            <label for="page10" class="btn-smooth btn-secondary-smooth prev-page">Previous</label>
             
             <div class="next-pages">
                 <label for="page2" class="btn-smooth btn-primary-smooth">Next</label>
@@ -1725,6 +1875,7 @@
                 <label for="page8" class="btn-smooth btn-primary-smooth">Next</label>
                 <label for="page9" class="btn-smooth btn-primary-smooth">Next</label>
                 <label for="page10" class="btn-smooth btn-primary-smooth">Next</label>
+                <label for="page11" class="btn-smooth btn-primary-smooth">Next</label>
             </div>
             
             <button type="button" id="submitBtn" class="btn-smooth btn-primary-smooth submit-btn">Submit Feedback</button>

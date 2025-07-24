@@ -896,18 +896,21 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Patient</th>
+                                <th>Patient Name</th>
+                                <th>Contact Info</th>
+                                <th>Patient ID</th>
+                                <th>Department</th>
+                                <th>Doctor</th>
                                 <th>Clinic</th>
                                 <th>Overall Rating</th>
                                 <th>Visit Date</th>
                                 <th>Submitted</th>
-                                <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="recentSurveysTable">
                             <tr>
-                                <td colspan="7" class="loading">
+                                <td colspan="10" class="loading">
                                     <div class="spinner"></div>
                                 </td>
                             </tr>
@@ -985,7 +988,10 @@
                             <tr>
                                 <th>Survey ID</th>
                                 <th>Patient Name</th>
-                                <th>Email</th>
+                                <th>Contact Info</th>
+                                <th>Patient ID</th>
+                                <th>Department</th>
+                                <th>Doctor</th>
                                 <th>Clinic</th>
                                 <th>Overall Rating</th>
                                 <th>Visit Date</th>
@@ -995,7 +1001,7 @@
                         </thead>
                         <tbody id="allSurveysTable">
                             <tr>
-                                <td colspan="8" class="loading">
+                                <td colspan="11" class="loading">
                                     <div class="spinner"></div>
                                 </td>
                             </tr>
@@ -1652,7 +1658,7 @@
                     const tableBody = document.getElementById('recentSurveysTable');
                     
                     if (!surveys || surveys.length === 0) {
-                        tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #64748b;">No surveys found</td></tr>';
+                        tableBody.innerHTML = '<tr><td colspan="10" style="text-align: center; color: #64748b;">No surveys found</td></tr>';
                         return;
                     }
 
@@ -1661,19 +1667,25 @@
                         
                         return `
                             <tr>
-                                <td>${survey.patient_name || 'N/A'}</td>
-                                <td>${survey.clinic_name || 'N/A'}</td>
-                                <td>
+                                <td data-label="Patient Name">${survey.patient_name || 'N/A'}</td>
+                                <td data-label="Contact">
+                                    <div style="font-size: 0.9em;">
+                                        <div>${survey.patient_email || 'N/A'}</div>
+                                        <div style="color: #64748b;">${survey.patient_phone || 'N/A'}</div>
+                                    </div>
+                                </td>
+                                <td data-label="Patient ID">${survey.patient_id || 'N/A'}</td>
+                                <td data-label="Department">${survey.department || 'N/A'}</td>
+                                <td data-label="Doctor">${survey.doctor_name || 'N/A'}</td>
+                                <td data-label="Clinic">${survey.clinic_name || 'N/A'}</td>
+                                <td data-label="Satisfaction">
                                     <span class="status-badge ${this.getSatisfactionClass(overallRating)}">
                                         ${this.formatSatisfaction(survey.overall_satisfaction)}
                                     </span>
                                 </td>
-                                <td>${survey.visit_date || 'N/A'}</td>
-                                <td>${new Date(survey.created_at).toLocaleDateString()}</td>
-                                <td>
-                                    <span class="status-badge status-completed">Submitted</span>
-                                </td>
-                                <td>
+                                <td data-label="Visit Date">${survey.visit_date || 'N/A'}</td>
+                                <td data-label="Submitted">${new Date(survey.created_at).toLocaleDateString()}</td>
+                                <td data-label="Actions">
                                     <button class="btn btn-primary btn-sm" onclick="viewSurvey('${survey.response_id}')">View</button>
                                 </td>
                             </tr>
@@ -1683,7 +1695,7 @@
                 } catch (error) {
                     console.error('❌ Error loading recent surveys:', error);
                     document.getElementById('recentSurveysTable').innerHTML = 
-                        '<tr><td colspan="7" style="text-align: center; color: #dc2626;">Error loading surveys</td></tr>';
+                        '<tr><td colspan="10" style="text-align: center; color: #dc2626;">Error loading surveys</td></tr>';
                 }
             }
 
@@ -1782,28 +1794,36 @@
                 const tableBody = document.getElementById('allSurveysTable');
                 
                 if (surveys.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #64748b;">No surveys found matching current filters</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: #64748b;">No surveys found matching current filters</td></tr>';
                     return;
                 }
 
                 tableBody.innerHTML = surveys.map(survey => `
                     <tr>
-                        <td title="${survey.response_id}">${survey.response_id.substring(0, 15)}...</td>
-                        <td>${survey.patient_name || 'N/A'}</td>
-                        <td>${survey.patient_email || 'N/A'}</td>
-                        <td>${survey.clinic_name || 'N/A'}</td>
-                        <td>
+                        <td data-label="Survey ID" title="${survey.response_id}">${survey.response_id.substring(0, 15)}...</td>
+                        <td data-label="Patient Name">${survey.patient_name || 'N/A'}</td>
+                        <td data-label="Contact Info">
+                            <div style="font-size: 0.9em;">
+                                <div>${survey.patient_email || 'N/A'}</div>
+                                <div style="color: #64748b;">${survey.patient_phone || 'N/A'}</div>
+                            </div>
+                        </td>
+                        <td data-label="Patient ID">${survey.patient_id || 'N/A'}</td>
+                        <td data-label="Department">${survey.department || 'N/A'}</td>
+                        <td data-label="Doctor">${survey.doctor_name || 'N/A'}</td>
+                        <td data-label="Clinic">${survey.clinic_name || 'N/A'}</td>
+                        <td data-label="Overall Rating">
                             <span class="status-badge ${this.getSatisfactionClass(this.mapSatisfactionToNumber(survey.overall_satisfaction))}">
                                 ${this.formatSatisfaction(survey.overall_satisfaction)}
                             </span>
                         </td>
-                        <td>${survey.visit_date || 'N/A'}</td>
-                        <td>
+                        <td data-label="Visit Date">${survey.visit_date || 'N/A'}</td>
+                        <td data-label="Follow-up">
                             <span class="status-badge ${survey.wants_contact ? 'status-pending' : 'status-completed'}">
                                 ${survey.wants_contact ? 'Yes' : 'No'}
                             </span>
                         </td>
-                        <td>
+                        <td data-label="Actions">
                             <button class="btn btn-primary btn-sm" onclick="viewSurvey('${survey.response_id}')">View</button>
                         </td>
                     </tr>
@@ -2576,8 +2596,20 @@
                     'Patient Name': survey.patient_name || '',
                     'Email': survey.patient_email || '',
                     'Phone': survey.patient_phone || '',
+                    'Date of Birth': survey.date_of_birth || '',
+                    'Gender': survey.gender || '',
+                    'Nationality': survey.nationality || '',
+                    'Patient ID': survey.patient_id || '',
+                    'Emergency Contact Name': survey.emergency_contact_name || '',
+                    'Emergency Contact Phone': survey.emergency_contact_phone || '',
                     'Visit Date': survey.visit_date || '',
                     'Clinic': survey.clinic_name || '',
+                    'Department': survey.department || '',
+                    'Doctor Name': survey.doctor_name || '',
+                    'Appointment Type': survey.appointment_type || '',
+                    'Visit Type': survey.visit_type || '',
+                    'Insurance Provider': survey.insurance_provider || '',
+                    'Visit Reason': survey.visit_reason || '',
                     'Overall Satisfaction': this.dashboard.formatSatisfaction(survey.overall_satisfaction),
                     'Recommendation': survey.recommendation_likelihood || '',
                     'Wants Follow-up': survey.wants_contact ? 'Yes' : 'No',
@@ -2604,8 +2636,20 @@
                     'patient_name': survey.patient_name || '',
                     'patient_email': survey.patient_email || '',
                     'patient_phone': survey.patient_phone || '',
+                    'date_of_birth': survey.date_of_birth || '',
+                    'gender': survey.gender || '',
+                    'nationality': survey.nationality || '',
+                    'patient_id': survey.patient_id || '',
+                    'emergency_contact_name': survey.emergency_contact_name || '',
+                    'emergency_contact_phone': survey.emergency_contact_phone || '',
                     'visit_date': survey.visit_date || '',
                     'clinic': survey.clinic_name || '',
+                    'department': survey.department || '',
+                    'doctor_name': survey.doctor_name || '',
+                    'appointment_type': survey.appointment_type || '',
+                    'visit_type': survey.visit_type || '',
+                    'insurance_provider': survey.insurance_provider || '',
+                    'visit_reason': survey.visit_reason || '',
                     'overall_satisfaction': survey.overall_satisfaction || '',
                     'recommendation_likelihood': survey.recommendation_likelihood || '',
                     'wants_followup': survey.wants_contact ? 'yes' : 'no',
