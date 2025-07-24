@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient Survey Admin Dashboard</title>
+    <title>Clinic Survey Admin Dashboard</title>
     
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
@@ -477,12 +477,12 @@
             border-color: #2c5aa0;
         }
 
-        /* Enhanced Department Select Styling */
-        .department-select {
+        /* Enhanced Clinic Select Styling */
+        .clinic-select {
             position: relative;
         }
 
-        .department-select select {
+        .clinic-select select {
             width: 100%;
             padding: 12px 16px;
             border: 2px solid #e5e7eb;
@@ -493,31 +493,14 @@
             transition: all 0.3s ease;
         }
 
-        .department-select select:focus {
+        .clinic-select select:focus {
             outline: none;
             border-color: #2c5aa0;
             box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
         }
 
-        .department-select select:hover {
+        .clinic-select select:hover {
             border-color: #94a3b8;
-        }
-
-        .department-select optgroup {
-            font-weight: 600;
-            color: #2c5aa0;
-            background: #f8fafc;
-            padding: 8px 0;
-        }
-
-        .department-select option {
-            padding: 10px 16px;
-            color: #374151;
-            background: white;
-        }
-
-        .department-select option:hover {
-            background: #f1f5f9;
         }
 
         /* Modal */
@@ -591,17 +574,6 @@
             display: none;
             position: absolute;
             background-color: white;
-            min-width: 120px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-            border-radius: 6px;
-            right: 0;
-        }
-        /* Enhanced export dropdown styles */
-        .export-dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: white;
             min-width: 200px;
             box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
             z-index: 1000;
@@ -627,86 +599,6 @@
         .export-dropdown-content a:hover {
             background-color: #f8fafc;
             color: #2c5aa0;
-        }
-
-        .export-dropdown-content hr {
-            margin: 5px 0;
-            border: none;
-            border-top: 1px solid #e5e7eb;
-        }
-
-        .export-dropdown.show .export-dropdown-content {
-            display: block;
-            animation: slideDown 0.2s ease-out;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Export progress styles */
-        .spinner {
-            border: 4px solid #f3f4f6;
-            border-top: 4px solid #2c5aa0;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Export actions */
-        .export-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .export-actions .btn {
-            font-size: 12px;
-            padding: 6px 12px;
-        }
-
-        /* Responsive export buttons */
-        @media (max-width: 768px) {
-            .export-actions {
-                flex-direction: column;
-                width: 100%;
-            }
-            
-            .export-actions .btn {
-                width: 100%;
-                margin-bottom: 5px;
-            }
-            
-            .export-dropdown-content {
-                min-width: 180px;
-                right: 0;
-                left: auto;
-            }
-        }
-        .export-dropdown-content a {
-            color: #374151;
-            padding: 8px 12px;
-            text-decoration: none;
-            display: block;
-            font-size: 14px;
-        }
-
-        .export-dropdown-content a:hover {
-            background-color: #f8fafc;
         }
 
         .export-dropdown.show .export-dropdown-content {
@@ -770,7 +662,7 @@
             <form id="loginForm" style="display: block;">
                 <div class="form-group">
                     <label for="loginEmail">Email Address</label>
-                    <input type="email" id="loginEmail" required placeholder="admin@hospital.com">
+                    <input type="email" id="loginEmail" required placeholder="admin@clinic.com">
                 </div>
                 <div class="form-group">
                     <label for="loginPassword">Password</label>
@@ -782,12 +674,16 @@
             <!-- Register Form -->
             <form id="registerForm" style="display: none;">
                 <div class="form-group">
+                    <label for="registerUsername">Username</label>
+                    <input type="text" id="registerUsername" required placeholder="johndoe">
+                </div>
+                <div class="form-group">
                     <label for="registerName">Full Name</label>
                     <input type="text" id="registerName" required placeholder="John Doe">
                 </div>
                 <div class="form-group">
                     <label for="registerEmail">Email Address</label>
-                    <input type="email" id="registerEmail" required placeholder="john@hospital.com">
+                    <input type="email" id="registerEmail" required placeholder="john@clinic.com">
                 </div>
                 <div class="form-group">
                     <label for="registerPassword">Password</label>
@@ -795,41 +691,13 @@
                     <small>This will be your personal login password.</small>
                 </div>
                 <div class="form-group">
-                    <label for="registerDepartment">Department</label>
-                    <div class="department-select">
-                        <select id="registerDepartment" required>
-                            <option value="" disabled selected>🏥 Select your department</option>
-                            
-                            <optgroup label="🏥 Patient Care Services">
-                                <option value="Reception/Front Desk">📝 Reception / Front Desk</option>
-                                <option value="General Practice">👩‍⚕️ General Practice</option>
-                                <option value="Specialist Consultation">🩺 Specialist Consultation</option>
-                                <option value="Nursing Services">👩‍⚕️ Nursing Services</option>
-                                <option value="Emergency/Urgent Care">🚑 Emergency / Urgent Care</option>
-                            </optgroup>
-                            
-                            <optgroup label="🔬 Diagnostic Services">
-                                <option value="Laboratory">🧪 Laboratory</option>
-                                <option value="Radiology/Imaging">📸 Radiology / Imaging</option>
-                            </optgroup>
-                            
-                            <optgroup label="💊 Support Services">
-                                <option value="Pharmacy">💊 Pharmacy</option>
-                                <option value="Physical Therapy">🏃‍♂️ Physical Therapy</option>
-                            </optgroup>
-                            
-                            <optgroup label="🏢 Administration">
-                                <option value="Administration">🏢 Administration</option>
-                                <option value="IT">💻 Information Technology</option>
-                                <option value="Other">📋 Other</option>
-                            </optgroup>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="adminCode">Admin Access Code</label>
-                    <input type="password" id="adminCode" required placeholder="Enter admin code">
-                    <small>Contact your system administrator for the admin access code.</small>
+                    <label for="registerRole">Role</label>
+                    <select id="registerRole" required>
+                        <option value="user">User (View Only)</option>
+                        <option value="admin">Admin (Clinic Manager)</option>
+                        <option value="super_admin">Super Admin (System Admin)</option>
+                    </select>
+                    <small>Contact your system administrator to request elevated permissions.</small>
                 </div>
                 <button type="submit" class="btn-primary">Create Account</button>
             </form>
@@ -841,10 +709,10 @@
         <div class="container">
             <!-- Header -->
             <div class="header">
-                <h1>📊 Patient Survey Dashboard</h1>
+                <h1>📊 Clinic Survey Dashboard</h1>
                 <div class="user-info">
                     <span id="userName">Loading...</span>
-                    <span id="userRole" class="role-badge">Admin</span>
+                    <span id="userRole" class="role-badge">User</span>
                     <button id="logoutBtn" class="btn-logout">Logout</button>
                 </div>
             </div>
@@ -878,9 +746,9 @@
                         <div class="trend down" id="followUpTrend">Loading...</div>
                     </div>
                     <div class="stat-card danger">
-                        <h3 id="lowSatisfaction">0</h3>
-                        <p>Low Satisfaction (≤2)</p>
-                        <div class="trend down" id="lowSatTrend">Loading...</div>
+                        <h3 id="dissatisfiedCount">0</h3>
+                        <p>Dissatisfied Patients</p>
+                        <div class="trend down" id="dissatisfiedTrend">Loading...</div>
                     </div>
                 </div>
 
@@ -904,7 +772,7 @@
                         <thead>
                             <tr>
                                 <th>Patient</th>
-                                <th>Department</th>
+                                <th>Clinic</th>
                                 <th>Overall Rating</th>
                                 <th>Visit Date</th>
                                 <th>Submitted</th>
@@ -928,9 +796,9 @@
                 <div class="filters">
                     <div class="filters-grid">
                         <div class="filter-group">
-                            <label>Department</label>
-                            <select id="departmentFilter">
-                                <option value="">All Departments</option>
+                            <label>Clinic</label>
+                            <select id="clinicFilter">
+                                <option value="">All Clinics</option>
                             </select>
                         </div>
                         <div class="filter-group">
@@ -957,9 +825,9 @@
                             <label>Satisfaction Level</label>
                             <select id="satisfactionFilter">
                                 <option value="">All Ratings</option>
-                                <option value="low">Low (1-2)</option>
-                                <option value="medium">Medium (3)</option>
-                                <option value="high">High (4-5)</option>
+                                <option value="low">Dissatisfied</option>
+                                <option value="medium">Satisfied</option>
+                                <option value="high">Very Satisfied</option>
                             </select>
                         </div>
                         <div class="filter-group">
@@ -993,7 +861,7 @@
                                 <th>Survey ID</th>
                                 <th>Patient Name</th>
                                 <th>Email</th>
-                                <th>Department</th>
+                                <th>Clinic</th>
                                 <th>Overall Rating</th>
                                 <th>Visit Date</th>
                                 <th>Follow-up</th>
@@ -1024,7 +892,7 @@
                     </div>
                     <div class="stat-card">
                         <h3 id="satisfactionRateMetric">0%</h3>
-                        <p>Satisfaction Rate (4-5)</p>
+                        <p>Satisfaction Rate</p>
                     </div>
                     <div class="stat-card">
                         <h3 id="responseRateMetric">0%</h3>
@@ -1039,8 +907,8 @@
                     </div>
 
                     <div class="chart-container">
-                        <h3>Department Performance</h3>
-                        <canvas id="departmentChart" width="400" height="200"></canvas>
+                        <h3>Clinic Performance</h3>
+                        <canvas id="clinicChart" width="400" height="200"></canvas>
                     </div>
 
                     <div class="chart-container">
@@ -1075,7 +943,7 @@
                         <thead>
                             <tr>
                                 <th>Patient</th>
-                                <th>Contact Method</th>
+                                <th>Clinic</th>
                                 <th>Priority</th>
                                 <th>Assigned To</th>
                                 <th>Status</th>
@@ -1099,7 +967,7 @@
             <div id="users" class="tab-content">
                 <div class="table-container">
                     <div class="table-header">
-                        <h3>Admin Users</h3>
+                        <h3>System Users</h3>
                         <div class="table-actions">
                             <button class="btn btn-secondary btn-sm" onclick="loadUsersData()">🔄 Refresh</button>
                         </div>
@@ -1107,10 +975,10 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Name</th>
+                                <th>Username</th>
+                                <th>Full Name</th>
                                 <th>Email</th>
                                 <th>Role</th>
-                                <th>Department</th>
                                 <th>Last Login</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -1132,40 +1000,22 @@
                 <div class="table-container">
                     <div class="table-header">
                         <h3>System Settings</h3>
-                        <div class="table-actions">
-                            <button class="btn btn-success btn-sm" onclick="saveSettings()">💾 Save Changes</button>
-                        </div>
                     </div>
                     <div style="padding: 25px;">
                         <div class="filters-grid">
                             <div class="filter-group">
                                 <label>Survey Auto-restart Time (seconds)</label>
-                                <input type="number" id="autoRestartTime" value="30" min="10" max="300">
+                                <input type="number" id="autoRestartTime" value="30" min="10" max="300" disabled>
                             </div>
                             <div class="filter-group">
-                                <label>Survey Idle Timeout (seconds)</label>
-                                <input type="number" id="idleTimeout" value="300" min="60" max="1800">
-                            </div>
-                            <div class="filter-group">
-                                <label>Dashboard Refresh Interval (seconds)</label>
-                                <input type="number" id="dashboardRefresh" value="300" min="30" max="1800">
-                            </div>
-                            <div class="filter-group">
-                                <label>Low Rating Threshold (1-5)</label>
-                                <input type="number" id="lowRatingThreshold" value="2" min="1" max="4">
-                            </div>
-                            <div class="filter-group">
-                                <label>Max Follow-up Attempts</label>
-                                <input type="number" id="maxFollowUpAttempts" value="3" min="1" max="10">
-                            </div>
-                            <div class="filter-group">
-                                <label>Email Notifications</label>
-                                <select id="emailNotifications">
-                                    <option value="true">Enabled</option>
-                                    <option value="false">Disabled</option>
+                                <label>Low Rating Threshold</label>
+                                <select id="lowRatingThreshold" disabled>
+                                    <option value="dissatisfied">Dissatisfied</option>
+                                    <option value="very_dissatisfied">Very Dissatisfied</option>
                                 </select>
                             </div>
                         </div>
+                        <p style="margin-top: 20px; color: #64748b;">Settings are configured in the system and cannot be changed here.</p>
                     </div>
                 </div>
             </div>
@@ -1191,19 +1041,17 @@
     </div>
 
     <script>
-        // 🔧 SUPABASE CONFIGURATION  
+        // 🔧 SUPABASE CONFIGURATION - Updated to match Survey.html 
         const SUPABASE_CONFIG = {
-            url: 'https://haeephlyfcoxrioohhjj.supabase.co',
-            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhZWVwaGx5ZmNveHJpb29oaGpqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTQ4MTgwOSwiZXhwIjoyMDY3MDU3ODA5fQ.srXbETt6h-zFXuW41b_fKFZTlRquNOCS1I_nwKZIyhY'
+            url: 'https://uaznsgkixgedgfaxxkkw.supabase.co',
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhem5zZ2tpeGdlZGdmYXh4a2t3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzMzMjk1MiwiZXhwIjoyMDY4OTA4OTUyfQ.EMZAssphOtHHVHiIq7odgnMPfH3hMVQEfIhnbQs9pjw'
         };
-
-        const ADMIN_CODE = '5865'; // Admin access code for registration
 
         class AdminDashboard {
             constructor() {
                 this.supabase = null;
                 this.currentUser = null;
-                this.currentAdminUser = null;
+                this.currentSystemUser = null;
                 this.charts = {};
                 this.filteredData = [];
                 this.currentFilters = {};
@@ -1315,7 +1163,6 @@
             async handleLogin() {
                 const email = document.getElementById('loginEmail').value;
                 const password = document.getElementById('loginPassword').value;
-                const errorDiv = document.getElementById('authError');
                 const submitBtn = document.querySelector('#loginForm button[type="submit"]');
 
                 try {
@@ -1341,120 +1188,54 @@
             }
 
             async handleRegister() {
+                const username = document.getElementById('registerUsername').value;
                 const name = document.getElementById('registerName').value;
                 const email = document.getElementById('registerEmail').value;
                 const password = document.getElementById('registerPassword').value;
-                const department = document.getElementById('registerDepartment').value;
-                const adminCode = document.getElementById('adminCode').value;
+                const role = document.getElementById('registerRole').value;
                 const submitBtn = document.querySelector('#registerForm button[type="submit"]');
 
                 try {
                     this.hideMessages();
-                    
-                    // Validate admin code
-                    if (adminCode !== ADMIN_CODE) {
-                        throw new Error('Invalid admin access code. Please contact your system administrator.');
-                    }
-
                     submitBtn.disabled = true;
                     submitBtn.textContent = 'Creating Account...';
 
-                    // Create user account with admin metadata
-                    const { data, error } = await this.supabase.auth.signUp({
+                    // Create auth user
+                    const { data: authData, error: authError } = await this.supabase.auth.signUp({
                         email,
-                        password,  // User's chosen password
+                        password,
                         options: {
                             data: {
+                                username: username,
                                 full_name: name,
-                                department: department,
-                                admin_code: adminCode,  // This marks them as admin
-                                is_admin: true
+                                role: role
                             }
                         }
                     });
 
-                    if (error) throw error;
+                    if (authError) throw authError;
 
-                    if (data.user) {
-                        console.log('✅ User created, now creating admin record...');
-                        
-                        // Wait a moment for the user to be fully created
-                        await new Promise(resolve => setTimeout(resolve, 2000));
+                    if (authData.user) {
+                        // Create user in users table
+                        const { error: userError } = await this.supabase
+                            .from('users')
+                            .insert({
+                                auth_user_id: authData.user.id,
+                                username: username,
+                                email: email,
+                                full_name: name,
+                                role: role,
+                                is_active: true
+                            });
 
-                        // Create admin user record manually (more reliable than trigger)
-                        try {
-                            // Check if admin record already exists (trigger might have worked)
-                            const { data: existingAdmin } = await this.supabase
-                                .from('admin_users')
-                                .select('id')
-                                .eq('user_id', data.user.id)
-                                .maybeSingle();
-
-                            if (!existingAdmin) {
-                                console.log('🔧 No admin record found, creating manually...');
-                                
-                                // Check if this would be the first super_admin
-                                const { data: existingSuperAdmins } = await this.supabase
-                                    .from('admin_users')
-                                    .select('id')
-                                    .eq('role', 'super_admin')
-                                    .eq('is_active', true);
-
-                                const role = (!existingSuperAdmins || existingSuperAdmins.length === 0) ? 'super_admin' : 'admin';
-
-                                // Use a function call to bypass RLS restrictions
-                                const { data: functionResult, error: functionError } = await this.supabase
-                                    .rpc('create_admin_user_manual', {
-                                        p_user_id: data.user.id,
-                                        p_full_name: name,
-                                        p_email: email,
-                                        p_department: department,
-                                        p_role: role
-                                    });
-
-                                if (functionError) {
-                                    console.error('❌ Function error:', functionError);
-                                    console.log('🔧 Function failed, trying direct insert...');
-                                    
-                                    // Fallback: try direct insert (will work if RLS allows)
-                                    const { error: insertError } = await this.supabase
-                                        .from('admin_users')
-                                        .insert({
-                                            user_id: data.user.id,
-                                            full_name: name,
-                                            email: email,
-                                            role: role,
-                                            department: department,
-                                            is_active: true
-                                        });
-
-                                    if (insertError) {
-                                        console.error('❌ Direct insert also failed:', insertError);
-                                        throw new Error('Admin account created but setup incomplete. Please contact your system administrator to complete the setup.');
-                                    }
-                                }
-                                
-                                console.log('✅ Admin record created successfully');
-                            } else {
-                                console.log('✅ Admin record already exists (trigger worked)');
-                            }
-
-                            this.showSuccess(`🎉 Admin account created successfully! You can now sign in with your email and the password you created.`);
-                            
-                            // Clear only the register form on successful registration
-                            this.clearAuthForms(false, true); // Don't clear login, do clear register
-                            
-                        } catch (adminError) {
-                            console.error('❌ Admin creation error:', adminError);
-                            this.showSuccess(`Account created, but admin setup needs completion. Please contact your system administrator. You can try signing in - it might work.`);
+                        if (userError) {
+                            console.error('User creation error:', userError);
+                            // Don't throw here - user was created in auth
                         }
-                        
-                        // Switch to login tab after success
-                        setTimeout(() => {
-                            switchAuthTab('login');
-                            // Pre-fill email in login form for convenience
-                            document.getElementById('loginEmail').value = email;
-                        }, 3000);
+
+                        this.showSuccess('Account created successfully! Please sign in.');
+                        switchAuthTab('login');
+                        document.getElementById('loginEmail').value = email;
                     }
 
                 } catch (error) {
@@ -1469,66 +1250,41 @@
             async handleAuthSuccess(user) {
                 try {
                     this.currentUser = user;
-                    console.log('🔍 Checking admin user for:', user.email);
+                    console.log('🔍 Checking system user for:', user.email);
 
-                    // Get admin user details with simplified query to avoid RLS recursion
-                    const { data: adminUser, error } = await this.supabase
-                        .from('admin_users')
+                    // Get user details from users table
+                    const { data: systemUser, error } = await this.supabase
+                        .from('users')
                         .select('*')
-                        .eq('user_id', user.id)
+                        .eq('auth_user_id', user.id)
                         .maybeSingle();
 
                     if (error) {
-                        console.error('❌ Error querying admin_users:', error);
+                        console.error('❌ Error querying users:', error);
                         throw new Error(`Database error: ${error.message}`);
                     }
 
-                    if (!adminUser) {
-                        console.warn('⚠️ Admin user record not found for:', user.email);
-                        
-                        // Check if user signed up recently and admin record creation might have failed
-                        const userCreatedAt = new Date(user.created_at);
-                        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-                        
-                        if (userCreatedAt > fiveMinutesAgo) {
-                            // Recent signup - trigger might have failed
-                            throw new Error('Admin account setup incomplete. The automatic setup may have failed. Please contact your system administrator to complete your admin setup.');
-                        } else {
-                            throw new Error('Admin access denied. Your account does not have administrative privileges. Please contact your system administrator.');
-                        }
+                    if (!systemUser) {
+                        throw new Error('User account not found in system. Please contact administrator.');
                     }
 
-                    if (!adminUser.is_active) {
-                        throw new Error('Your admin account has been disabled. Please contact your system administrator.');
+                    if (!systemUser.is_active) {
+                        throw new Error('Your account has been disabled. Please contact administrator.');
                     }
 
-                    this.currentAdminUser = adminUser;
-                    console.log('✅ Admin user found:', adminUser.full_name, `(${adminUser.role})`);
+                    this.currentSystemUser = systemUser;
+                    console.log('✅ System user found:', systemUser.full_name, `(${systemUser.role})`);
 
-                    // Update last login (this might fail due to RLS, but that's okay)
-                    try {
-                        await this.supabase
-                            .from('admin_users')
-                            .update({ last_login: new Date().toISOString() })
-                            .eq('id', this.currentAdminUser.id);
-                    } catch (updateError) {
-                        console.warn('Could not update last login (RLS restriction):', updateError);
-                    }
-
-                    // Log activity (this might fail due to RLS, but that's okay)
-                    try {
-                        await this.logActivity('login', 'auth', null, { 
-                            login_time: new Date().toISOString(),
-                            user_agent: navigator.userAgent
-                        });
-                    } catch (logError) {
-                        console.warn('Could not log activity (RLS restriction):', logError);
-                    }
+                    // Update last login
+                    await this.supabase
+                        .from('users')
+                        .update({ last_login: new Date().toISOString() })
+                        .eq('id', systemUser.id);
 
                     this.showDashboard();
                     await this.loadDashboardData();
                     
-                    // Clear both forms on successful login
+                    // Clear forms
                     this.clearAuthForms(true, true);
                 } catch (error) {
                     console.error('❌ Auth success handling error:', error);
@@ -1542,14 +1298,10 @@
 
             async handleLogout() {
                 try {
-                    await this.logActivity('logout', 'auth');
                     await this.supabase.auth.signOut();
-                    
                     this.currentUser = null;
-                    this.currentAdminUser = null;
+                    this.currentSystemUser = null;
                     this.showAuth();
-                    
-                    // Clear forms after logout for security
                     this.clearAuthForms(true, true);
                 } catch (error) {
                     console.error('❌ Logout error:', error);
@@ -1566,8 +1318,8 @@
                 document.getElementById('dashboard').classList.add('active');
                 
                 // Update user info
-                document.getElementById('userName').textContent = this.currentAdminUser.full_name;
-                document.getElementById('userRole').textContent = this.currentAdminUser.role.replace('_', ' ').toUpperCase();
+                document.getElementById('userName').textContent = this.currentSystemUser.full_name;
+                document.getElementById('userRole').textContent = this.currentSystemUser.role.replace('_', ' ').toUpperCase();
             }
 
             switchTab(tabName) {
@@ -1606,7 +1358,7 @@
                             await this.loadUsersData();
                             break;
                         case 'settings':
-                            await this.loadSettingsData();
+                            // Settings are static in this version
                             break;
                     }
                 } catch (error) {
@@ -1624,81 +1376,99 @@
                 try {
                     console.log('🔄 Loading overview data...');
                     
+                    // Get user's accessible clinics
+                    const { data: userClinics } = await this.supabase
+                        .rpc('get_user_accessible_clinics');
+                    
+                    const clinicIds = userClinics?.map(c => c.clinic_id) || [];
+                    
                     // Get today's date range
                     const today = new Date();
                     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
                     const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 
-                    // Get today's surveys using created_at (more reliable than visit_date)
-                    const { data: todaySurveys, error: todayError } = await this.supabase
-                        .from('patient_survey_responses')
+                    // Build query based on user role
+                    let query = this.supabase
+                        .from('clinic_survey_responses')
                         .select('*')
                         .gte('created_at', startOfDay.toISOString())
                         .lt('created_at', endOfDay.toISOString());
+
+                    // Apply clinic filter for non-super admins
+                    if (this.currentSystemUser.role !== 'super_admin' && clinicIds.length > 0) {
+                        query = query.in('patient_info->>clinic_location', clinicIds);
+                    }
+
+                    const { data: todaySurveys, error: todayError } = await query;
 
                     if (todayError) {
                         console.error('❌ Error fetching today surveys:', todayError);
                         throw todayError;
                     }
 
-                    console.log('📊 Today surveys:', todaySurveys?.length || 0);
-
                     // Get all surveys for averages (last 7 days)
                     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-                    const { data: allSurveys, error: allError } = await this.supabase
-                        .from('patient_survey_responses')
+                    
+                    let allQuery = this.supabase
+                        .from('clinic_survey_responses')
                         .select('*')
                         .gte('created_at', sevenDaysAgo.toISOString());
 
-                    if (allError) {
-                        console.error('❌ Error fetching all surveys:', allError);
-                        // Continue with today's data only
+                    if (this.currentSystemUser.role !== 'super_admin' && clinicIds.length > 0) {
+                        allQuery = allQuery.in('patient_info->>clinic_location', clinicIds);
                     }
 
+                    const { data: allSurveys } = await allQuery;
+
                     const surveysForStats = allSurveys || todaySurveys || [];
-                    console.log('📊 Surveys for stats:', surveysForStats.length);
 
                     // Calculate stats
                     const totalSurveys = todaySurveys?.length || 0;
                     
-                    // Calculate average satisfaction
+                    // Map satisfaction values
+                    const satisfactionMap = {
+                        'very_satisfied': 5,
+                        'satisfied': 4,
+                        'neutral': 3,
+                        'dissatisfied': 2,
+                        'very_dissatisfied': 1
+                    };
+                    
                     const validRatings = surveysForStats.filter(s => {
-                        const rating = s.experience_data?.overall_satisfaction;
-                        return rating && !isNaN(parseInt(rating));
+                        const rating = s.responses?.overall_satisfaction;
+                        return rating && satisfactionMap[rating];
                     });
                     
                     const avgSatisfaction = validRatings.length > 0 
-                        ? (validRatings.reduce((sum, s) => sum + parseInt(s.experience_data.overall_satisfaction), 0) / validRatings.length).toFixed(1)
+                        ? (validRatings.reduce((sum, s) => sum + satisfactionMap[s.responses.overall_satisfaction], 0) / validRatings.length).toFixed(1)
                         : '0.0';
                     
-                    // Calculate low satisfaction (≤2)
-                    const lowSatisfaction = validRatings.filter(s => 
-                        parseInt(s.experience_data.overall_satisfaction) <= 2
+                    // Count dissatisfied
+                    const dissatisfiedCount = validRatings.filter(s => 
+                        ['dissatisfied', 'very_dissatisfied'].includes(s.responses.overall_satisfaction)
                     ).length;
 
-                    console.log('📊 Stats calculated:', { totalSurveys, avgSatisfaction, lowSatisfaction });
-
                     // Get pending follow-ups
-                    const { data: followUps, error: followUpError } = await this.supabase
+                    let followUpQuery = this.supabase
                         .from('follow_up_tasks')
                         .select('*')
                         .eq('status', 'pending');
 
-                    if (followUpError) {
-                        console.error('❌ Error fetching follow-ups:', followUpError);
+                    if (this.currentSystemUser.role !== 'super_admin' && clinicIds.length > 0) {
+                        followUpQuery = followUpQuery.in('clinic_id', clinicIds);
                     }
 
+                    const { data: followUps } = await followUpQuery;
                     const pendingFollowUps = followUps?.length || 0;
-                    console.log('📊 Pending follow-ups:', pendingFollowUps);
 
                     // Update stats in UI
                     document.getElementById('totalSurveys').textContent = totalSurveys;
                     document.getElementById('avgSatisfaction').textContent = avgSatisfaction;
                     document.getElementById('pendingFollowUps').textContent = pendingFollowUps;
-                    document.getElementById('lowSatisfaction').textContent = lowSatisfaction;
+                    document.getElementById('dissatisfiedCount').textContent = dissatisfiedCount;
 
-                    // Calculate and show trends
-                    this.updateTrends(totalSurveys, avgSatisfaction, pendingFollowUps, lowSatisfaction);
+                    // Update trends
+                    this.updateTrends(totalSurveys, avgSatisfaction, pendingFollowUps, dissatisfiedCount);
 
                     // Load recent surveys table
                     await this.loadRecentSurveys();
@@ -1706,17 +1476,10 @@
                 } catch (error) {
                     console.error('❌ Error loading overview data:', error);
                     this.showError('Failed to load dashboard data: ' + error.message);
-                    
-                    // Set fallback values
-                    document.getElementById('totalSurveys').textContent = '0';
-                    document.getElementById('avgSatisfaction').textContent = '0.0';
-                    document.getElementById('pendingFollowUps').textContent = '0';
-                    document.getElementById('lowSatisfaction').textContent = '0';
                 }
             }
 
-            updateTrends(totalSurveys, avgSatisfaction, pendingFollowUps, lowSatisfaction) {
-                // Update trends with meaningful messages
+            updateTrends(totalSurveys, avgSatisfaction, pendingFollowUps, dissatisfiedCount) {
                 document.getElementById('surveyTrend').textContent = totalSurveys > 0 
                     ? `${totalSurveys} surveys submitted today` 
                     : 'No surveys today yet';
@@ -1729,28 +1492,34 @@
                     ? `${pendingFollowUps} tasks need attention` 
                     : 'All caught up!';
                     
-                document.getElementById('lowSatTrend').textContent = lowSatisfaction > 0 
-                    ? `${lowSatisfaction} need attention` 
+                document.getElementById('dissatisfiedTrend').textContent = dissatisfiedCount > 0 
+                    ? `${dissatisfiedCount} need attention` 
                     : 'Great job!';
             }
 
             async loadRecentSurveys() {
                 try {
-                    console.log('🔄 Loading recent surveys...');
+                    // Get user's accessible clinics
+                    const { data: userClinics } = await this.supabase
+                        .rpc('get_user_accessible_clinics');
                     
-                    const { data: surveys, error } = await this.supabase
-                        .from('patient_survey_responses')
+                    const clinicIds = userClinics?.map(c => c.clinic_id) || [];
+                    
+                    let query = this.supabase
+                        .from('survey_responses_view')
                         .select('*')
                         .order('created_at', { ascending: false })
                         .limit(10);
 
-                    if (error) {
-                        console.error('❌ Error fetching recent surveys:', error);
-                        throw error;
+                    // Apply clinic filter for non-super admins
+                    if (this.currentSystemUser.role !== 'super_admin' && clinicIds.length > 0) {
+                        query = query.in('clinic_id', clinicIds);
                     }
 
-                    console.log('📊 Recent surveys fetched:', surveys?.length || 0);
-                    
+                    const { data: surveys, error } = await query;
+
+                    if (error) throw error;
+
                     const tableBody = document.getElementById('recentSurveysTable');
                     
                     if (!surveys || surveys.length === 0) {
@@ -1759,23 +1528,19 @@
                     }
 
                     tableBody.innerHTML = surveys.map(survey => {
-                        const patientName = survey.patient_info?.full_name || 'N/A';
-                        const department = survey.patient_info?.department_visited || 'N/A';
-                        const overallRating = survey.experience_data?.overall_satisfaction || 'N/A';
-                        const visitDate = survey.patient_info?.visit_date || 'N/A';
-                        const submittedDate = new Date(survey.created_at).toLocaleDateString();
+                        const overallRating = this.mapSatisfactionToNumber(survey.overall_satisfaction);
                         
                         return `
                             <tr>
-                                <td>${patientName}</td>
-                                <td>${department}</td>
+                                <td>${survey.patient_name || 'N/A'}</td>
+                                <td>${survey.clinic_name || 'N/A'}</td>
                                 <td>
                                     <span class="status-badge ${this.getSatisfactionClass(overallRating)}">
-                                        ${overallRating}/5
+                                        ${this.formatSatisfaction(survey.overall_satisfaction)}
                                     </span>
                                 </td>
-                                <td>${visitDate}</td>
-                                <td>${submittedDate}</td>
+                                <td>${survey.visit_date || 'N/A'}</td>
+                                <td>${new Date(survey.created_at).toLocaleDateString()}</td>
                                 <td>
                                     <span class="status-badge status-completed">Submitted</span>
                                 </td>
@@ -1789,97 +1554,98 @@
                 } catch (error) {
                     console.error('❌ Error loading recent surveys:', error);
                     document.getElementById('recentSurveysTable').innerHTML = 
-                        '<tr><td colspan="7" style="text-align: center; color: #dc2626;">Error loading surveys: ' + error.message + '</td></tr>';
+                        '<tr><td colspan="7" style="text-align: center; color: #dc2626;">Error loading surveys</td></tr>';
                 }
+            }
+
+            mapSatisfactionToNumber(satisfaction) {
+                const map = {
+                    'very_satisfied': 5,
+                    'satisfied': 4,
+                    'neutral': 3,
+                    'dissatisfied': 2,
+                    'very_dissatisfied': 1
+                };
+                return map[satisfaction] || 0;
+            }
+
+            formatSatisfaction(satisfaction) {
+                const formats = {
+                    'very_satisfied': 'Very Satisfied',
+                    'satisfied': 'Satisfied',
+                    'neutral': 'Neutral',
+                    'dissatisfied': 'Dissatisfied',
+                    'very_dissatisfied': 'Very Dissatisfied'
+                };
+                return formats[satisfaction] || satisfaction || 'N/A';
+            }
+
+            getSatisfactionClass(rating) {
+                if (rating >= 4) return 'status-high';
+                if (rating === 3) return 'status-medium';
+                return 'status-low';
             }
 
             async populateFilterOptions() {
                 try {
-                    // Get unique departments from JSONB field
-                    const { data: surveys, error } = await this.supabase
-                        .from('patient_survey_responses')
-                        .select('patient_info')
-                        .not('patient_info->department_visited', 'is', null);
-
-                    if (!error && surveys) {
-                        const uniqueDepartments = [...new Set(surveys
-                            .map(s => s.patient_info?.department_visited)
-                            .filter(Boolean)
-                        )];
-                        
-                        const departmentFilter = document.getElementById('departmentFilter');
-                        
-                        // Clear existing options except "All Departments"
-                        while (departmentFilter.children.length > 1) {
-                            departmentFilter.removeChild(departmentFilter.lastChild);
-                        }
-                        
-                        uniqueDepartments.forEach(dept => {
-                            const option = document.createElement('option');
-                            option.value = dept;
-                            option.textContent = dept;
-                            departmentFilter.appendChild(option);
-                        });
+                    // Get user's accessible clinics
+                    const { data: userClinics } = await this.supabase
+                        .rpc('get_user_accessible_clinics');
+                    
+                    const clinicFilter = document.getElementById('clinicFilter');
+                    
+                    // Clear existing options except "All Clinics"
+                    while (clinicFilter.children.length > 1) {
+                        clinicFilter.removeChild(clinicFilter.lastChild);
                     }
+                    
+                    userClinics?.forEach(clinic => {
+                        const option = document.createElement('option');
+                        option.value = clinic.clinic_id;
+                        option.textContent = `${clinic.clinic_name} - ${clinic.clinic_location}`;
+                        clinicFilter.appendChild(option);
+                    });
                 } catch (error) {
                     console.error('❌ Error populating filter options:', error);
                 }
-            }
-
-            getSatisfactionClass(rating) {
-                const r = parseInt(rating);
-                if (isNaN(r)) return 'status-medium';
-                if (r >= 4) return 'status-high';
-                if (r === 3) return 'status-medium';
-                return 'status-low';
             }
 
             async loadSurveysData() {
                 try {
                     console.log('🔄 Loading surveys data with filters:', this.currentFilters);
                     
-                    // Show loading state
                     document.getElementById('allSurveysTable').innerHTML = 
                         '<tr><td colspan="8" class="loading"><div class="spinner"></div></td></tr>';
                     
+                    // Get user's accessible clinics
+                    const { data: userClinics } = await this.supabase
+                        .rpc('get_user_accessible_clinics');
+                    
+                    const clinicIds = userClinics?.map(c => c.clinic_id) || [];
+                    
                     let query = this.supabase
-                        .from('patient_survey_responses')
+                        .from('survey_responses_view')
                         .select('*')
                         .order('created_at', { ascending: false });
 
-                    // Apply current filters
+                    // Apply clinic access filter
+                    if (this.currentSystemUser.role !== 'super_admin' && clinicIds.length > 0) {
+                        query = query.in('clinic_id', clinicIds);
+                    }
+
+                    // Apply user filters
                     query = this.applyFiltersToQuery(query);
 
-                    console.log('🔍 Executing query with filters...');
                     const { data: surveys, error } = await query;
 
-                    if (error) {
-                        console.error('❌ Query error:', error);
-                        throw error;
-                    }
+                    if (error) throw error;
 
-                    console.log('📊 Surveys loaded:', surveys?.length || 0);
                     this.filteredData = surveys || [];
                     this.renderSurveysTable(this.filteredData);
-
-                    // Update status message
-                    if (surveys && surveys.length > 0) {
-                        const hasFilters = Object.values(this.currentFilters || {}).some(v => v);
-                        if (hasFilters) {
-                            console.log('✅ Filtered results:', surveys.length, 'surveys found');
-                        }
-                    }
 
                 } catch (error) {
                     console.error('❌ Error loading surveys data:', error);
                     this.showError('Failed to load surveys data: ' + error.message);
-                    
-                    // Show error state
-                    document.getElementById('allSurveysTable').innerHTML = 
-                        `<tr><td colspan="8" style="text-align: center; color: #dc2626;">
-                            Error loading surveys: ${error.message}
-                            <br><small>Try refreshing or clearing filters</small>
-                        </td></tr>`;
                 }
             }
             
@@ -1893,19 +1659,19 @@
 
                 tableBody.innerHTML = surveys.map(survey => `
                     <tr>
-                        <td title="${survey.response_id}">${survey.response_id.substring(0, 12)}...</td>
-                        <td>${survey.patient_info?.full_name || 'N/A'}</td>
-                        <td>${survey.patient_info?.email || 'N/A'}</td>
-                        <td>${survey.patient_info?.department_visited || 'N/A'}</td>
+                        <td title="${survey.response_id}">${survey.response_id.substring(0, 15)}...</td>
+                        <td>${survey.patient_name || 'N/A'}</td>
+                        <td>${survey.patient_email || 'N/A'}</td>
+                        <td>${survey.clinic_name || 'N/A'}</td>
                         <td>
-                            <span class="status-badge ${this.getSatisfactionClass(survey.experience_data?.overall_satisfaction)}">
-                                ${survey.experience_data?.overall_satisfaction || 'N/A'}/5
+                            <span class="status-badge ${this.getSatisfactionClass(this.mapSatisfactionToNumber(survey.overall_satisfaction))}">
+                                ${this.formatSatisfaction(survey.overall_satisfaction)}
                             </span>
                         </td>
-                        <td>${survey.patient_info?.visit_date || 'N/A'}</td>
+                        <td>${survey.visit_date || 'N/A'}</td>
                         <td>
-                            <span class="status-badge ${survey.contact_preferences?.wants_contact === 'yes' ? 'status-pending' : 'status-completed'}">
-                                ${survey.contact_preferences?.wants_contact === 'yes' ? 'Yes' : 'No'}
+                            <span class="status-badge ${survey.wants_contact ? 'status-pending' : 'status-completed'}">
+                                ${survey.wants_contact ? 'Yes' : 'No'}
                             </span>
                         </td>
                         <td>
@@ -1916,20 +1682,15 @@
             }
 
             applyFiltersToQuery(query) {
-                console.log('🔍 Applying filters:', this.currentFilters);
-
-                // Apply department filter using JSONB operator
-                if (this.currentFilters.department) {
-                    console.log('🏥 Department filter:', this.currentFilters.department);
-                    query = query.eq('patient_info->>department_visited', this.currentFilters.department);
+                // Apply clinic filter
+                if (this.currentFilters.clinic) {
+                    query = query.eq('clinic_id', this.currentFilters.clinic);
                 }
 
-                // Apply date range filter using created_at (more reliable than JSONB visit_date)
+                // Apply date range filter
                 if (this.currentFilters.dateRange && this.currentFilters.dateRange !== 'custom') {
                     const { startDate, endDate } = this.getDateRange(this.currentFilters.dateRange);
                     if (startDate && endDate) {
-                        console.log('📅 Date range filter:', startDate, 'to', endDate);
-                        // Convert visit_date to comparison with created_at
                         const startDateTime = new Date(startDate + 'T00:00:00').toISOString();
                         const endDateTime = new Date(endDate + 'T23:59:59').toISOString();
                         query = query
@@ -1940,7 +1701,6 @@
 
                 // Apply custom date range
                 if (this.currentFilters.startDate && this.currentFilters.endDate) {
-                    console.log('📅 Custom date range:', this.currentFilters.startDate, 'to', this.currentFilters.endDate);
                     const startDateTime = new Date(this.currentFilters.startDate + 'T00:00:00').toISOString();
                     const endDateTime = new Date(this.currentFilters.endDate + 'T23:59:59').toISOString();
                     query = query
@@ -1948,18 +1708,17 @@
                         .lte('created_at', endDateTime);
                 }
 
-                // Apply satisfaction filter using JSONB operator with ->> for text comparison
+                // Apply satisfaction filter
                 if (this.currentFilters.satisfaction) {
-                    console.log('⭐ Satisfaction filter:', this.currentFilters.satisfaction);
                     switch (this.currentFilters.satisfaction) {
                         case 'low':
-                            query = query.in('experience_data->>overall_satisfaction', ['1', '2']);
+                            query = query.in('overall_satisfaction', ['dissatisfied', 'very_dissatisfied']);
                             break;
                         case 'medium':
-                            query = query.eq('experience_data->>overall_satisfaction', '3');
+                            query = query.eq('overall_satisfaction', 'satisfied');
                             break;
                         case 'high':
-                            query = query.in('experience_data->>overall_satisfaction', ['4', '5']);
+                            query = query.eq('overall_satisfaction', 'very_satisfied');
                             break;
                     }
                 }
@@ -2001,7 +1760,6 @@
                         break;
                 }
 
-                console.log('📅 Date range calculated:', { range, startDate, endDate });
                 return { startDate, endDate };
             }
             
@@ -2009,7 +1767,7 @@
                 try {
                     await this.updateAnalyticsMetrics();
                     await this.createSatisfactionTrendChart();
-                    await this.createDepartmentPerformanceChart();
+                    await this.createClinicPerformanceChart();
                     await this.createWaitTimeChart();
                     await this.createRatingDistributionChart();
                 } catch (error) {
@@ -2020,40 +1778,25 @@
 
             async updateAnalyticsMetrics() {
                 try {
-                    // Get last 30 days of surveys
-                    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-                    
-                    const { data: surveys, error } = await this.supabase
-                        .from('patient_survey_responses')
-                        .select('*')
-                        .gte('created_at', thirtyDaysAgo.toISOString());
+                    // Get user stats using the database function
+                    const { data: stats, error } = await this.supabase
+                        .rpc('get_user_survey_stats');
 
                     if (error) throw error;
 
-                    const totalResponses = surveys.length;
-                    const validRatings = surveys.filter(s => s.experience_data?.overall_satisfaction);
-                    
-                    const avgOverall = validRatings.length > 0 
-                        ? (validRatings.reduce((sum, s) => sum + parseInt(s.experience_data.overall_satisfaction), 0) / validRatings.length).toFixed(1)
-                        : '0.0';
-                    
-                    const satisfactionRate = validRatings.length > 0 
-                        ? Math.round((validRatings.filter(s => parseInt(s.experience_data.overall_satisfaction) >= 4).length / validRatings.length) * 100)
-                        : 0;
-                    
-                    const responseRate = surveys.length > 0 
-                        ? Math.round((surveys.filter(s => s.contact_preferences?.wants_contact === 'yes').length / surveys.length) * 100)
-                        : 0;
-
-                    // Update metrics
-                    document.getElementById('totalResponsesMetric').textContent = totalResponses;
-                    document.getElementById('avgOverallMetric').textContent = avgOverall;
-                    document.getElementById('satisfactionRateMetric').textContent = satisfactionRate + '%';
-                    document.getElementById('responseRateMetric').textContent = responseRate + '%';
+                    if (stats && stats.length > 0) {
+                        const stat = stats[0];
+                        document.getElementById('totalResponsesMetric').textContent = stat.total_surveys || 0;
+                        document.getElementById('avgOverallMetric').textContent = 
+                            stat.total_surveys > 0 ? (stat.satisfaction_rate / 20).toFixed(1) : '0.0';
+                        document.getElementById('satisfactionRateMetric').textContent = 
+                            stat.satisfaction_rate ? stat.satisfaction_rate + '%' : '0%';
+                        document.getElementById('responseRateMetric').textContent = 
+                            stat.recommendation_rate ? stat.recommendation_rate + '%' : '0%';
+                    }
 
                 } catch (error) {
                     console.error('❌ Error updating analytics metrics:', error);
-                    // Set default values
                     document.getElementById('totalResponsesMetric').textContent = '0';
                     document.getElementById('avgOverallMetric').textContent = '0.0';
                     document.getElementById('satisfactionRateMetric').textContent = '0%';
@@ -2066,19 +1809,29 @@
                 if (!ctx) return;
 
                 try {
-                    // Clear existing chart
                     if (this.charts.satisfaction) {
                         this.charts.satisfaction.destroy();
                     }
 
-                    // Get last 7 days of data
+                    // Get user's accessible clinics
+                    const { data: userClinics } = await this.supabase
+                        .rpc('get_user_accessible_clinics');
+                    
+                    const clinicIds = userClinics?.map(c => c.clinic_id) || [];
+                    
                     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
                     
-                    const { data: surveys, error } = await this.supabase
-                        .from('patient_survey_responses')
+                    let query = this.supabase
+                        .from('survey_responses_view')
                         .select('*')
                         .gte('created_at', sevenDaysAgo.toISOString())
                         .order('created_at', { ascending: true });
+
+                    if (this.currentSystemUser.role !== 'super_admin' && clinicIds.length > 0) {
+                        query = query.in('clinic_id', clinicIds);
+                    }
+
+                    const { data: surveys, error } = await query;
 
                     if (error) throw error;
 
@@ -2094,9 +1847,9 @@
                     }
 
                     surveys.forEach(survey => {
-                        const visitDate = survey.patient_info?.visit_date;
-                        if (visitDate && dailyData[visitDate] && survey.experience_data?.overall_satisfaction) {
-                            dailyData[visitDate].push(parseInt(survey.experience_data.overall_satisfaction));
+                        const date = new Date(survey.created_at).toISOString().split('T')[0];
+                        if (dailyData[date] && survey.overall_satisfaction) {
+                            dailyData[date].push(this.mapSatisfactionToNumber(survey.overall_satisfaction));
                         }
                     });
 
@@ -2136,11 +1889,6 @@
                                         stepSize: 1
                                     }
                                 }
-                            },
-                            plugins: {
-                                legend: {
-                                    display: true
-                                }
                             }
                         }
                     });
@@ -2149,37 +1897,48 @@
                 }
             }
 
-            async createDepartmentPerformanceChart() {
-                const ctx = document.getElementById('departmentChart');
+            async createClinicPerformanceChart() {
+                const ctx = document.getElementById('clinicChart');
                 if (!ctx) return;
 
                 try {
-                    // Clear existing chart
-                    if (this.charts.department) {
-                        this.charts.department.destroy();
+                    if (this.charts.clinic) {
+                        this.charts.clinic.destroy();
                     }
 
-                    const { data: surveys, error } = await this.supabase
-                        .from('patient_survey_responses')
+                    // Get user's accessible clinics
+                    const { data: userClinics } = await this.supabase
+                        .rpc('get_user_accessible_clinics');
+                    
+                    const clinicIds = userClinics?.map(c => c.clinic_id) || [];
+                    
+                    let query = this.supabase
+                        .from('survey_responses_view')
                         .select('*')
                         .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
 
+                    if (this.currentSystemUser.role !== 'super_admin' && clinicIds.length > 0) {
+                        query = query.in('clinic_id', clinicIds);
+                    }
+
+                    const { data: surveys, error } = await query;
+
                     if (error) throw error;
 
-                    // Group by department
-                    const deptData = {};
+                    // Group by clinic
+                    const clinicData = {};
                     surveys.forEach(survey => {
-                        const dept = survey.patient_info?.department_visited;
-                        const rating = survey.experience_data?.overall_satisfaction;
-                        if (dept && rating) {
-                            if (!deptData[dept]) deptData[dept] = [];
-                            deptData[dept].push(parseInt(rating));
+                        const clinic = survey.clinic_name;
+                        const rating = this.mapSatisfactionToNumber(survey.overall_satisfaction);
+                        if (clinic && rating) {
+                            if (!clinicData[clinic]) clinicData[clinic] = [];
+                            clinicData[clinic].push(rating);
                         }
                     });
 
-                    const departments = Object.keys(deptData).slice(0, 8); // Top 8 departments
-                    const data = departments.map(dept => {
-                        const ratings = deptData[dept];
+                    const clinics = Object.keys(clinicData).slice(0, 8);
+                    const data = clinics.map(clinic => {
+                        const ratings = clinicData[clinic];
                         return ratings.length > 0 
                             ? (ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(1)
                             : 0;
@@ -2190,14 +1949,14 @@
                         '#8b5cf6', '#06b6d4', '#84cc16', '#f97316'
                     ];
 
-                    this.charts.department = new Chart(ctx, {
+                    this.charts.clinic = new Chart(ctx, {
                         type: 'bar',
                         data: {
-                            labels: departments.map(dept => dept.length > 15 ? dept.substring(0, 15) + '...' : dept),
+                            labels: clinics,
                             datasets: [{
                                 label: 'Average Rating',
                                 data: data,
-                                backgroundColor: colors.slice(0, departments.length)
+                                backgroundColor: colors.slice(0, clinics.length)
                             }]
                         },
                         options: {
@@ -2219,7 +1978,7 @@
                         }
                     });
                 } catch (error) {
-                    console.error('❌ Error creating department chart:', error);
+                    console.error('❌ Error creating clinic chart:', error);
                 }
             }
 
@@ -2228,38 +1987,41 @@
                 if (!ctx) return;
 
                 try {
-                    // Clear existing chart
                     if (this.charts.waitTime) {
                         this.charts.waitTime.destroy();
                     }
 
-                    const { data: surveys, error } = await this.supabase
-                        .from('patient_survey_responses')
-                        .select('experience_data')
+                    // Get user's accessible clinics
+                    const { data: userClinics } = await this.supabase
+                        .rpc('get_user_accessible_clinics');
+                    
+                    const clinicIds = userClinics?.map(c => c.clinic_id) || [];
+                    
+                    let query = this.supabase
+                        .from('clinic_survey_responses')
+                        .select('responses')
                         .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
+
+                    if (this.currentSystemUser.role !== 'super_admin' && clinicIds.length > 0) {
+                        query = query.in('patient_info->>clinic_location', clinicIds);
+                    }
+
+                    const { data: surveys, error } = await query;
 
                     if (error) throw error;
 
-                    const waitTimes = [
-                        '0-5 minutes', '6-10 minutes', '11-15 minutes', 
-                        '16-30 minutes', '31-45 minutes', '46-60 minutes', 
-                        'More than 1 hour'
-                    ];
-                    
-                    const counts = waitTimes.map(time => 
-                        surveys.filter(s => s.experience_data?.wait_time_actual === time).length
-                    );
+                    const waitTimeAcceptable = {
+                        'Yes': surveys.filter(s => s.responses?.waiting_time_acceptable === 'yes').length,
+                        'No': surveys.filter(s => s.responses?.waiting_time_acceptable === 'no').length
+                    };
 
                     this.charts.waitTime = new Chart(ctx, {
                         type: 'doughnut',
                         data: {
-                            labels: waitTimes,
+                            labels: Object.keys(waitTimeAcceptable),
                             datasets: [{
-                                data: counts,
-                                backgroundColor: [
-                                    '#10b981', '#22c55e', '#84cc16', 
-                                    '#f59e0b', '#ef4444', '#dc2626', '#991b1b'
-                                ]
+                                data: Object.values(waitTimeAcceptable),
+                                backgroundColor: ['#10b981', '#ef4444']
                             }]
                         },
                         options: { 
@@ -2281,29 +2043,43 @@
                 if (!ctx) return;
 
                 try {
-                    // Clear existing chart
                     if (this.charts.rating) {
                         this.charts.rating.destroy();
                     }
 
-                    const { data: surveys, error } = await this.supabase
-                        .from('patient_survey_responses')
-                        .select('experience_data')
+                    // Get user's accessible clinics
+                    const { data: userClinics } = await this.supabase
+                        .rpc('get_user_accessible_clinics');
+                    
+                    const clinicIds = userClinics?.map(c => c.clinic_id) || [];
+                    
+                    let query = this.supabase
+                        .from('survey_responses_view')
+                        .select('overall_satisfaction')
                         .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
+
+                    if (this.currentSystemUser.role !== 'super_admin' && clinicIds.length > 0) {
+                        query = query.in('clinic_id', clinicIds);
+                    }
+
+                    const { data: surveys, error } = await query;
 
                     if (error) throw error;
 
-                    const ratingCounts = [1, 2, 3, 4, 5].map(rating => 
-                        surveys.filter(s => parseInt(s.experience_data?.overall_satisfaction) === rating).length
-                    );
+                    const ratingCounts = {
+                        'Very Dissatisfied': surveys.filter(s => s.overall_satisfaction === 'very_dissatisfied').length,
+                        'Dissatisfied': surveys.filter(s => s.overall_satisfaction === 'dissatisfied').length,
+                        'Satisfied': surveys.filter(s => s.overall_satisfaction === 'satisfied').length,
+                        'Very Satisfied': surveys.filter(s => s.overall_satisfaction === 'very_satisfied').length
+                    };
 
                     this.charts.rating = new Chart(ctx, {
                         type: 'bar',
                         data: {
-                            labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+                            labels: Object.keys(ratingCounts),
                             datasets: [{
                                 label: 'Number of Responses',
-                                data: ratingCounts,
+                                data: Object.values(ratingCounts),
                                 backgroundColor: '#2c5aa0'
                             }]
                         },
@@ -2331,13 +2107,26 @@
 
             async loadFollowUpsData() {
                 try {
-                    const { data: followUps, error } = await this.supabase
+                    // Get user's accessible clinics
+                    const { data: userClinics } = await this.supabase
+                        .rpc('get_user_accessible_clinics');
+                    
+                    const clinicIds = userClinics?.map(c => c.clinic_id) || [];
+                    
+                    let query = this.supabase
                         .from('follow_up_tasks')
                         .select(`
                             *,
-                            admin_users!follow_up_tasks_assigned_to_fkey(full_name)
+                            assigned_user:users!follow_up_tasks_assigned_to_fkey(full_name),
+                            clinics!follow_up_tasks_clinic_id_fkey(name)
                         `)
                         .order('created_at', { ascending: false });
+
+                    if (this.currentSystemUser.role !== 'super_admin' && clinicIds.length > 0) {
+                        query = query.in('clinic_id', clinicIds);
+                    }
+
+                    const { data: followUps, error } = await query;
 
                     if (error) throw error;
 
@@ -2360,36 +2149,30 @@
                 tableBody.innerHTML = followUps.map(followUp => `
                     <tr>
                         <td>${followUp.patient_name}</td>
-                        <td>
-                            <span class="status-badge ${followUp.contact_method === 'email' ? 'status-medium' : followUp.contact_method === 'phone' ? 'status-low' : 'status-high'}">
-                                ${followUp.contact_method}
-                            </span>
-                        </td>
+                        <td>${followUp.clinics?.name || 'N/A'}</td>
                         <td>
                             <span class="status-badge ${this.getPriorityClass(followUp.priority)}">
                                 ${followUp.priority.toUpperCase()}
                             </span>
                         </td>
-                        <td>${followUp.admin_users?.full_name || 'Unassigned'}</td>
+                        <td>${followUp.assigned_user?.full_name || 'Unassigned'}</td>
                         <td>
                             <span class="status-badge status-${followUp.status}">
                                 ${followUp.status.replace('_', ' ')}
                             </span>
                         </td>
-                        <td title="${followUp.notes || ''}">${followUp.notes ? followUp.notes.substring(0, 30) + '...' : 'No notes'}</td>
+                        <td>${this.formatSatisfaction(followUp.overall_satisfaction)}</td>
                         <td>${new Date(followUp.created_at).toLocaleDateString()}</td>
                         <td>
                             <button class="btn btn-primary btn-sm" onclick="viewFollowUp('${followUp.id}')">View</button>
                             ${followUp.status === 'pending' ? 
                                 `<button class="btn btn-success btn-sm" onclick="completeFollowUp('${followUp.id}')">Complete</button>` : ''
                             }
-                            <button class="btn btn-danger btn-sm" onclick="removeFollowUp('${followUp.id}', '${followUp.patient_name.replace(/'/g, "\\'")}')">Remove</button>
                         </td>
                     </tr>
                 `).join('');
             }
 
-            // Add priority class helper
             getPriorityClass(priority) {
                 switch(priority) {
                     case 'urgent': return 'status-high';
@@ -2402,90 +2185,28 @@
 
             async loadUsersData() {
                 try {
-                    console.log('👥 Loading users data...');
-                    
-                    // Show loading state
-                    document.getElementById('usersTable').innerHTML = 
-                        '<tr><td colspan="7" class="loading"><div class="spinner"></div></td></tr>';
+                    let query = this.supabase
+                        .from('users')
+                        .select('*')
+                        .order('created_at', { ascending: false });
 
-                    // Try multiple approaches to get user data
-                    let users = null;
-                    let error = null;
-
-                    // Approach 1: Try normal query
-                    try {
-                        const { data, error: queryError } = await this.supabase
-                            .from('admin_users')
-                            .select('*')
-                            .order('created_at', { ascending: false });
-                        
-                        if (queryError) throw queryError;
-                        users = data;
-                        console.log('✅ Normal query succeeded, got', users?.length || 0, 'users');
-                    } catch (normalError) {
-                        console.warn('⚠️ Normal query failed:', normalError);
-                        error = normalError;
-
-                        // Approach 2: Try with view (if created)
-                        try {
-                            const { data, error: viewError } = await this.supabase
-                                .from('admin_users_view')
-                                .select('*')
-                                .order('created_at', { ascending: false });
-                            
-                            if (viewError) throw viewError;
-                            users = data;
-                            console.log('✅ View query succeeded, got', users?.length || 0, 'users');
-                            error = null;
-                        } catch (viewError) {
-                            console.warn('⚠️ View query also failed:', viewError);
-                            
-                            // Approach 3: Try to get just own user record
-                            try {
-                                const { data, error: ownError } = await this.supabase
-                                    .from('admin_users')
-                                    .select('*')
-                                    .eq('user_id', this.currentUser.id)
-                                    .single();
-                                
-                                if (ownError) throw ownError;
-                                users = [data];
-                                console.log('✅ Own user query succeeded');
-                                error = null;
-                            } catch (ownError) {
-                                console.error('❌ Even own user query failed:', ownError);
-                                error = ownError;
-                            }
-                        }
+                    // Only super admins can see all users
+                    if (this.currentSystemUser.role !== 'super_admin') {
+                        // Regular users only see themselves
+                        query = query.eq('id', this.currentSystemUser.id);
                     }
 
-                    if (users) {
-                        this.renderUsersTable(users);
-                    } else {
-                        throw error || new Error('Failed to load users with all methods');
-                    }
+                    const { data: users, error } = await query;
+
+                    if (error) throw error;
+
+                    this.renderUsersTable(users);
 
                 } catch (error) {
                     console.error('❌ Error loading users data:', error);
-                    
-                    // Show helpful error message based on error type
-                    let errorMessage = 'Failed to load users';
-                    if (error.message.includes('infinite recursion')) {
-                        errorMessage = 'Database configuration issue. Please check RLS policies.';
-                    } else if (error.message.includes('policy')) {
-                        errorMessage = 'Permission denied. You may not have access to view users.';
-                    } else {
-                        errorMessage = `Error: ${error.message}`;
-                    }
-                    
-                    this.showError(errorMessage);
-                    
+                    this.showError('Failed to load users data');
                     document.getElementById('usersTable').innerHTML = 
-                        `<tr><td colspan="7" style="text-align: center; color: #dc2626;">
-                            ${errorMessage}
-                            <br><small>Check browser console for details</small>
-                            <br><button class="btn btn-secondary btn-sm" onclick="tryFixUserPermissions()" style="margin-top: 10px;">Try Fix</button>
-                        </td></tr>`;
+                        '<tr><td colspan="7" style="text-align: center; color: #dc2626;">Failed to load users</td></tr>';
                 }
             }
             
@@ -2497,15 +2218,13 @@
                     return;
                 }
 
-                console.log('👥 Rendering users table with', users.length, 'users');
-                console.log('🔑 Current admin role:', this.currentAdminUser?.role);
-
                 tableBody.innerHTML = users.map(user => {
-                    const canManageUser = this.currentAdminUser?.role === 'super_admin' && user.id !== this.currentAdminUser.id;
+                    const canManageUser = this.currentSystemUser?.role === 'super_admin' && user.id !== this.currentSystemUser.id;
                     const lastLogin = user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never';
                     
                     return `
                         <tr>
+                            <td>${user.username}</td>
                             <td>${user.full_name}</td>
                             <td>${user.email}</td>
                             <td>
@@ -2513,7 +2232,6 @@
                                     ${user.role.replace('_', ' ').toUpperCase()}
                                 </span>
                             </td>
-                            <td>${user.department || '-'}</td>
                             <td>${lastLogin}</td>
                             <td>
                                 <span class="status-badge ${user.is_active ? 'status-high' : 'status-low'}">
@@ -2532,47 +2250,11 @@
                     `;
                 }).join('');
             }
-            
-            async loadSettingsData() {
-                try {
-                    const { data: settings, error } = await this.supabase
-                        .from('system_settings')
-                        .select('*');
-
-                    if (error) throw error;
-
-                    // Populate settings form
-                    settings.forEach(setting => {
-                        const element = document.getElementById(this.settingKeyToElementId(setting.setting_key));
-                        if (element) {
-                            element.value = setting.setting_value;
-                        }
-                    });
-
-                } catch (error) {
-                    console.error('❌ Error loading settings:', error);
-                    this.showError('Failed to load settings');
-                }
-            }
-
-            settingKeyToElementId(key) {
-                const mapping = {
-                    'survey_auto_restart_time': 'autoRestartTime',
-                    'survey_idle_timeout': 'idleTimeout',
-                    'dashboard_refresh_interval': 'dashboardRefresh',
-                    'low_rating_threshold': 'lowRatingThreshold',
-                    'max_follow_up_attempts': 'maxFollowUpAttempts',
-                    'email_notifications_enabled': 'emailNotifications'
-                };
-                return mapping[key] || key;
-            }
 
             handleDateRangeChange() {
                 const dateRange = document.getElementById('dateRangeFilter')?.value;
                 const customDateGroup = document.getElementById('customDateGroup');
                 const customDateGroup2 = document.getElementById('customDateGroup2');
-
-                console.log('📅 Date range changed to:', dateRange);
 
                 if (dateRange === 'custom') {
                     if (customDateGroup) customDateGroup.style.display = 'flex';
@@ -2581,7 +2263,6 @@
                     if (customDateGroup) customDateGroup.style.display = 'none';
                     if (customDateGroup2) customDateGroup2.style.display = 'none';
                     
-                    // Auto-apply filters when not custom
                     setTimeout(() => applyFilters(), 100);
                 }
             }
@@ -2608,7 +2289,6 @@
                     errorDiv.style.display = 'none';
                 }
 
-                // Auto-hide after 5 seconds
                 setTimeout(() => {
                     errorDiv.style.display = 'none';
                     successDiv.style.display = 'none';
@@ -2616,19 +2296,17 @@
             }
 
             clearAuthForms(clearLogin = true, clearRegister = true) {
-                // Clear login form
                 if (clearLogin) {
                     document.getElementById('loginEmail').value = '';
                     document.getElementById('loginPassword').value = '';
                 }
                 
-                // Clear register form  
                 if (clearRegister) {
+                    document.getElementById('registerUsername').value = '';
                     document.getElementById('registerName').value = '';
                     document.getElementById('registerEmail').value = '';
                     document.getElementById('registerPassword').value = '';
-                    document.getElementById('registerDepartment').value = '';
-                    document.getElementById('adminCode').value = '';
+                    document.getElementById('registerRole').value = 'user';
                 }
             }
 
@@ -2639,845 +2317,535 @@
 
             async refreshData() {
                 try {
-                    console.log('🔄 Starting refresh...');
-                    
-                    // Show loading indicator if available
-                    const refreshButtons = document.querySelectorAll('button:contains("Refresh"), button:contains("🔄")');
-                    refreshButtons.forEach(btn => {
-                        btn.disabled = true;
-                        btn.textContent = btn.textContent.replace('🔄', '⏳');
-                    });
-                    
-                    // Get current active tab
                     const activeTab = document.querySelector('.nav-tab.active');
                     const currentTabName = activeTab ? activeTab.dataset.tab : 'overview';
                     
-                    console.log('📋 Refreshing tab:', currentTabName);
+                    await this.loadTabData(currentTabName);
                     
-                    // Refresh data based on current tab
-                    switch (currentTabName) {
-                        case 'overview':
-                            await this.loadOverviewData();
-                            console.log('✅ Overview refreshed');
-                            break;
-                        case 'surveys':
-                            await this.loadSurveysData();
-                            console.log('✅ Surveys refreshed');
-                            break;
-                        case 'analytics':
-                            await this.loadAnalyticsData();
-                            console.log('✅ Analytics refreshed');
-                            break;
-                        case 'follow-ups':
-                            await this.loadFollowUpsData();
-                            console.log('✅ Follow-ups refreshed');
-                            break;
-                        case 'users':
-                            await this.loadUsersData();
-                            console.log('✅ Users refreshed');
-                            break;
-                        case 'settings':
-                            await this.loadSettingsData();
-                            console.log('✅ Settings refreshed');
-                            break;
-                        default:
-                            await this.loadOverviewData();
-                            console.log('✅ Default refresh (overview)');
-                    }
-                    
-                    // Also refresh filter options if on surveys tab
-                    if (currentTabName === 'surveys') {
-                        await this.populateFilterOptions();
-                    }
-                    
-                    console.log('✅ Refresh completed successfully');
                     this.showSuccess('Data refreshed successfully!');
-                    
                 } catch (error) {
                     console.error('❌ Refresh error:', error);
                     this.showError('Failed to refresh: ' + error.message);
-                } finally {
-                    // Re-enable refresh buttons
-                    const refreshButtons = document.querySelectorAll('button');
-                    refreshButtons.forEach(btn => {
-                        if (btn.textContent.includes('⏳')) {
-                            btn.disabled = false;
-                            btn.textContent = btn.textContent.replace('⏳', '🔄');
-                        }
-                    });
-                }
-            }
-            
-            async removeFollowUp(followUpId, patientName) {
-                if (!confirm(`Are you sure you want to remove the follow-up task for ${patientName}?\n\nThis action will be logged for audit purposes.`)) {
-                    return false;
-                }
-
-                try {
-                    // First, get the follow-up details for logging
-                    const { data: followUp, error: fetchError } = await this.supabase
-                        .from('follow_up_tasks')
-                        .select('*')
-                        .eq('id', followUpId)
-                        .single();
-
-                    if (fetchError) throw fetchError;
-
-                    // Delete the follow-up task
-                    const { error: deleteError } = await this.supabase
-                        .from('follow_up_tasks')
-                        .delete()
-                        .eq('id', followUpId);
-
-                    if (deleteError) throw deleteError;
-
-                    // Log the removal activity
-                    await this.logActivity('delete', 'follow_up_task', followUpId, {
-                        patient_name: followUp.patient_name,
-                        priority: followUp.priority,
-                        status: followUp.status,
-                        reason: 'Admin removed follow-up task',
-                        removed_by: this.currentAdminUser.full_name,
-                        removed_at: new Date().toISOString()
-                    });
-
-                    // Refresh the follow-ups table
-                    await this.loadFollowUpsData();
-                    
-                    this.showSuccess(`Follow-up task for ${patientName} has been removed and logged.`);
-                    return true;
-
-                } catch (error) {
-                    console.error('❌ Error removing follow-up:', error);
-                    this.showError('Failed to remove follow-up task: ' + error.message);
-                    return false;
-                }
-            }
-            // Enhanced activity logging with better details
-            async logActivity(action, resourceType = null, resourceId = null, details = null) {
-                try {
-                    const logData = {
-                        admin_id: this.currentAdminUser.id,
-                        action,
-                        resource_type: resourceType,
-                        resource_id: resourceId,
-                        details: {
-                            ...details,
-                            admin_name: this.currentAdminUser.full_name,
-                            admin_email: this.currentAdminUser.email,
-                            timestamp: new Date().toISOString(),
-                            user_agent: navigator.userAgent
-                        }
-                    };
-
-                    await this.supabase
-                        .from('admin_activity_log')
-                        .insert(logData);
-
-                    console.log('✅ Activity logged:', action, resourceType, resourceId);
-                } catch (error) {
-                    console.warn('❌ Could not log activity:', error);
-                    // Don't throw error - activity logging is not critical
                 }
             }
 
             async toggleUserStatus(userId, newStatus) {
-                // Check permissions first
-                if (!this.currentAdminUser || this.currentAdminUser.role !== 'super_admin') {
+                if (!this.currentSystemUser || this.currentSystemUser.role !== 'super_admin') {
                     this.showError('Only super administrators can manage user status.');
                     return;
                 }
 
-                if (userId === this.currentAdminUser.id) {
+                if (userId === this.currentSystemUser.id) {
                     this.showError('You cannot disable your own account.');
                     return;
                 }
 
                 try {
-                    console.log(`🔄 ${newStatus ? 'Enabling' : 'Disabling'} user:`, userId);
-
-                    // Use RPC call if direct update fails
-                    let updateError = null;
+                    const { error } = await this.supabase
+                        .from('users')
+                        .update({ 
+                            is_active: newStatus,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', userId);
                     
-                    // Try direct update first
-                    try {
-                        const { error } = await this.supabase
-                            .from('admin_users')
-                            .update({ 
-                                is_active: newStatus,
-                                updated_at: new Date().toISOString()
-                            })
-                            .eq('id', userId);
-                        
-                        updateError = error;
-                    } catch (directError) {
-                        updateError = directError;
-                    }
+                    if (error) throw error;
 
-                    // If direct update fails, try RPC call
-                    if (updateError) {
-                        console.warn('⚠️ Direct update failed, trying RPC...', updateError);
-                        
-                        const { error: rpcError } = await this.supabase
-                            .rpc('update_admin_user_status', {
-                                target_user_id: userId,
-                                new_status: newStatus
-                            });
-                        
-                        if (rpcError) throw rpcError;
-                    }
-
-                    // Log the activity (optional, may fail)
-                    try {
-                        await this.logActivity(
-                            newStatus ? 'enable_user' : 'disable_user', 
-                            'admin_user', 
-                            userId, 
-                            {
-                                action: newStatus ? 'enabled' : 'disabled',
-                                target_user_id: userId,
-                                performed_by: this.currentAdminUser.full_name
-                            }
-                        );
-                    } catch (logError) {
-                        console.warn('⚠️ Could not log activity:', logError);
-                    }
-
-                    // Refresh the users table
                     await this.loadUsersData();
                     
                     const actionText = newStatus ? 'enabled' : 'disabled';
                     this.showSuccess(`User ${actionText} successfully!`);
-                    console.log(`✅ User ${actionText} successfully`);
 
                 } catch (error) {
-                    console.error(`❌ Error ${newStatus ? 'enabling' : 'disabling'} user:`, error);
-                    
-                    let errorMessage = `Failed to ${newStatus ? 'enable' : 'disable'} user`;
-                    if (error.message.includes('infinite recursion')) {
-                        errorMessage = 'Database configuration issue. Please check RLS policies.';
-                    } else if (error.message.includes('policy')) {
-                        errorMessage = 'Permission denied. Check your admin role and RLS policies.';
-                    }
-                    
-                    this.showError(`${errorMessage}: ${error.message}`);
+                    console.error(`❌ Error toggling user status:`, error);
+                    this.showError(`Failed to update user status: ${error.message}`);
                 }
             }
-        
-                
-        
-            
         }
 
-        // === PERFECT EXPORT SYSTEM ===
+        // Export Manager Class
         class ExportManager {
-        constructor(adminDashboard) {
-            this.dashboard = adminDashboard;
-            this.supabase = adminDashboard.supabase;
-        }
+            constructor(adminDashboard) {
+                this.dashboard = adminDashboard;
+                this.supabase = adminDashboard.supabase;
+            }
 
-        // Enhanced survey export with multiple sheets and formatting
-        async exportSurveys(format = 'excel', includeFilters = true) {
-            try {
-                this.showExportProgress('Preparing survey data...');
+            async exportSurveys(format = 'excel', includeFilters = true) {
+                try {
+                    this.showExportProgress('Preparing survey data...');
 
-                // Get filtered data if filters are applied
-                let data;
-                if (includeFilters && this.dashboard.filteredData?.length > 0) {
-                    data = this.dashboard.filteredData;
-                    console.log('📊 Exporting filtered data:', data.length, 'surveys');
-                } else {
-                    // Get all surveys
-                    const { data: allSurveys, error } = await this.supabase
-                        .from('patient_survey_responses')
-                        .select('*')
+                    let data;
+                    if (includeFilters && this.dashboard.filteredData?.length > 0) {
+                        data = this.dashboard.filteredData;
+                    } else {
+                        // Get user's accessible clinics
+                        const { data: userClinics } = await this.supabase
+                            .rpc('get_user_accessible_clinics');
+                        
+                        const clinicIds = userClinics?.map(c => c.clinic_id) || [];
+                        
+                        let query = this.supabase
+                            .from('survey_responses_view')
+                            .select('*')
+                            .order('created_at', { ascending: false });
+
+                        if (this.dashboard.currentSystemUser.role !== 'super_admin' && clinicIds.length > 0) {
+                            query = query.in('clinic_id', clinicIds);
+                        }
+
+                        const { data: allSurveys, error } = await query;
+                        if (error) throw error;
+                        data = allSurveys;
+                    }
+
+                    this.showExportProgress('Processing survey responses...');
+
+                    switch (format) {
+                        case 'excel':
+                            await this.exportSurveysToExcel(data);
+                            break;
+                        case 'csv':
+                            this.exportSurveysToCSV(data);
+                            break;
+                        case 'pdf':
+                            await this.exportSurveysToPDF(data);
+                            break;
+                        case 'json':
+                            this.exportSurveysToJSON(data);
+                            break;
+                    }
+
+                    this.hideExportProgress();
+                    this.dashboard.showSuccess(`Survey data exported successfully in ${format.toUpperCase()} format!`);
+
+                } catch (error) {
+                    this.hideExportProgress();
+                    console.error('❌ Export error:', error);
+                    this.dashboard.showError('Export failed: ' + error.message);
+                }
+            }
+
+            async exportSurveysToExcel(data) {
+                const wb = XLSX.utils.book_new();
+
+                // Summary sheet
+                const summaryData = this.generateSummaryStats(data);
+                const summaryWS = XLSX.utils.aoa_to_sheet([
+                    ['📊 CLINIC SURVEY EXPORT SUMMARY'],
+                    ['Generated on:', new Date().toLocaleString()],
+                    ['Total Surveys:', data.length],
+                    ['Date Range:', this.getDataDateRange(data)],
+                    [''],
+                    ['📈 KEY METRICS'],
+                    ...summaryData
+                ]);
+                XLSX.utils.book_append_sheet(wb, summaryWS, 'Summary');
+
+                // Main data sheet
+                const flattenedData = data.map(survey => ({
+                    'Survey ID': survey.response_id,
+                    'Patient Name': survey.patient_name || '',
+                    'Email': survey.patient_email || '',
+                    'Phone': survey.patient_phone || '',
+                    'Visit Date': survey.visit_date || '',
+                    'Clinic': survey.clinic_name || '',
+                    'Overall Satisfaction': this.dashboard.formatSatisfaction(survey.overall_satisfaction),
+                    'Recommendation': survey.recommendation_likelihood || '',
+                    'Wants Follow-up': survey.wants_contact ? 'Yes' : 'No',
+                    'Submitted Date': new Date(survey.created_at).toLocaleString()
+                }));
+
+                const mainWS = XLSX.utils.json_to_sheet(flattenedData);
+                XLSX.utils.book_append_sheet(wb, mainWS, 'Survey Responses');
+
+                // Clinic analysis sheet
+                const clinicAnalysis = this.generateClinicAnalysis(data);
+                const clinicWS = XLSX.utils.json_to_sheet(clinicAnalysis);
+                XLSX.utils.book_append_sheet(wb, clinicWS, 'Clinic Analysis');
+
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+                const filename = `clinic_surveys_${timestamp}.xlsx`;
+
+                XLSX.writeFile(wb, filename);
+            }
+
+            exportSurveysToCSV(data) {
+                const flattenedData = data.map(survey => ({
+                    'survey_id': survey.response_id,
+                    'patient_name': survey.patient_name || '',
+                    'patient_email': survey.patient_email || '',
+                    'patient_phone': survey.patient_phone || '',
+                    'visit_date': survey.visit_date || '',
+                    'clinic': survey.clinic_name || '',
+                    'overall_satisfaction': survey.overall_satisfaction || '',
+                    'recommendation_likelihood': survey.recommendation_likelihood || '',
+                    'wants_followup': survey.wants_contact ? 'yes' : 'no',
+                    'submitted_date': new Date(survey.created_at).toISOString()
+                }));
+
+                const csv = this.convertToCSV(flattenedData);
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+                const filename = `clinic_surveys_${timestamp}.csv`;
+                
+                this.downloadFile(csv, filename, 'text/csv;charset=utf-8;');
+            }
+
+            async exportSurveysToPDF(data) {
+                const html = this.generatePDFContent(data);
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(html);
+                printWindow.document.close();
+                
+                setTimeout(() => {
+                    printWindow.print();
+                }, 1000);
+            }
+
+            exportSurveysToJSON(data) {
+                const exportData = {
+                    exported_at: new Date().toISOString(),
+                    total_surveys: data.length,
+                    date_range: this.getDataDateRange(data),
+                    summary_stats: this.generateSummaryStats(data),
+                    surveys: data
+                };
+
+                const json = JSON.stringify(exportData, null, 2);
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+                const filename = `clinic_surveys_${timestamp}.json`;
+                
+                this.downloadFile(json, filename, 'application/json');
+            }
+
+            async exportFollowUps(format = 'excel') {
+                try {
+                    this.showExportProgress('Fetching follow-up tasks...');
+
+                    // Get user's accessible clinics
+                    const { data: userClinics } = await this.supabase
+                        .rpc('get_user_accessible_clinics');
+                    
+                    const clinicIds = userClinics?.map(c => c.clinic_id) || [];
+                    
+                    let query = this.supabase
+                        .from('follow_up_tasks')
+                        .select(`
+                            *,
+                            assigned_user:users!follow_up_tasks_assigned_to_fkey(full_name, email),
+                            clinics!follow_up_tasks_clinic_id_fkey(name)
+                        `)
                         .order('created_at', { ascending: false });
 
+                    if (this.dashboard.currentSystemUser.role !== 'super_admin' && clinicIds.length > 0) {
+                        query = query.in('clinic_id', clinicIds);
+                    }
+
+                    const { data: followUps, error } = await query;
+
                     if (error) throw error;
-                    data = allSurveys;
-                    console.log('📊 Exporting all data:', data.length, 'surveys');
+
+                    this.showExportProgress('Processing follow-up data...');
+
+                    switch (format) {
+                        case 'excel':
+                            this.exportFollowUpsToExcel(followUps);
+                            break;
+                        case 'csv':
+                            this.exportFollowUpsToCSV(followUps);
+                            break;
+                    }
+
+                    this.hideExportProgress();
+                    this.dashboard.showSuccess('Follow-up tasks exported successfully!');
+
+                } catch (error) {
+                    this.hideExportProgress();
+                    console.error('❌ Follow-up export error:', error);
+                    this.dashboard.showError('Follow-up export failed: ' + error.message);
                 }
-
-                this.showExportProgress('Processing survey responses...');
-
-                switch (format) {
-                    case 'excel':
-                        await this.exportSurveysToExcel(data);
-                        break;
-                    case 'csv':
-                        this.exportSurveysToCSV(data);
-                        break;
-                    case 'pdf':
-                        await this.exportSurveysToPDF(data);
-                        break;
-                    case 'json':
-                        this.exportSurveysToJSON(data);
-                        break;
-                    default:
-                        throw new Error('Unsupported export format');
-                }
-
-                this.hideExportProgress();
-                this.dashboard.showSuccess(`Survey data exported successfully in ${format.toUpperCase()} format!`);
-
-            } catch (error) {
-                this.hideExportProgress();
-                console.error('❌ Export error:', error);
-                this.dashboard.showError('Export failed: ' + error.message);
-            }
-        }
-
-        async exportSurveysToExcel(data) {
-            const wb = XLSX.utils.book_new();
-
-            // Sheet 1: Summary Statistics
-            const summaryData = this.generateSummaryStats(data);
-            const summaryWS = XLSX.utils.aoa_to_sheet([
-                ['📊 PATIENT SURVEY EXPORT SUMMARY'],
-                ['Generated on:', new Date().toLocaleString()],
-                ['Total Surveys:', data.length],
-                ['Date Range:', this.getDataDateRange(data)],
-                [''],
-                ['📈 KEY METRICS'],
-                ...summaryData
-            ]);
-            XLSX.utils.book_append_sheet(wb, summaryWS, 'Summary');
-
-            // Sheet 2: Main Survey Data (flattened)
-            const flattenedData = data.map(survey => ({
-                'Survey ID': survey.response_id,
-                'Patient Name': survey.patient_info?.full_name || '',
-                'Email': survey.patient_info?.email || '',
-                'Phone': survey.patient_info?.phone || '',
-                'Visit Date': survey.patient_info?.visit_date || '',
-                'Visit Time': survey.patient_info?.visit_time || '',
-                'Department': survey.patient_info?.department_visited || '',
-                'Overall Rating': survey.experience_data?.overall_satisfaction || '',
-                'Reception Rating': survey.experience_data?.reception_rating || '',
-                'Doctor Rating': survey.experience_data?.doctor_rating || '',
-                'Nursing Rating': survey.experience_data?.nursing_rating || '',
-                'Staff Professionalism': survey.experience_data?.staff_professionalism || '',
-                'Wait Time': survey.experience_data?.wait_time_actual || '',
-                'Appointment Timeliness': survey.experience_data?.appointment_timeliness || '',
-                'Wants Follow-up': survey.contact_preferences?.wants_contact || '',
-                'Contact Methods': survey.contact_preferences?.contact_methods?.join(', ') || '',
-                'Additional Comments': survey.experience_data?.additional_comments || '',
-                'Submitted Date': new Date(survey.created_at).toLocaleString(),
-                'Last Updated': new Date(survey.updated_at).toLocaleString()
-            }));
-
-            const mainWS = XLSX.utils.json_to_sheet(flattenedData);
-            XLSX.utils.book_append_sheet(wb, mainWS, 'Survey Responses');
-
-            // Sheet 3: Department Analysis
-            const deptAnalysis = this.generateDepartmentAnalysis(data);
-            const deptWS = XLSX.utils.json_to_sheet(deptAnalysis);
-            XLSX.utils.book_append_sheet(wb, deptWS, 'Department Analysis');
-
-            // Sheet 4: Rating Distribution
-            const ratingDist = this.generateRatingDistribution(data);
-            const ratingWS = XLSX.utils.json_to_sheet(ratingDist);
-            XLSX.utils.book_append_sheet(wb, ratingWS, 'Rating Distribution');
-
-            // Sheet 5: Follow-up Requests
-            const followUpData = data
-                .filter(s => s.contact_preferences?.wants_contact === 'yes')
-                .map(survey => ({
-                    'Patient Name': survey.patient_info?.full_name || '',
-                    'Email': survey.patient_info?.email || '',
-                    'Phone': survey.patient_info?.phone || '',
-                    'Overall Rating': survey.experience_data?.overall_satisfaction || '',
-                    'Department': survey.patient_info?.department_visited || '',
-                    'Preferred Contact': survey.contact_preferences?.contact_methods?.join(', ') || '',
-                    'Visit Date': survey.patient_info?.visit_date || '',
-                    'Comments': survey.experience_data?.additional_comments || '',
-                    'Submitted': new Date(survey.created_at).toLocaleString()
-                }));
-
-            if (followUpData.length > 0) {
-                const followUpWS = XLSX.utils.json_to_sheet(followUpData);
-                XLSX.utils.book_append_sheet(wb, followUpWS, 'Follow-up Requests');
             }
 
-            // Generate filename with timestamp and filters
-            const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
-            const filterSuffix = this.dashboard.filteredData?.length > 0 ? '_filtered' : '_all';
-            const filename = `patient_surveys_${timestamp}${filterSuffix}.xlsx`;
+            exportFollowUpsToExcel(data) {
+                const wb = XLSX.utils.book_new();
 
-            XLSX.writeFile(wb, filename);
-        }
+                // Summary
+                const priorityStats = this.generateFollowUpStats(data);
+                const summaryWS = XLSX.utils.aoa_to_sheet([
+                    ['📋 FOLLOW-UP TASKS EXPORT'],
+                    ['Generated on:', new Date().toLocaleString()],
+                    ['Total Tasks:', data.length],
+                    [''],
+                    ['📊 BY PRIORITY'],
+                    ...priorityStats.priority,
+                    [''],
+                    ['📈 BY STATUS'],
+                    ...priorityStats.status
+                ]);
+                XLSX.utils.book_append_sheet(wb, summaryWS, 'Summary');
 
-        exportSurveysToCSV(data) {
-            const flattenedData = data.map(survey => ({
-                'survey_id': survey.response_id,
-                'patient_name': survey.patient_info?.full_name || '',
-                'email': survey.patient_info?.email || '',
-                'phone': survey.patient_info?.phone || '',
-                'visit_date': survey.patient_info?.visit_date || '',
-                'visit_time': survey.patient_info?.visit_time || '',
-                'department': survey.patient_info?.department_visited || '',
-                'overall_rating': survey.experience_data?.overall_satisfaction || '',
-                'reception_rating': survey.experience_data?.reception_rating || '',
-                'doctor_rating': survey.experience_data?.doctor_rating || '',
-                'nursing_rating': survey.experience_data?.nursing_rating || '',
-                'staff_professionalism': survey.experience_data?.staff_professionalism || '',
-                'wait_time': survey.experience_data?.wait_time_actual || '',
-                'appointment_timeliness': survey.experience_data?.appointment_timeliness || '',
-                'wants_followup': survey.contact_preferences?.wants_contact || '',
-                'contact_methods': survey.contact_preferences?.contact_methods?.join('; ') || '',
-                'additional_comments': survey.experience_data?.additional_comments || '',
-                'submitted_date': new Date(survey.created_at).toISOString(),
-                'last_updated': new Date(survey.updated_at).toISOString()
-            }));
-
-            const csv = this.convertToCSV(flattenedData);
-            const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
-            const filterSuffix = this.dashboard.filteredData?.length > 0 ? '_filtered' : '_all';
-            const filename = `patient_surveys_${timestamp}${filterSuffix}.csv`;
-            
-            this.downloadFile(csv, filename, 'text/csv;charset=utf-8;');
-        }
-
-        async exportSurveysToPDF(data) {
-            // Create HTML for PDF conversion
-            const html = this.generatePDFContent(data);
-            
-            // For now, open in new window for printing
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(html);
-            printWindow.document.close();
-            
-            // Auto-print dialog
-            setTimeout(() => {
-                printWindow.print();
-            }, 1000);
-        }
-
-        exportSurveysToJSON(data) {
-            const exportData = {
-                exported_at: new Date().toISOString(),
-                total_surveys: data.length,
-                date_range: this.getDataDateRange(data),
-                summary_stats: this.generateSummaryStats(data),
-                surveys: data
-            };
-
-            const json = JSON.stringify(exportData, null, 2);
-            const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
-            const filterSuffix = this.dashboard.filteredData?.length > 0 ? '_filtered' : '_all';
-            const filename = `patient_surveys_${timestamp}${filterSuffix}.json`;
-            
-            this.downloadFile(json, filename, 'application/json');
-        }
-
-        // Enhanced follow-up export
-        async exportFollowUps(format = 'excel') {
-            try {
-                this.showExportProgress('Fetching follow-up tasks...');
-
-                const { data: followUps, error } = await this.supabase
-                    .from('follow_up_tasks')
-                    .select(`
-                        *,
-                        admin_users!follow_up_tasks_assigned_to_fkey(full_name, email)
-                    `)
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-
-                this.showExportProgress('Processing follow-up data...');
-
-                switch (format) {
-                    case 'excel':
-                        this.exportFollowUpsToExcel(followUps);
-                        break;
-                    case 'csv':
-                        this.exportFollowUpsToCSV(followUps);
-                        break;
-                    default:
-                        throw new Error('Unsupported format for follow-ups');
-                }
-
-                this.hideExportProgress();
-                this.dashboard.showSuccess('Follow-up tasks exported successfully!');
-
-            } catch (error) {
-                this.hideExportProgress();
-                console.error('❌ Follow-up export error:', error);
-                this.dashboard.showError('Follow-up export failed: ' + error.message);
-            }
-        }
-
-        exportFollowUpsToExcel(data) {
-            const wb = XLSX.utils.book_new();
-
-            // Summary sheet
-            const priorityStats = this.generateFollowUpStats(data);
-            const summaryWS = XLSX.utils.aoa_to_sheet([
-                ['📋 FOLLOW-UP TASKS EXPORT'],
-                ['Generated on:', new Date().toLocaleString()],
-                ['Total Tasks:', data.length],
-                [''],
-                ['📊 BY PRIORITY'],
-                ...priorityStats.priority,
-                [''],
-                ['📈 BY STATUS'],
-                ...priorityStats.status
-            ]);
-            XLSX.utils.book_append_sheet(wb, summaryWS, 'Summary');
-
-            // Main data sheet
-            const flattenedData = data.map(task => ({
-                'Task ID': task.id,
-                'Patient Name': task.patient_name,
-                'Email': task.patient_email,
-                'Phone': task.patient_phone,
-                'Contact Method': task.contact_method,
-                'Priority': task.priority.toUpperCase(),
-                'Status': task.status.replace('_', ' ').toUpperCase(),
-                'Assigned To': task.admin_users?.full_name || 'Unassigned',
-                'Assigned Email': task.admin_users?.email || '',
-                'Notes': task.notes || '',
-                'Attempts': task.attempts || 0,
-                'Max Attempts': task.max_attempts || 3,
-                'Created Date': new Date(task.created_at).toLocaleString(),
-                'Scheduled Date': task.scheduled_date ? new Date(task.scheduled_date).toLocaleString() : '',
-                'Completed Date': task.completed_date ? new Date(task.completed_date).toLocaleString() : '',
-                'Updated Date': new Date(task.updated_at).toLocaleString()
-            }));
-
-            const mainWS = XLSX.utils.json_to_sheet(flattenedData);
-            XLSX.utils.book_append_sheet(wb, mainWS, 'Follow-up Tasks');
-
-            // Pending tasks sheet
-            const pendingTasks = data
-                .filter(task => task.status === 'pending')
-                .map(task => ({
+                // Main data
+                const flattenedData = data.map(task => ({
+                    'Task ID': task.id,
+                    'Patient Name': task.patient_name,
+                    'Email': task.patient_email,
+                    'Phone': task.patient_phone,
+                    'Clinic': task.clinics?.name || '',
                     'Priority': task.priority.toUpperCase(),
-                    'Patient': task.patient_name,
-                    'Contact': task.contact_method,
-                    'Assigned To': task.admin_users?.full_name || 'UNASSIGNED',
-                    'Days Old': Math.floor((new Date() - new Date(task.created_at)) / (1000 * 60 * 60 * 24)),
-                    'Notes': task.notes || ''
+                    'Status': task.status.replace('_', ' ').toUpperCase(),
+                    'Assigned To': task.assigned_user?.full_name || 'Unassigned',
+                    'Overall Satisfaction': this.dashboard.formatSatisfaction(task.overall_satisfaction),
+                    'Notes': task.notes || '',
+                    'Created Date': new Date(task.created_at).toLocaleString()
                 }));
 
-            if (pendingTasks.length > 0) {
-                const pendingWS = XLSX.utils.json_to_sheet(pendingTasks);
-                XLSX.utils.book_append_sheet(wb, pendingWS, 'Pending Tasks');
+                const mainWS = XLSX.utils.json_to_sheet(flattenedData);
+                XLSX.utils.book_append_sheet(wb, mainWS, 'Follow-up Tasks');
+
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+                const filename = `follow_up_tasks_${timestamp}.xlsx`;
+                XLSX.writeFile(wb, filename);
             }
 
-            const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
-            const filename = `follow_up_tasks_${timestamp}.xlsx`;
-            XLSX.writeFile(wb, filename);
-        }
+            exportFollowUpsToCSV(data) {
+                const flattenedData = data.map(task => ({
+                    'task_id': task.id,
+                    'patient_name': task.patient_name,
+                    'patient_email': task.patient_email || '',
+                    'patient_phone': task.patient_phone || '',
+                    'clinic': task.clinics?.name || '',
+                    'priority': task.priority,
+                    'status': task.status,
+                    'assigned_to': task.assigned_user?.full_name || '',
+                    'overall_satisfaction': task.overall_satisfaction || '',
+                    'notes': task.notes || '',
+                    'created_date': new Date(task.created_at).toISOString()
+                }));
 
-        exportFollowUpsToCSV(data) {
-            const flattenedData = data.map(task => ({
-                'task_id': task.id,
-                'patient_name': task.patient_name,
-                'patient_email': task.patient_email || '',
-                'patient_phone': task.patient_phone || '',
-                'contact_method': task.contact_method,
-                'priority': task.priority,
-                'status': task.status,
-                'assigned_to': task.admin_users?.full_name || '',
-                'assigned_email': task.admin_users?.email || '',
-                'notes': task.notes || '',
-                'attempts': task.attempts || 0,
-                'max_attempts': task.max_attempts || 3,
-                'created_date': new Date(task.created_at).toISOString(),
-                'scheduled_date': task.scheduled_date ? new Date(task.scheduled_date).toISOString() : '',
-                'completed_date': task.completed_date ? new Date(task.completed_date).toISOString() : '',
-                'updated_date': new Date(task.updated_at).toISOString()
-            }));
-
-            const csv = this.convertToCSV(flattenedData);
-            const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
-            const filename = `follow_up_tasks_${timestamp}.csv`;
-            
-            this.downloadFile(csv, filename, 'text/csv;charset=utf-8;');
-        }
-
-        // Analytics export
-        async exportAnalytics(format = 'excel') {
-            try {
-                this.showExportProgress('Generating analytics report...');
-
-                // Get last 30 days of data for analytics
-                const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+                const csv = this.convertToCSV(flattenedData);
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+                const filename = `follow_up_tasks_${timestamp}.csv`;
                 
-                const { data: surveys, error } = await this.supabase
-                    .from('patient_survey_responses')
-                    .select('*')
-                    .gte('created_at', thirtyDaysAgo.toISOString());
-
-                if (error) throw error;
-
-                const analytics = this.generateAnalyticsData(surveys);
-
-                switch (format) {
-                    case 'excel':
-                        this.exportAnalyticsToExcel(analytics, surveys);
-                        break;
-                    case 'csv':
-                        this.exportAnalyticsToCSV(analytics);
-                        break;
-                }
-
-                this.hideExportProgress();
-                this.dashboard.showSuccess('Analytics report exported successfully!');
-
-            } catch (error) {
-                this.hideExportProgress();
-                console.error('❌ Analytics export error:', error);
-                this.dashboard.showError('Analytics export failed: ' + error.message);
+                this.downloadFile(csv, filename, 'text/csv;charset=utf-8;');
             }
-        }
 
-        // === HELPER METHODS ===
-
-        generateSummaryStats(data) {
-            const validRatings = data.filter(s => s.experience_data?.overall_satisfaction);
-            const avgRating = validRatings.length > 0 
-                ? (validRatings.reduce((sum, s) => sum + parseInt(s.experience_data.overall_satisfaction), 0) / validRatings.length).toFixed(2)
-                : 0;
-
-            const ratingCounts = [1, 2, 3, 4, 5].map(rating => [
-                `${rating} Star${rating > 1 ? 's' : ''}`,
-                validRatings.filter(s => parseInt(s.experience_data.overall_satisfaction) === rating).length
-            ]);
-
-            const followUpRequests = data.filter(s => s.contact_preferences?.wants_contact === 'yes').length;
-            const departments = [...new Set(data.map(s => s.patient_info?.department_visited).filter(Boolean))];
-
-            return [
-                ['Average Rating:', avgRating],
-                ['Total Responses:', data.length],
-                ['Follow-up Requests:', followUpRequests],
-                ['Departments Covered:', departments.length],
-                [''],
-                ...ratingCounts
-            ];
-        }
-
-        generateDepartmentAnalysis(data) {
-            const deptData = {};
-            data.forEach(survey => {
-                const dept = survey.patient_info?.department_visited;
-                const rating = survey.experience_data?.overall_satisfaction;
-                
-                if (dept && rating) {
-                    if (!deptData[dept]) {
-                        deptData[dept] = { ratings: [], followUps: 0, total: 0 };
-                    }
-                    deptData[dept].ratings.push(parseInt(rating));
-                    deptData[dept].total++;
-                    
-                    if (survey.contact_preferences?.wants_contact === 'yes') {
-                        deptData[dept].followUps++;
-                    }
-                }
-            });
-
-            return Object.entries(deptData).map(([dept, stats]) => ({
-                'Department': dept,
-                'Total Surveys': stats.total,
-                'Average Rating': (stats.ratings.reduce((sum, r) => sum + r, 0) / stats.ratings.length).toFixed(2),
-                'Follow-up Requests': stats.followUps,
-                'Follow-up Rate': ((stats.followUps / stats.total) * 100).toFixed(1) + '%'
-            }));
-        }
-
-        generateRatingDistribution(data) {
-            const validRatings = data.filter(s => s.experience_data?.overall_satisfaction);
-            
-            return [1, 2, 3, 4, 5].map(rating => {
-                const count = validRatings.filter(s => parseInt(s.experience_data.overall_satisfaction) === rating).length;
-                const percentage = validRatings.length > 0 ? ((count / validRatings.length) * 100).toFixed(1) : 0;
-                
-                return {
-                    'Rating': `${rating} Star${rating > 1 ? 's' : ''}`,
-                    'Count': count,
-                    'Percentage': percentage + '%'
+            // Helper methods
+            generateSummaryStats(data) {
+                const satisfactionMap = {
+                    'very_satisfied': 5,
+                    'satisfied': 4,
+                    'neutral': 3,
+                    'dissatisfied': 2,
+                    'very_dissatisfied': 1
                 };
-            });
-        }
 
-        generateFollowUpStats(data) {
-            const priorityStats = ['urgent', 'high', 'medium', 'low'].map(priority => [
-                priority.toUpperCase(),
-                data.filter(task => task.priority === priority).length
-            ]);
+                const validRatings = data.filter(s => s.overall_satisfaction && satisfactionMap[s.overall_satisfaction]);
+                const avgRating = validRatings.length > 0 
+                    ? (validRatings.reduce((sum, s) => sum + satisfactionMap[s.overall_satisfaction], 0) / validRatings.length).toFixed(2)
+                    : 0;
 
-            const statusStats = ['pending', 'in_progress', 'completed', 'cancelled'].map(status => [
-                status.replace('_', ' ').toUpperCase(),
-                data.filter(task => task.status === status).length
-            ]);
+                const ratingCounts = Object.keys(satisfactionMap).map(rating => [
+                    this.dashboard.formatSatisfaction(rating),
+                    validRatings.filter(s => s.overall_satisfaction === rating).length
+                ]);
 
-            return { priority: priorityStats, status: statusStats };
-        }
+                const followUpRequests = data.filter(s => s.wants_contact).length;
+                const uniqueClinics = [...new Set(data.map(s => s.clinic_name).filter(Boolean))];
 
-        generateAnalyticsData(surveys) {
-            const validRatings = surveys.filter(s => s.experience_data?.overall_satisfaction);
-            
-            return {
-                totalSurveys: surveys.length,
-                averageRating: validRatings.length > 0 
-                    ? (validRatings.reduce((sum, s) => sum + parseInt(s.experience_data.overall_satisfaction), 0) / validRatings.length).toFixed(2)
-                    : 0,
-                satisfactionRate: validRatings.length > 0 
-                    ? ((validRatings.filter(s => parseInt(s.experience_data.overall_satisfaction) >= 4).length / validRatings.length) * 100).toFixed(1)
-                    : 0,
-                followUpRequests: surveys.filter(s => s.contact_preferences?.wants_contact === 'yes').length
-            };
-        }
+                return [
+                    ['Average Rating:', avgRating],
+                    ['Total Responses:', data.length],
+                    ['Follow-up Requests:', followUpRequests],
+                    ['Clinics Covered:', uniqueClinics.length],
+                    [''],
+                    ...ratingCounts
+                ];
+            }
 
-        generatePDFContent(data) {
-            const summaryStats = this.generateSummaryStats(data);
-            
-            return `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Patient Survey Report</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; margin: 20px; }
-                        .header { text-align: center; margin-bottom: 30px; }
-                        .summary { background: #f8f9fa; padding: 20px; margin-bottom: 30px; border-radius: 8px; }
-                        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-                        .stat-item { background: white; padding: 15px; border-radius: 6px; text-align: center; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                        th { background-color: #f2f2f2; }
-                        @media print { body { margin: 0; } }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <h1>📊 Patient Survey Report</h1>
-                        <p>Generated on: ${new Date().toLocaleString()}</p>
-                        <p>Total Surveys: ${data.length}</p>
-                    </div>
+            generateClinicAnalysis(data) {
+                const clinicData = {};
+                data.forEach(survey => {
+                    const clinic = survey.clinic_name;
+                    const rating = this.dashboard.mapSatisfactionToNumber(survey.overall_satisfaction);
                     
-                    <div class="summary">
-                        <h2>Summary Statistics</h2>
-                        <div class="stats-grid">
-                            ${summaryStats.map(([label, value]) => 
-                                `<div class="stat-item"><strong>${label}</strong><br>${value}</div>`
-                            ).join('')}
-                        </div>
-                    </div>
-                    
-                    <h2>Recent Survey Responses</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Patient</th>
-                                <th>Department</th>
-                                <th>Rating</th>
-                                <th>Visit Date</th>
-                                <th>Follow-up</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${data.slice(0, 20).map(survey => `
-                                <tr>
-                                    <td>${survey.patient_info?.full_name || 'N/A'}</td>
-                                    <td>${survey.patient_info?.department_visited || 'N/A'}</td>
-                                    <td>${survey.experience_data?.overall_satisfaction || 'N/A'}/5</td>
-                                    <td>${survey.patient_info?.visit_date || 'N/A'}</td>
-                                    <td>${survey.contact_preferences?.wants_contact === 'yes' ? 'Yes' : 'No'}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </body>
-                </html>
-            `;
-        }
-
-        getDataDateRange(data) {
-            if (data.length === 0) return 'No data';
-            
-            const dates = data.map(d => new Date(d.created_at)).sort();
-            const oldest = dates[0].toLocaleDateString();
-            const newest = dates[dates.length - 1].toLocaleDateString();
-            
-            return oldest === newest ? oldest : `${oldest} to ${newest}`;
-        }
-
-        convertToCSV(data) {
-            if (!data.length) return '';
-            
-            const headers = Object.keys(data[0]);
-            const csvContent = [
-                headers.join(','),
-                ...data.map(row => 
-                    headers.map(field => {
-                        const value = row[field];
-                        // Escape quotes and wrap in quotes if contains comma or quote
-                        if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
-                            return `"${value.replace(/"/g, '""')}"`;
+                    if (clinic && rating) {
+                        if (!clinicData[clinic]) {
+                            clinicData[clinic] = { ratings: [], followUps: 0, total: 0 };
                         }
-                        return value;
-                    }).join(',')
-                )
-            ].join('\n');
-            
-            // Add UTF-8 BOM for better Excel compatibility
-            return '\ufeff' + csvContent;
-        }
+                        clinicData[clinic].ratings.push(rating);
+                        clinicData[clinic].total++;
+                        
+                        if (survey.wants_contact) {
+                            clinicData[clinic].followUps++;
+                        }
+                    }
+                });
 
-        downloadFile(content, filename, contentType) {
-            const blob = new Blob([content], { type: contentType });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        }
+                return Object.entries(clinicData).map(([clinic, stats]) => ({
+                    'Clinic': clinic,
+                    'Total Surveys': stats.total,
+                    'Average Rating': (stats.ratings.reduce((sum, r) => sum + r, 0) / stats.ratings.length).toFixed(2),
+                    'Follow-up Requests': stats.followUps,
+                    'Follow-up Rate': ((stats.followUps / stats.total) * 100).toFixed(1) + '%'
+                }));
+            }
 
-        showExportProgress(message) {
-            // Create or update progress indicator
-            let progressDiv = document.getElementById('exportProgress');
-            if (!progressDiv) {
-                progressDiv = document.createElement('div');
-                progressDiv.id = 'exportProgress';
-                progressDiv.style.cssText = `
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    background: white;
-                    padding: 20px;
-                    border-radius: 8px;
-                    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-                    z-index: 10000;
-                    text-align: center;
-                    min-width: 300px;
+            generateFollowUpStats(data) {
+                const priorityStats = ['urgent', 'high', 'medium', 'low'].map(priority => [
+                    priority.toUpperCase(),
+                    data.filter(task => task.priority === priority).length
+                ]);
+
+                const statusStats = ['pending', 'in_progress', 'completed', 'cancelled'].map(status => [
+                    status.replace('_', ' ').toUpperCase(),
+                    data.filter(task => task.status === status).length
+                ]);
+
+                return { priority: priorityStats, status: statusStats };
+            }
+
+            generatePDFContent(data) {
+                const summaryStats = this.generateSummaryStats(data);
+                
+                return `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Clinic Survey Report</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; margin: 20px; }
+                            .header { text-align: center; margin-bottom: 30px; }
+                            .summary { background: #f8f9fa; padding: 20px; margin-bottom: 30px; border-radius: 8px; }
+                            .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+                            .stat-item { background: white; padding: 15px; border-radius: 6px; text-align: center; }
+                            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                            th { background-color: #f2f2f2; }
+                            @media print { body { margin: 0; } }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h1>📊 Clinic Survey Report</h1>
+                            <p>Generated on: ${new Date().toLocaleString()}</p>
+                            <p>Total Surveys: ${data.length}</p>
+                        </div>
+                        
+                        <div class="summary">
+                            <h2>Summary Statistics</h2>
+                            <div class="stats-grid">
+                                ${summaryStats.map(([label, value]) => 
+                                    `<div class="stat-item"><strong>${label}</strong><br>${value}</div>`
+                                ).join('')}
+                            </div>
+                        </div>
+                        
+                        <h2>Recent Survey Responses</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Clinic</th>
+                                    <th>Satisfaction</th>
+                                    <th>Visit Date</th>
+                                    <th>Follow-up</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.slice(0, 20).map(survey => `
+                                    <tr>
+                                        <td>${survey.patient_name || 'N/A'}</td>
+                                        <td>${survey.clinic_name || 'N/A'}</td>
+                                        <td>${this.dashboard.formatSatisfaction(survey.overall_satisfaction)}</td>
+                                        <td>${survey.visit_date || 'N/A'}</td>
+                                        <td>${survey.wants_contact ? 'Yes' : 'No'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </body>
+                    </html>
                 `;
-                document.body.appendChild(progressDiv);
             }
-            
-            progressDiv.innerHTML = `
-                <div class="spinner" style="margin: 0 auto 15px; width: 40px; height: 40px;"></div>
-                <h3>Exporting Data</h3>
-                <p>${message}</p>
-            `;
+
+            getDataDateRange(data) {
+                if (data.length === 0) return 'No data';
+                
+                const dates = data.map(d => new Date(d.created_at)).sort();
+                const oldest = dates[0].toLocaleDateString();
+                const newest = dates[dates.length - 1].toLocaleDateString();
+                
+                return oldest === newest ? oldest : `${oldest} to ${newest}`;
+            }
+
+            convertToCSV(data) {
+                if (!data.length) return '';
+                
+                const headers = Object.keys(data[0]);
+                const csvContent = [
+                    headers.join(','),
+                    ...data.map(row => 
+                        headers.map(field => {
+                            const value = row[field];
+                            if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+                                return `"${value.replace(/"/g, '""')}"`;
+                            }
+                            return value;
+                        }).join(',')
+                    )
+                ].join('\n');
+                
+                return '\ufeff' + csvContent;
+            }
+
+            downloadFile(content, filename, contentType) {
+                const blob = new Blob([content], { type: contentType });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }
+
+            showExportProgress(message) {
+                let progressDiv = document.getElementById('exportProgress');
+                if (!progressDiv) {
+                    progressDiv = document.createElement('div');
+                    progressDiv.id = 'exportProgress';
+                    progressDiv.style.cssText = `
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: white;
+                        padding: 20px;
+                        border-radius: 8px;
+                        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                        z-index: 10000;
+                        text-align: center;
+                        min-width: 300px;
+                    `;
+                    document.body.appendChild(progressDiv);
+                }
+                
+                progressDiv.innerHTML = `
+                    <div class="spinner" style="margin: 0 auto 15px; width: 40px; height: 40px;"></div>
+                    <h3>Exporting Data</h3>
+                    <p>${message}</p>
+                `;
+            }
+
+            hideExportProgress() {
+                const progressDiv = document.getElementById('exportProgress');
+                if (progressDiv) {
+                    progressDiv.remove();
+                }
+            }
         }
 
-        hideExportProgress() {
-            const progressDiv = document.getElementById('exportProgress');
-            if (progressDiv) {
-                progressDiv.remove();
-            }
-        }
-    }
-
-        // Global functions for UI interactions
+        // Global functions
         function switchAuthTab(tabName) {
             const loginForm = document.getElementById('loginForm');
             const registerForm = document.getElementById('registerForm');
@@ -3496,7 +2864,6 @@
                 registerTab.classList.add('active');
             }
 
-            // Hide messages when switching tabs but DON'T clear form values
             if (window.adminDashboard) {
                 window.adminDashboard.hideMessages();
             }
@@ -3505,7 +2872,7 @@
         function viewSurvey(responseId) {
             if (window.adminDashboard && window.adminDashboard.supabase) {
                 window.adminDashboard.supabase
-                    .from('patient_survey_responses')
+                    .from('clinic_survey_responses')
                     .select('*')
                     .eq('response_id', responseId)
                     .single()
@@ -3518,41 +2885,47 @@
                         const modal = document.getElementById('surveyModal');
                         const details = document.getElementById('surveyDetails');
                         
+                        // Extract data from JSONB fields
+                        const patient = survey.patient_info || {};
+                        const responses = survey.responses || {};
+                        const contact = survey.contact_preferences || {};
+                        
                         details.innerHTML = `
                             <h3>Survey Details</h3>
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;">
                                 <div>
                                     <h4>Patient Information</h4>
-                                    <p><strong>Name:</strong> ${survey.patient_info?.full_name || 'N/A'}</p>
-                                    <p><strong>Email:</strong> ${survey.patient_info?.email || 'N/A'}</p>
-                                    <p><strong>Phone:</strong> ${survey.patient_info?.phone || 'N/A'}</p>
-                                    <p><strong>Visit Date:</strong> ${survey.patient_info?.visit_date || 'N/A'}</p>
-                                    <p><strong>Visit Time:</strong> ${survey.patient_info?.visit_time || 'N/A'}</p>
-                                    <p><strong>Department:</strong> ${survey.patient_info?.department_visited || 'N/A'}</p>
+                                    <p><strong>Name:</strong> ${patient.full_name || 'N/A'}</p>
+                                    <p><strong>Email:</strong> ${patient.email || 'N/A'}</p>
+                                    <p><strong>Phone:</strong> ${patient.phone || 'N/A'}</p>
+                                    <p><strong>Visit Date:</strong> ${patient.visit_date || 'N/A'}</p>
+                                    <p><strong>Clinic:</strong> ${patient.clinic_location || 'N/A'}</p>
                                 </div>
                                 <div>
-                                    <h4>Ratings (1-5 scale)</h4>
-                                    <p><strong>Overall Satisfaction:</strong> ${survey.experience_data?.overall_satisfaction || 'N/A'}/5</p>
-                                    <p><strong>Reception:</strong> ${survey.experience_data?.reception_rating || 'N/A'}/5</p>
-                                    <p><strong>Doctor/Provider:</strong> ${survey.experience_data?.doctor_rating || 'N/A'}/5</p>
-                                    <p><strong>Nursing:</strong> ${survey.experience_data?.nursing_rating || 'N/A'}/5</p>
-                                    <p><strong>Staff Professionalism:</strong> ${survey.experience_data?.staff_professionalism || 'N/A'}/5</p>
+                                    <h4>Satisfaction Ratings</h4>
+                                    <p><strong>Overall:</strong> ${responses.overall_satisfaction || 'N/A'}</p>
+                                    <p><strong>Reception:</strong> ${responses.reception_satisfaction || 'N/A'}</p>
+                                    <p><strong>Doctor:</strong> ${responses.doctor_satisfaction || 'N/A'}</p>
+                                    <p><strong>Nursing:</strong> ${responses.nursing_professionalism || 'N/A'}</p>
+                                    <p><strong>Cleanliness:</strong> ${responses.clinic_cleanliness || 'N/A'}</p>
                                 </div>
                                 <div>
                                     <h4>Experience Details</h4>
-                                    <p><strong>Wait Time:</strong> ${survey.experience_data?.wait_time_actual || 'N/A'}</p>
-                                    <p><strong>Appointment Timeliness:</strong> ${survey.experience_data?.appointment_timeliness || 'N/A'}</p>
+                                    <p><strong>Visit Type:</strong> ${responses.visit_type || 'N/A'}</p>
+                                    <p><strong>Wait Time Acceptable:</strong> ${responses.waiting_time_acceptable || 'N/A'}</p>
+                                    <p><strong>Would Recommend:</strong> ${responses.recommendation_likelihood || 'N/A'}</p>
                                 </div>
                                 <div>
                                     <h4>Contact Preferences</h4>
-                                    <p><strong>Wants Contact:</strong> ${survey.contact_preferences?.wants_contact === 'yes' ? 'Yes' : 'No'}</p>
-                                    <p><strong>Methods:</strong> ${survey.contact_preferences?.contact_methods?.join(', ') || 'None'}</p>
+                                    <p><strong>Wants Contact:</strong> ${contact.wants_contact === 'yes' ? 'Yes' : 'No'}</p>
+                                    <p><strong>Methods:</strong> ${contact.contact_methods?.join(', ') || 'None'}</p>
                                 </div>
                             </div>
-                            ${survey.experience_data?.additional_comments ? `
+                            ${responses.liked_most || responses.areas_improve ? `
                                 <div style="margin-top: 20px;">
-                                    <h4>Additional Comments</h4>
-                                    <p style="background: #f8f9fa; padding: 10px; border-radius: 6px;">${survey.experience_data.additional_comments}</p>
+                                    <h4>Feedback Comments</h4>
+                                    ${responses.liked_most ? `<p><strong>Liked Most:</strong> ${responses.liked_most}</p>` : ''}
+                                    ${responses.areas_improve ? `<p><strong>Areas to Improve:</strong> ${responses.areas_improve}</p>` : ''}
                                 </div>
                             ` : ''}
                             <div style="margin-top: 20px; font-size: 12px; color: #666;">
@@ -3580,15 +2953,15 @@
                     .from('follow_up_tasks')
                     .select(`
                         *,
-                        admin_users!follow_up_tasks_assigned_to_fkey(full_name, email),
-                        patient_survey_responses!follow_up_tasks_survey_response_id_fkey(*)
+                        assigned_user:users!follow_up_tasks_assigned_to_fkey(full_name, email),
+                        clinics!follow_up_tasks_clinic_id_fkey(name),
+                        clinic_survey_responses!follow_up_tasks_survey_response_id_fkey(*)
                     `)
                     .eq('id', followUpId)
                     .single()
                     .then(({ data: followUp, error }) => {
                         if (error) {
                             console.error('Error loading follow-up task:', error);
-                            // Fallback: try without joins
                             return window.adminDashboard.supabase
                                 .from('follow_up_tasks')
                                 .select('*')
@@ -3607,40 +2980,10 @@
                         const modal = document.getElementById('followUpModal');
                         const details = document.getElementById('followUpDetails');
                         
-                        // Get survey details if available
-                        let surveySection = '';
-                        if (followUp.patient_survey_responses) {
-                            const survey = followUp.patient_survey_responses;
-                            surveySection = `
-                                <div style="margin-top: 20px;">
-                                    <h4>📋 Related Survey Details</h4>
-                                    <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-top: 10px;">
-                                        <p><strong>Overall Rating:</strong> ${survey.experience_data?.overall_satisfaction || 'N/A'}/5</p>
-                                        <p><strong>Visit Date:</strong> ${survey.patient_info?.visit_date || 'N/A'}</p>
-                                        <p><strong>Department:</strong> ${survey.patient_info?.department_visited || 'N/A'}</p>
-                                        <p><strong>Wants Contact:</strong> ${survey.contact_preferences?.wants_contact === 'yes' ? 'Yes' : 'No'}</p>
-                                        ${survey.experience_data?.additional_comments ? 
-                                            `<p><strong>Comments:</strong> ${survey.experience_data.additional_comments}</p>` 
-                                            : ''
-                                        }
-                                    </div>
-                                </div>
-                            `;
-                        }
-
-                        // Build priority indicator
-                        const priorityColors = {
-                            'urgent': '#dc2626',
-                            'high': '#ea580c', 
-                            'medium': '#ca8a04',
-                            'low': '#16a34a'
-                        };
-                        const priorityColor = priorityColors[followUp.priority] || '#6b7280';
-
                         details.innerHTML = `
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                                 <h3>Follow-up Task Details</h3>
-                                <span style="background: ${priorityColor}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase;">
+                                <span style="background: ${followUp.priority === 'urgent' ? '#dc2626' : followUp.priority === 'high' ? '#ea580c' : '#ca8a04'}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase;">
                                     ${followUp.priority} Priority
                                 </span>
                             </div>
@@ -3652,11 +2995,7 @@
                                         <p><strong>Name:</strong> ${followUp.patient_name || 'N/A'}</p>
                                         <p><strong>Email:</strong> ${followUp.patient_email || 'N/A'}</p>
                                         <p><strong>Phone:</strong> ${followUp.patient_phone || 'N/A'}</p>
-                                        <p><strong>Preferred Contact:</strong> 
-                                            <span style="background: #e0e7ff; color: #3730a3; padding: 2px 8px; border-radius: 12px; font-size: 12px;">
-                                                ${followUp.contact_method}
-                                            </span>
-                                        </p>
+                                        <p><strong>Clinic:</strong> ${followUp.clinics?.name || 'N/A'}</p>
                                     </div>
                                 </div>
                                 
@@ -3670,11 +3009,9 @@
                                                 ${followUp.status.replace('_', ' ')}
                                             </span>
                                         </p>
-                                        <p><strong>Assigned To:</strong> ${followUp.admin_users?.full_name || 'Unassigned'}</p>
+                                        <p><strong>Assigned To:</strong> ${followUp.assigned_user?.full_name || 'Unassigned'}</p>
                                         <p><strong>Created:</strong> ${new Date(followUp.created_at).toLocaleString()}</p>
-                                        <p><strong>Attempts:</strong> ${followUp.attempts || 0} / ${followUp.max_attempts || 3}</p>
-                                        ${followUp.scheduled_date ? `<p><strong>Scheduled:</strong> ${new Date(followUp.scheduled_date).toLocaleString()}</p>` : ''}
-                                        ${followUp.completed_date ? `<p><strong>Completed:</strong> ${new Date(followUp.completed_date).toLocaleString()}</p>` : ''}
+                                        <p><strong>Satisfaction:</strong> ${window.adminDashboard.formatSatisfaction(followUp.overall_satisfaction)}</p>
                                     </div>
                                 </div>
                             </div>
@@ -3688,21 +3025,10 @@
                                 </div>
                             ` : ''}
 
-                            ${surveySection}
-
-                            <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #e5e7eb; display: flex; gap: 10px; flex-wrap: wrap;">
+                            <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
                                 ${followUp.status === 'pending' ? `
-                                    <button class="btn btn-success btn-sm" onclick="completeFollowUpFromModal('${followUp.id}')">✅ Mark Complete</button>
-                                    <button class="btn btn-warning btn-sm" onclick="assignFollowUpToMe('${followUp.id}')">👤 Assign to Me</button>
+                                    <button class="btn btn-success btn-sm" onclick="completeFollowUp('${followUp.id}')">✅ Mark Complete</button>
                                 ` : ''}
-                                <button class="btn btn-primary btn-sm" onclick="contactPatient('${followUp.patient_email}', '${followUp.contact_method}', '${followUp.patient_phone}')">📧 Contact Patient</button>
-                                <button class="btn btn-secondary btn-sm" onclick="addFollowUpNote('${followUp.id}')">📝 Add Note</button>
-                                <button class="btn btn-danger btn-sm" onclick="removeFollowUpFromModal('${followUp.id}', '${followUp.patient_name?.replace(/'/g, "\\'")}')">🗑️ Remove Task</button>
-                            </div>
-
-                            <div style="margin-top: 20px; font-size: 12px; color: #666; border-top: 1px solid #e5e7eb; padding-top: 15px;">
-                                <p><strong>Task ID:</strong> ${followUp.id}</p>
-                                ${followUp.survey_response_id ? `<p><strong>Survey ID:</strong> ${followUp.survey_response_id}</p>` : ''}
                             </div>
                         `;
                         
@@ -3712,100 +3038,6 @@
                         console.error('Error viewing follow-up:', error);
                         alert('Error loading follow-up details');
                     });
-            }
-        }
-
-        // Also add these supporting functions if they don't exist:
-
-        async function completeFollowUpFromModal(followUpId) {
-            await completeFollowUp(followUpId);
-            closeFollowUpModal();
-        }
-
-        async function removeFollowUpFromModal(followUpId, patientName) {
-            const confirmed = await removeFollowUp(followUpId, patientName);
-            if (confirmed !== false) {
-                closeFollowUpModal();
-            }
-        }
-
-        async function assignFollowUpToMe(followUpId) {
-            if (window.adminDashboard) {
-                try {
-                    const { error } = await window.adminDashboard.supabase
-                        .from('follow_up_tasks')
-                        .update({ 
-                            assigned_to: window.adminDashboard.currentAdminUser.id,
-                            updated_at: new Date().toISOString()
-                        })
-                        .eq('id', followUpId);
-
-                    if (error) throw error;
-
-                    alert('Task assigned to you successfully!');
-                    closeFollowUpModal();
-                    await window.adminDashboard.loadFollowUpsData();
-                } catch (error) {
-                    console.error('Error assigning follow-up:', error);
-                    alert('Error assigning task: ' + error.message);
-                }
-            }
-        }
-
-        async function contactPatient(email, method, phone) {
-            if (method === 'email' && email) {
-                // Open email client
-                const subject = encodeURIComponent('Follow-up: Your Recent Healthcare Visit');
-                const body = encodeURIComponent(`Dear Patient,\n\nWe are following up on your recent visit to ensure you received the best possible care.\n\nPlease reply to this email or call us if you have any questions or concerns.\n\nThank you,\nPatient Care Team`);
-                window.open(`mailto:${email}?subject=${subject}&body=${body}`);
-            } else if (method === 'phone' && phone) {
-                // Copy phone number and show instructions
-                navigator.clipboard.writeText(phone).then(() => {
-                    alert(`Phone number ${phone} copied to clipboard.\n\nPlease call the patient to follow up on their healthcare experience.`);
-                }).catch(() => {
-                    alert(`Please call the patient at: ${phone}`);
-                });
-            } else {
-                alert('Contact information not available for this method.');
-            }
-        }
-
-        async function addFollowUpNote(followUpId) {
-            const note = prompt('Add a note to this follow-up task:');
-            if (note && note.trim() && window.adminDashboard) {
-                try {
-                    // Get current notes
-                    const { data: currentTask } = await window.adminDashboard.supabase
-                        .from('follow_up_tasks')
-                        .select('notes')
-                        .eq('id', followUpId)
-                        .single();
-
-                    const timestamp = new Date().toLocaleString();
-                    const adminName = window.adminDashboard.currentAdminUser.full_name;
-                    const newNote = `[${timestamp} - ${adminName}]: ${note.trim()}`;
-                    
-                    const updatedNotes = currentTask?.notes 
-                        ? currentTask.notes + '\n\n' + newNote
-                        : newNote;
-
-                    const { error } = await window.adminDashboard.supabase
-                        .from('follow_up_tasks')
-                        .update({ 
-                            notes: updatedNotes,
-                            updated_at: new Date().toISOString()
-                        })
-                        .eq('id', followUpId);
-
-                    if (error) throw error;
-
-                    alert('Note added successfully!');
-                    // Refresh the modal view
-                    viewFollowUp(followUpId);
-                } catch (error) {
-                    console.error('Error adding note:', error);
-                    alert('Error adding note: ' + error.message);
-                }
             }
         }
 
@@ -3820,12 +3052,13 @@
                         .from('follow_up_tasks')
                         .update({ 
                             status: 'completed',
-                            completed_date: new Date().toISOString()
+                            resolved_at: new Date().toISOString()
                         })
                         .eq('id', followUpId);
 
                     await window.adminDashboard.loadFollowUpsData();
-                    alert('Follow-up marked as completed');
+                    closeFollowUpModal();
+                    window.adminDashboard.showSuccess('Follow-up marked as completed');
                 } catch (error) {
                     console.error('Error completing follow-up:', error);
                     alert('Error completing follow-up');
@@ -3838,7 +3071,7 @@
             
             if (window.adminDashboard) {
                 const filters = {
-                    department: document.getElementById('departmentFilter')?.value || '',
+                    clinic: document.getElementById('clinicFilter')?.value || '',
                     dateRange: document.getElementById('dateRangeFilter')?.value || '',
                     satisfaction: document.getElementById('satisfactionFilter')?.value || ''
                 };
@@ -3867,7 +3100,7 @@
             console.log('🧹 Clearing all filters');
             
             // Reset filter form elements
-            document.getElementById('departmentFilter').value = '';
+            document.getElementById('clinicFilter').value = '';
             document.getElementById('dateRangeFilter').value = 'today';
             document.getElementById('satisfactionFilter').value = '';
             document.getElementById('startDate').value = '';
@@ -3883,235 +3116,25 @@
             }
         }
 
-        function toggleExportDropdown() {
-            const dropdown = document.querySelector('.export-dropdown');
-            dropdown.classList.toggle('show');
-        }
-
-
-
-
-        
-        async function saveSettings() {
-            try {
-                const settings = {
-                    'survey_auto_restart_time': document.getElementById('autoRestartTime').value,
-                    'survey_idle_timeout': document.getElementById('idleTimeout').value,
-                    'dashboard_refresh_interval': document.getElementById('dashboardRefresh').value,
-                    'low_rating_threshold': document.getElementById('lowRatingThreshold').value,
-                    'max_follow_up_attempts': document.getElementById('maxFollowUpAttempts').value,
-                    'email_notifications_enabled': document.getElementById('emailNotifications').value
-                };
-
-                for (const [key, value] of Object.entries(settings)) {
-                    await window.adminDashboard.supabase
-                        .from('system_settings')
-                        .upsert({
-                            setting_key: key,
-                            setting_value: value,
-                            updated_by: window.adminDashboard.currentAdminUser.id
-                        });
+        function toggleExportDropdown(button) {
+            // Close all other dropdowns first
+            document.querySelectorAll('.export-dropdown').forEach(dropdown => {
+                if (dropdown !== button.parentElement) {
+                    dropdown.classList.remove('show');
                 }
-
-                alert('Settings saved successfully!');
-            } catch (error) {
-                console.error('Error saving settings:', error);
-                alert('Error saving settings');
-            }
+            });
+            
+            // Toggle the clicked dropdown
+            button.parentElement.classList.toggle('show');
         }
 
         function refreshData() {
-            console.log('🔄 Global refresh called');
-            
-            if (!window.adminDashboard) {
-                console.error('❌ AdminDashboard not available');
-                alert('Dashboard not ready. Please refresh the page.');
-                return;
-            }
-            
-            console.log('✅ Calling adminDashboard.refreshData()');
-            window.adminDashboard.refreshData();
-        }
-        // Close dropdowns when clicking outside
-        window.onclick = function(event) {
-            if (!event.target.matches('.btn')) {
-                const dropdowns = document.getElementsByClassName('export-dropdown-content');
-                for (let i = 0; i < dropdowns.length; i++) {
-                    const openDropdown = dropdowns[i];
-                    if (openDropdown.classList.contains('show')) {
-                        openDropdown.classList.remove('show');
-                    }
-                }
-            }
-        }
-
-        // Initialize dashboard when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            window.adminDashboard = new AdminDashboard();
-        });
-    // Global function for remove button
-        async function removeFollowUp(followUpId, patientName) {
             if (window.adminDashboard) {
-                await window.adminDashboard.removeFollowUp(followUpId, patientName);
+                window.adminDashboard.refreshData();
             }
         }
 
-        // Supporting functions for follow-up modal actions
-        async function completeFollowUpFromModal(followUpId) {
-            await completeFollowUp(followUpId);
-            closeFollowUpModal();
-        }
-
-        async function removeFollowUpFromModal(followUpId, patientName) {
-            const confirmed = await removeFollowUp(followUpId, patientName);
-            if (confirmed !== false) {
-                closeFollowUpModal();
-            }
-        }
-
-        async function assignFollowUpToMe(followUpId) {
-            if (window.adminDashboard) {
-                try {
-                    const { error } = await window.adminDashboard.supabase
-                        .from('follow_up_tasks')
-                        .update({ 
-                            assigned_to: window.adminDashboard.currentAdminUser.id,
-                            updated_at: new Date().toISOString()
-                        })
-                        .eq('id', followUpId);
-
-                    if (error) throw error;
-
-                    // Log the assignment
-                    await window.adminDashboard.logActivity('assign', 'follow_up_task', followUpId, {
-                        assigned_to: window.adminDashboard.currentAdminUser.full_name,
-                        action_type: 'self_assignment'
-                    });
-
-                    alert('Task assigned to you successfully!');
-                    closeFollowUpModal();
-                    await window.adminDashboard.loadFollowUpsData();
-                } catch (error) {
-                    console.error('Error assigning follow-up:', error);
-                    alert('Error assigning task: ' + error.message);
-                }
-            }
-        }
-
-        async function contactPatient(email, method, phone) {
-            if (method === 'email' && email) {
-                // Open email client
-                const subject = encodeURIComponent('Follow-up: Your Recent Healthcare Visit');
-                const body = encodeURIComponent(`Dear Patient,\n\nWe are following up on your recent visit to ensure you received the best possible care.\n\nPlease reply to this email or call us if you have any questions or concerns.\n\nThank you,\nPatient Care Team`);
-                window.open(`mailto:${email}?subject=${subject}&body=${body}`);
-            } else if (method === 'phone' && phone) {
-                // Copy phone number and show instructions
-                navigator.clipboard.writeText(phone).then(() => {
-                    alert(`Phone number ${phone} copied to clipboard.\n\nPlease call the patient to follow up on their healthcare experience.`);
-                }).catch(() => {
-                    alert(`Please call the patient at: ${phone}`);
-                });
-            } else {
-                alert('Contact information not available for this method.');
-            }
-        }
-
-        async function addFollowUpNote(followUpId) {
-            const note = prompt('Add a note to this follow-up task:');
-            if (note && note.trim() && window.adminDashboard) {
-                try {
-                    // Get current notes
-                    const { data: currentTask } = await window.adminDashboard.supabase
-                        .from('follow_up_tasks')
-                        .select('notes')
-                        .eq('id', followUpId)
-                        .single();
-
-                    const timestamp = new Date().toLocaleString();
-                    const adminName = window.adminDashboard.currentAdminUser.full_name;
-                    const newNote = `[${timestamp} - ${adminName}]: ${note.trim()}`;
-                    
-                    const updatedNotes = currentTask?.notes 
-                        ? currentTask.notes + '\n\n' + newNote
-                        : newNote;
-
-                    const { error } = await window.adminDashboard.supabase
-                        .from('follow_up_tasks')
-                        .update({ 
-                            notes: updatedNotes,
-                            updated_at: new Date().toISOString()
-                        })
-                        .eq('id', followUpId);
-
-                    if (error) throw error;
-
-                    // Log the note addition
-                    await window.adminDashboard.logActivity('update', 'follow_up_task', followUpId, {
-                        action_type: 'note_added',
-                        note_content: note.trim(),
-                        added_by: adminName
-                    });
-
-                    alert('Note added successfully!');
-                    // Refresh the modal view
-                    viewFollowUp(followUpId);
-                } catch (error) {
-                    console.error('Error adding note:', error);
-                    alert('Error adding note: ' + error.message);
-                }
-            }
-        }
-        
-        async function tryFixUserPermissions() {
-            if (!window.adminDashboard) {
-                alert('Dashboard not ready');
-                return;
-            }
-
-            const confirmed = confirm(
-                'This will attempt to fix user management permissions.\n\n' +
-                'It will try to:\n' +
-                '1. Disable RLS temporarily\n' +
-                '2. Check your admin role\n' +
-                '3. Reload user data\n\n' +
-                'Continue?'
-            );
-
-            if (!confirmed) return;
-
-            try {
-                // Try to check user role first
-                const { data: currentAdmin, error } = await window.adminDashboard.supabase
-                    .from('admin_users')
-                    .select('role, is_active')
-                    .eq('user_id', window.adminDashboard.currentUser.id)
-                    .single();
-
-                if (error) {
-                    throw new Error(`Cannot verify your admin role: ${error.message}`);
-                }
-
-                if (!currentAdmin || !currentAdmin.is_active) {
-                    throw new Error('Your admin account is not active');
-                }
-
-                if (currentAdmin.role !== 'super_admin') {
-                    alert(`Your role is: ${currentAdmin.role}\n\nOnly super_admin can manage users.`);
-                    return;
-                }
-
-                // If we get here, try to reload users
-                await window.adminDashboard.loadUsersData();
-                
-            } catch (error) {
-                console.error('❌ Fix attempt failed:', error);
-                alert(`Fix failed: ${error.message}\n\nYou may need to run the SQL fix in Supabase.`);
-            }
-        }
-    
-        // === ENHANCED GLOBAL EXPORT FUNCTIONS ===
-
-        // Initialize export manager when dashboard is ready
+        // Export functions
         function initializeExportManager() {
             if (window.adminDashboard && !window.adminDashboard.exportManager) {
                 window.adminDashboard.exportManager = new ExportManager(window.adminDashboard);
@@ -4119,7 +3142,6 @@
             }
         }
 
-        // Enhanced export functions
         function exportSurveys(format) {
             const dropdown = document.querySelector('.export-dropdown');
             if (dropdown) dropdown.classList.remove('show');
@@ -4138,11 +3160,24 @@
             initializeExportManager();
             
             if (window.adminDashboard?.exportManager) {
+                // Get user's accessible clinics
                 window.adminDashboard.supabase
-                    .from('patient_survey_responses')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .limit(10)
+                    .rpc('get_user_accessible_clinics')
+                    .then(({ data: userClinics }) => {
+                        const clinicIds = userClinics?.map(c => c.clinic_id) || [];
+                        
+                        let query = window.adminDashboard.supabase
+                            .from('survey_responses_view')
+                            .select('*')
+                            .order('created_at', { ascending: false })
+                            .limit(10);
+
+                        if (window.adminDashboard.currentSystemUser.role !== 'super_admin' && clinicIds.length > 0) {
+                            query = query.in('clinic_id', clinicIds);
+                        }
+
+                        return query;
+                    })
                     .then(({ data, error }) => {
                         if (error) {
                             window.adminDashboard.showError('Error fetching recent surveys: ' + error.message);
@@ -4190,12 +3225,25 @@
             initializeExportManager();
             
             if (window.adminDashboard?.exportManager) {
+                // Get user's accessible clinics
                 window.adminDashboard.supabase
-                    .from('patient_survey_responses')
-                    .select('*')
-                    .gte('created_at', startDate + 'T00:00:00')
-                    .lte('created_at', endDate + 'T23:59:59')
-                    .order('created_at', { ascending: false })
+                    .rpc('get_user_accessible_clinics')
+                    .then(({ data: userClinics }) => {
+                        const clinicIds = userClinics?.map(c => c.clinic_id) || [];
+                        
+                        let query = window.adminDashboard.supabase
+                            .from('survey_responses_view')
+                            .select('*')
+                            .gte('created_at', startDate + 'T00:00:00')
+                            .lte('created_at', endDate + 'T23:59:59')
+                            .order('created_at', { ascending: false });
+
+                        if (window.adminDashboard.currentSystemUser.role !== 'super_admin' && clinicIds.length > 0) {
+                            query = query.in('clinic_id', clinicIds);
+                        }
+
+                        return query;
+                    })
                     .then(({ data, error }) => {
                         if (error) {
                             alert('Error fetching custom range: ' + error.message);
@@ -4208,16 +3256,10 @@
             }
         }
 
-        function toggleExportDropdown(button) {
-            // Close all other dropdowns first
-            document.querySelectorAll('.export-dropdown').forEach(dropdown => {
-                if (dropdown !== button.parentElement) {
-                    dropdown.classList.remove('show');
-                }
-            });
-            
-            // Toggle the clicked dropdown
-            button.parentElement.classList.toggle('show');
+        function toggleUserStatus(userId, newStatus) {
+            if (window.adminDashboard) {
+                window.adminDashboard.toggleUserStatus(userId, newStatus);
+            }
         }
 
         function closeAllDropdowns() {
@@ -4226,45 +3268,27 @@
             });
         }
 
-        // Enhanced event listener setup
-        document.addEventListener('click', function(event) {
-            if (!event.target.matches('.btn') && !event.target.closest('.export-dropdown')) {
-                closeAllDropdowns();
-            }
-        });
-
-        // Initialize export manager on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Wait for dashboard to be ready
-            const checkDashboard = setInterval(() => {
-                if (window.adminDashboard) {
-                    initializeExportManager();
-                    clearInterval(checkDashboard);
+        // Close dropdowns when clicking outside
+        window.onclick = function(event) {
+            if (!event.target.matches('.btn')) {
+                const dropdowns = document.getElementsByClassName('export-dropdown-content');
+                for (let i = 0; i < dropdowns.length; i++) {
+                    const openDropdown = dropdowns[i];
+                    if (openDropdown.parentElement.classList.contains('show')) {
+                        openDropdown.parentElement.classList.remove('show');
+                    }
                 }
+            }
+        }
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.adminDashboard = new AdminDashboard();
+            
+            // Initialize export manager after dashboard is ready
+            setTimeout(() => {
+                initializeExportManager();
             }, 1000);
-        });
-
-        // Keyboard shortcuts for exports
-        document.addEventListener('keydown', function(event) {
-            // Ctrl+E for quick export
-            if (event.ctrlKey && event.key === 'e') {
-                event.preventDefault();
-                const activeTab = document.querySelector('.nav-tab.active')?.dataset.tab;
-                
-                switch (activeTab) {
-                    case 'surveys':
-                        exportSurveys('excel');
-                        break;
-                    case 'follow-ups':
-                        exportFollowUps('excel');
-                        break;
-                    case 'analytics':
-                        exportAnalytics('excel');
-                        break;
-                    default:
-                        exportRecentSurveys('excel');
-                }
-            }
         });
     </script>
 </body>
