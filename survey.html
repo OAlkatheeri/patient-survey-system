@@ -1748,11 +1748,16 @@
     
     <script>
         // Configuration
+        // 🔧 SUPABASE CONFIGURATION - Standardized with admin.html
         const CONFIG = {
             SUPABASE_URL: 'https://uaznsgkixgedgfaxxkkw.supabase.co',
-            SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhem5zZ2tpeGdlZGdmYXh4a2t3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzMzMjk1MiwiZXhwIjoyMDY4OTA4OTUyfQ.EMZAssphOtHHVHiIq7odgnMPfH3hMVQEfIhnbQs9pjw',
+            // Using public anonymous key - safe for client-side use
+            SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhem5zZ2tpeGdlZGdmYXh4a2t3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMzMzI5NTIsImV4cCI6MjA2ODkwODk1Mn0.PLACEHOLDER_ANON_KEY',
             AUTO_RESTART_TIME: 30
         };
+
+        // Security Note: This should be the anonymous key, not service_role key
+        // Service role keys should never be exposed in client-side code
 
         // Initialize Supabase
         let supabaseClient = null;
