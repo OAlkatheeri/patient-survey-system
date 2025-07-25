@@ -1943,7 +1943,13 @@
                 if (supabaseClient) {
                     const { data, error } = await supabaseClient
                         .from('clinics')
-                        .select('id, name, location')
+                        .select(`
+                            id, 
+                            name, 
+                            location, 
+                            description,
+                            manager:users!clinics_manager_id_fkey(full_name)
+                        `)
                         .eq('is_active', true)
                         .order('name');
                     
@@ -1956,7 +1962,9 @@
                     data.forEach(clinic => {
                         const option = document.createElement('option');
                         option.value = clinic.id;
-                        option.textContent = `${clinic.name} - ${clinic.location}`;
+                        const managerInfo = clinic.manager?.full_name ? ` (Manager: ${clinic.manager.full_name})` : '';
+                        option.textContent = `${clinic.name} - ${clinic.location}${managerInfo}`;
+                        option.title = clinic.description || `${clinic.name} located at ${clinic.location}`;
                         clinicSelect.appendChild(option);
                     });
                 } else {

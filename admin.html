@@ -538,6 +538,30 @@
             color: #000;
         }
 
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #1e293b;
+            font-size: 1.25rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
         /* Alert styles */
         .alert {
             padding: 12px 16px;
@@ -848,6 +872,7 @@
                 <button class="nav-tab" data-tab="surveys">📋 All Surveys</button>
                 <button class="nav-tab" data-tab="analytics">📊 Analytics</button>
                 <button class="nav-tab" data-tab="follow-ups">📞 Follow-ups</button>
+                <button class="nav-tab" data-tab="clinics">🏥 Clinics</button>
                 <button class="nav-tab" data-tab="users">👥 Users</button>
                 <button class="nav-tab" data-tab="settings">⚙️ Settings</button>
             </div>
@@ -1094,6 +1119,100 @@
                 </div>
             </div>
 
+            <!-- Clinics Tab -->
+            <div id="clinics" class="tab-content">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Clinic Management</h3>
+                        <div class="table-actions">
+                            <button class="btn btn-primary btn-sm" onclick="addNewClinic()">➕ Add Clinic</button>
+                            <button class="btn btn-secondary btn-sm" onclick="loadClinicsData()">🔄 Refresh</button>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Clinic Name</th>
+                                <th>Location</th>
+                                <th>Contact Info</th>
+                                <th>Manager/Responsible</th>
+                                <th>Department Count</th>
+                                <th>Survey Count</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clinicsTable">
+                            <tr>
+                                <td colspan="8" class="loading">
+                                    <div class="spinner"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Add/Edit Clinic Modal -->
+                <div id="clinicModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 id="clinicModalTitle">Add New Clinic</h3>
+                            <span class="close" onclick="closeClinicModal()">&times;</span>
+                        </div>
+                        <form id="clinicForm">
+                            <div class="form-group">
+                                <label for="clinicName">Clinic Name *</label>
+                                <input type="text" id="clinicName" required 
+                                       placeholder="Enter clinic name">
+                            </div>
+                            <div class="form-group">
+                                <label for="clinicLocation">Location *</label>
+                                <input type="text" id="clinicLocation" required 
+                                       placeholder="Enter clinic location/address">
+                            </div>
+                            <div class="form-group">
+                                <label for="clinicPhone">Phone Number</label>
+                                <input type="tel" id="clinicPhone" 
+                                       placeholder="+971-XX-XXXXXXX">
+                            </div>
+                            <div class="form-group">
+                                <label for="clinicEmail">Email Address</label>
+                                <input type="email" id="clinicEmail" 
+                                       placeholder="clinic@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="clinicManager">Manager/Responsible Person *</label>
+                                <select id="clinicManager" required>
+                                    <option value="">Select Manager</option>
+                                    <!-- Options will be populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="clinicDepartments">Departments (comma-separated)</label>
+                                <textarea id="clinicDepartments" rows="3" 
+                                          placeholder="General Medicine, Cardiology, Pediatrics..."></textarea>
+                                <small>Enter department names separated by commas</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="clinicDescription">Description</label>
+                                <textarea id="clinicDescription" rows="3" 
+                                          placeholder="Brief description of the clinic..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="clinicActive" checked>
+                                    Active (visible in surveys)
+                                </label>
+                            </div>
+                            <div class="modal-actions">
+                                <button type="button" class="btn btn-secondary" onclick="closeClinicModal()">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Clinic</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <!-- Users Tab -->
             <div id="users" class="tab-content">
                 <div class="table-container">
@@ -1250,6 +1369,23 @@
                 // Tab navigation
                 document.querySelectorAll('.nav-tab').forEach(tab => {
                     tab.addEventListener('click', () => this.switchTab(tab.dataset.tab));
+                });
+
+                // Clinic form
+                const clinicForm = document.getElementById('clinicForm');
+                if (clinicForm) {
+                    clinicForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.handleClinicSubmit();
+                    });
+                }
+
+                // Close modal when clicking outside
+                window.addEventListener('click', (e) => {
+                    const clinicModal = document.getElementById('clinicModal');
+                    if (e.target === clinicModal) {
+                        this.closeClinicModal();
+                    }
                 });
 
                 // Filter change handlers
@@ -1488,6 +1624,9 @@
                             break;
                         case 'follow-ups':
                             await this.loadFollowUpsData();
+                            break;
+                        case 'clinics':
+                            await this.loadClinicsData();
                             break;
                         case 'users':
                             await this.loadUsersData();
@@ -2398,6 +2537,227 @@
                         </tr>
                     `;
                 }).join('');
+            }
+
+            // ===== CLINIC MANAGEMENT FUNCTIONS =====
+            async loadClinicsData() {
+                try {
+                    // Load clinics with manager information and survey counts
+                    const { data: clinics, error } = await this.supabase
+                        .from('clinics')
+                        .select(`
+                            *,
+                            manager:users!clinics_manager_id_fkey(full_name, email),
+                            survey_count:clinic_survey_responses(count)
+                        `)
+                        .order('name');
+
+                    if (error) throw error;
+
+                    this.renderClinicsTable(clinics || []);
+
+                } catch (error) {
+                    console.error('❌ Error loading clinics data:', error);
+                    this.showError('Failed to load clinics data: ' + error.message);
+                    document.getElementById('clinicsTable').innerHTML = 
+                        '<tr><td colspan="8" style="text-align: center; color: #dc2626;">Failed to load clinics</td></tr>';
+                }
+            }
+
+            renderClinicsTable(clinics) {
+                const tableBody = document.getElementById('clinicsTable');
+                
+                if (!clinics || clinics.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #64748b;">No clinics found</td></tr>';
+                    return;
+                }
+
+                tableBody.innerHTML = clinics.map(clinic => {
+                    const canManageClinic = ['admin', 'super_admin'].includes(this.currentSystemUser?.role);
+                    const departmentCount = clinic.departments ? clinic.departments.split(',').length : 0;
+                    const surveyCount = clinic.survey_count?.[0]?.count || 0;
+                    
+                    return `
+                        <tr>
+                            <td data-label="Clinic Name">
+                                <div style="font-weight: 600;">${clinic.name}</div>
+                                <div style="font-size: 0.8em; color: #64748b;">${clinic.description || 'No description'}</div>
+                            </td>
+                            <td data-label="Location">${clinic.location}</td>
+                            <td data-label="Contact Info">
+                                <div style="font-size: 0.9em;">
+                                    <div>${clinic.email || 'N/A'}</div>
+                                    <div style="color: #64748b;">${clinic.phone || 'N/A'}</div>
+                                </div>
+                            </td>
+                            <td data-label="Manager">
+                                <div style="font-weight: 600;">${clinic.manager?.full_name || 'Not Assigned'}</div>
+                                <div style="font-size: 0.8em; color: #64748b;">${clinic.manager?.email || ''}</div>
+                            </td>
+                            <td data-label="Departments">
+                                <span class="status-badge status-medium">${departmentCount} departments</span>
+                            </td>
+                            <td data-label="Surveys">
+                                <span class="status-badge status-high">${surveyCount} surveys</span>
+                            </td>
+                            <td data-label="Status">
+                                <span class="status-badge ${clinic.is_active ? 'status-high' : 'status-low'}">
+                                    ${clinic.is_active ? 'Active' : 'Inactive'}
+                                </span>
+                            </td>
+                            <td data-label="Actions">
+                                ${canManageClinic ? `
+                                    <button class="btn btn-primary btn-sm" onclick="editClinic('${clinic.id}')" title="Edit Clinic">
+                                        ✏️ Edit
+                                    </button>
+                                    <button class="btn ${clinic.is_active ? 'btn-danger' : 'btn-success'} btn-sm" 
+                                            onclick="toggleClinicStatus('${clinic.id}', ${!clinic.is_active})" 
+                                            title="${clinic.is_active ? 'Deactivate' : 'Activate'} Clinic">
+                                        ${clinic.is_active ? '🚫' : '✅'}
+                                    </button>
+                                ` : '<span style="color: #64748b; font-size: 12px;">View Only</span>'}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            async addNewClinic() {
+                await this.loadManagerOptions();
+                document.getElementById('clinicModalTitle').textContent = 'Add New Clinic';
+                document.getElementById('clinicForm').reset();
+                document.getElementById('clinicActive').checked = true;
+                document.getElementById('clinicModal').style.display = 'block';
+            }
+
+            async editClinic(clinicId) {
+                try {
+                    const { data: clinic, error } = await this.supabase
+                        .from('clinics')
+                        .select('*')
+                        .eq('id', clinicId)
+                        .single();
+
+                    if (error) throw error;
+
+                    await this.loadManagerOptions();
+                    
+                    document.getElementById('clinicModalTitle').textContent = 'Edit Clinic';
+                    document.getElementById('clinicName').value = clinic.name || '';
+                    document.getElementById('clinicLocation').value = clinic.location || '';
+                    document.getElementById('clinicPhone').value = clinic.phone || '';
+                    document.getElementById('clinicEmail').value = clinic.email || '';
+                    document.getElementById('clinicManager').value = clinic.manager_id || '';
+                    document.getElementById('clinicDepartments').value = clinic.departments || '';
+                    document.getElementById('clinicDescription').value = clinic.description || '';
+                    document.getElementById('clinicActive').checked = clinic.is_active;
+                    
+                    // Store clinic ID for update
+                    document.getElementById('clinicForm').dataset.clinicId = clinicId;
+                    document.getElementById('clinicModal').style.display = 'block';
+
+                } catch (error) {
+                    console.error('❌ Error loading clinic:', error);
+                    this.showError('Failed to load clinic data');
+                }
+            }
+
+            async loadManagerOptions() {
+                try {
+                    const { data: users, error } = await this.supabase
+                        .from('users')
+                        .select('id, full_name, email')
+                        .eq('is_active', true)
+                        .in('role', ['admin', 'super_admin'])
+                        .order('full_name');
+
+                    if (error) throw error;
+
+                    const managerSelect = document.getElementById('clinicManager');
+                    managerSelect.innerHTML = '<option value="">Select Manager</option>';
+                    
+                    users.forEach(user => {
+                        const option = document.createElement('option');
+                        option.value = user.id;
+                        option.textContent = `${user.full_name} (${user.email})`;
+                        managerSelect.appendChild(option);
+                    });
+
+                } catch (error) {
+                    console.error('❌ Error loading managers:', error);
+                    this.showError('Failed to load manager options');
+                }
+            }
+
+            async toggleClinicStatus(clinicId, newStatus) {
+                try {
+                    const { error } = await this.supabase
+                        .from('clinics')
+                        .update({ is_active: newStatus })
+                        .eq('id', clinicId);
+
+                    if (error) throw error;
+
+                    this.showSuccess(`Clinic ${newStatus ? 'activated' : 'deactivated'} successfully`);
+                    await this.loadClinicsData();
+
+                } catch (error) {
+                    console.error('❌ Error updating clinic status:', error);
+                    this.showError('Failed to update clinic status');
+                }
+            }
+
+            async handleClinicSubmit() {
+                try {
+                    const form = document.getElementById('clinicForm');
+                    const clinicId = form.dataset.clinicId;
+                    const isEdit = !!clinicId;
+
+                    const clinicData = {
+                        name: document.getElementById('clinicName').value.trim(),
+                        location: document.getElementById('clinicLocation').value.trim(),
+                        phone: document.getElementById('clinicPhone').value.trim() || null,
+                        email: document.getElementById('clinicEmail').value.trim() || null,
+                        manager_id: document.getElementById('clinicManager').value || null,
+                        departments: document.getElementById('clinicDepartments').value.trim() || null,
+                        description: document.getElementById('clinicDescription').value.trim() || null,
+                        is_active: document.getElementById('clinicActive').checked
+                    };
+
+                    // Validate required fields
+                    if (!clinicData.name || !clinicData.location) {
+                        this.showError('Please fill in all required fields');
+                        return;
+                    }
+
+                    let result;
+                    if (isEdit) {
+                        result = await this.supabase
+                            .from('clinics')
+                            .update(clinicData)
+                            .eq('id', clinicId);
+                    } else {
+                        result = await this.supabase
+                            .from('clinics')
+                            .insert([clinicData]);
+                    }
+
+                    if (result.error) throw result.error;
+
+                    this.showSuccess(`Clinic ${isEdit ? 'updated' : 'created'} successfully`);
+                    this.closeClinicModal();
+                    await this.loadClinicsData();
+
+                } catch (error) {
+                    console.error('❌ Error saving clinic:', error);
+                    this.showError('Failed to save clinic: ' + error.message);
+                }
+            }
+
+            closeClinicModal() {
+                document.getElementById('clinicModal').style.display = 'none';
+                document.getElementById('clinicForm').reset();
+                delete document.getElementById('clinicForm').dataset.clinicId;
             }
 
             handleDateRangeChange() {
@@ -3432,6 +3792,37 @@
         function toggleUserStatus(userId, newStatus) {
             if (window.adminDashboard) {
                 window.adminDashboard.toggleUserStatus(userId, newStatus);
+            }
+        }
+
+        // Global clinic management functions
+        function addNewClinic() {
+            if (window.adminDashboard) {
+                window.adminDashboard.addNewClinic();
+            }
+        }
+
+        function editClinic(clinicId) {
+            if (window.adminDashboard) {
+                window.adminDashboard.editClinic(clinicId);
+            }
+        }
+
+        function toggleClinicStatus(clinicId, newStatus) {
+            if (window.adminDashboard) {
+                window.adminDashboard.toggleClinicStatus(clinicId, newStatus);
+            }
+        }
+
+        function closeClinicModal() {
+            if (window.adminDashboard) {
+                window.adminDashboard.closeClinicModal();
+            }
+        }
+
+        function loadClinicsData() {
+            if (window.adminDashboard) {
+                window.adminDashboard.loadClinicsData();
             }
         }
 
