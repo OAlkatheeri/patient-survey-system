@@ -1350,6 +1350,7 @@
                                 <th>Username</th>
                                 <th>Full Name</th>
                                 <th>Email</th>
+                                <th>Clinic</th>
                                 <th>Role</th>
                                 <th>Last Login</th>
                                 <th>Status</th>
@@ -1358,7 +1359,7 @@
                         </thead>
                         <tbody id="usersTable">
                             <tr>
-                                <td colspan="7" class="loading">
+                                <td colspan="8" class="loading">
                                     <div class="spinner"></div>
                                 </td>
                             </tr>
@@ -2591,7 +2592,10 @@
                 try {
                     let query = this.supabase
                         .from('users')
-                        .select('*')
+                        .select(`
+                            *,
+                            managed_clinics:clinics!clinics_manager_id_fkey(id, name, location)
+                        `)
                         .order('created_at', { ascending: false });
 
                     // Only super admins can see all users
@@ -2610,7 +2614,7 @@
                     console.error('❌ Error loading users data:', error);
                     this.showError('Failed to load users data');
                     document.getElementById('usersTable').innerHTML = 
-                        '<tr><td colspan="7" style="text-align: center; color: #dc2626;">Failed to load users</td></tr>';
+                        '<tr><td colspan="8" style="text-align: center; color: #dc2626;">Failed to load users</td></tr>';
                 }
             }
             
@@ -2618,7 +2622,7 @@
                 const tableBody = document.getElementById('usersTable');
                 
                 if (!users || users.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #64748b;">No users found</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #64748b;">No users found</td></tr>';
                     return;
                 }
 
@@ -2626,23 +2630,34 @@
                     const canManageUser = this.currentSystemUser?.role === 'super_admin' && user.id !== this.currentSystemUser.id;
                     const lastLogin = user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never';
                     
+                    // Format managed clinics
+                    const managedClinics = user.managed_clinics || [];
+                    const clinicDisplay = managedClinics.length > 0 
+                        ? managedClinics.map(clinic => `${clinic.name} - ${clinic.location}`).join('<br>')
+                        : '<span style="color: #64748b; font-style: italic;">No clinic assigned</span>';
+                    
                     return `
                         <tr>
-                            <td>${user.username}</td>
-                            <td>${user.full_name}</td>
-                            <td>${user.email}</td>
-                            <td>
+                            <td data-label="Username">${user.username}</td>
+                            <td data-label="Full Name">${user.full_name}</td>
+                            <td data-label="Email">${user.email}</td>
+                            <td data-label="Clinic">
+                                <div style="font-size: 0.9em; line-height: 1.4;">
+                                    ${clinicDisplay}
+                                </div>
+                            </td>
+                            <td data-label="Role">
                                 <span class="status-badge ${user.role === 'super_admin' ? 'status-high' : 'status-medium'}">
                                     ${user.role.replace('_', ' ').toUpperCase()}
                                 </span>
                             </td>
-                            <td>${lastLogin}</td>
-                            <td>
+                            <td data-label="Last Login">${lastLogin}</td>
+                            <td data-label="Status">
                                 <span class="status-badge ${user.is_active ? 'status-high' : 'status-low'}">
                                     ${user.is_active ? 'Active' : 'Inactive'}
                                 </span>
                             </td>
-                            <td>
+                            <td data-label="Actions">
                                 ${canManageUser ? `
                                     <button class="btn ${user.is_active ? 'btn-danger' : 'btn-success'} btn-sm" 
                                             onclick="toggleUserStatus('${user.id}', ${!user.is_active})">
@@ -3541,6 +3556,12 @@
                             return 'N/A';
                         };
 
+                        // Extract data from JSONB fields
+                        const patientInfo = survey.patient_info || {};
+                        const responses = survey.responses || {};
+                        const contactPrefs = survey.contact_preferences || {};
+                        const metadata = survey.metadata || {};
+
                         details.innerHTML = `
                             <div class="survey-detail-container">
                                 <!-- Patient Information Section -->
@@ -3549,35 +3570,35 @@
                                     <div class="detail-grid">
                                         <div class="detail-item">
                                             <label>Full Name:</label>
-                                            <span>${survey.patient_name || 'N/A'}</span>
+                                            <span>${patientInfo.full_name || responses.patient_name || 'N/A'}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Email:</label>
-                                            <span>${survey.patient_email || 'N/A'}</span>
+                                            <span>${patientInfo.email || responses.patient_email || 'N/A'}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Phone:</label>
-                                            <span>${survey.patient_phone || 'N/A'}</span>
+                                            <span>${patientInfo.phone || responses.patient_phone || 'N/A'}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Date of Birth:</label>
-                                            <span>${survey.date_of_birth || 'N/A'}</span>
+                                            <span>${responses.date_of_birth || 'N/A'}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Gender:</label>
-                                            <span>${formatSatisfaction(survey.gender) || 'N/A'}</span>
+                                            <span>${formatSatisfaction(responses.gender) || 'N/A'}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Nationality:</label>
-                                            <span>${formatSatisfaction(survey.nationality) || 'N/A'}</span>
+                                            <span>${formatSatisfaction(responses.nationality) || 'N/A'}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Emergency Contact:</label>
-                                            <span>${survey.emergency_contact_name || 'N/A'}</span>
+                                            <span>${responses.emergency_contact_name || 'N/A'}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Emergency Phone:</label>
-                                            <span>${survey.emergency_contact_phone || 'N/A'}</span>
+                                            <span>${responses.emergency_contact_phone || 'N/A'}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -3588,27 +3609,27 @@
                                     <div class="detail-grid">
                                         <div class="detail-item">
                                             <label>Visit Date:</label>
-                                            <span>${survey.visit_date || 'N/A'}</span>
+                                            <span>${patientInfo.visit_date || responses.visit_date || 'N/A'}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Clinic:</label>
-                                            <span>${survey.clinic_name || 'N/A'}</span>
+                                            <span>${patientInfo.clinic_location || responses.clinic_location || 'N/A'}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Appointment Type:</label>
-                                            <span>${formatSatisfaction(survey.appointment_type) || 'N/A'}</span>
+                                            <span>${formatSatisfaction(responses.appointment_type) || 'N/A'}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Visit Type:</label>
-                                            <span>${formatSatisfaction(survey.visit_type) || 'N/A'}</span>
+                                            <span>${formatSatisfaction(responses.visit_type) || 'N/A'}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Insurance Provider:</label>
-                                            <span>${formatSatisfaction(survey.insurance_provider) || 'N/A'}</span>
+                                            <span>${formatSatisfaction(responses.insurance_provider) || 'N/A'}</span>
                                         </div>
                                         <div class="detail-item full-width">
                                             <label>Reason for Visit:</label>
-                                            <span>${survey.visit_reason || 'N/A'}</span>
+                                            <span>${responses.visit_reason || 'N/A'}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -3619,43 +3640,43 @@
                                     <div class="detail-grid">
                                         <div class="detail-item">
                                             <label>Overall Experience:</label>
-                                            <span class="satisfaction-rating">${formatSatisfaction(survey.overall_satisfaction)}</span>
+                                            <span class="satisfaction-rating">${formatSatisfaction(responses.overall_satisfaction)}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Reception Staff:</label>
-                                            <span class="satisfaction-rating">${formatSatisfaction(survey.reception_satisfaction)}</span>
+                                            <span class="satisfaction-rating">${formatSatisfaction(responses.reception_satisfaction)}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Registration Process:</label>
-                                            <span>${formatYesNo(survey.registration_smooth)}</span>
+                                            <span>${formatYesNo(responses.registration_smooth)}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Nursing Staff:</label>
-                                            <span class="satisfaction-rating">${formatSatisfaction(survey.nursing_professionalism)}</span>
+                                            <span class="satisfaction-rating">${formatSatisfaction(responses.nursing_professionalism)}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Prompt Medical Attention:</label>
-                                            <span>${formatYesNo(survey.nursing_prompt)}</span>
+                                            <span>${formatYesNo(responses.nursing_prompt)}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Doctor Consultation:</label>
-                                            <span class="satisfaction-rating">${formatSatisfaction(survey.doctor_satisfaction)}</span>
+                                            <span class="satisfaction-rating">${formatSatisfaction(responses.doctor_satisfaction)}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Doctor Listened to Concerns:</label>
-                                            <span>${formatYesNo(survey.doctor_listening)}</span>
+                                            <span>${formatYesNo(responses.doctor_listening)}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Clinic Cleanliness:</label>
-                                            <span class="satisfaction-rating">${formatSatisfaction(survey.clinic_cleanliness)}</span>
+                                            <span class="satisfaction-rating">${formatSatisfaction(responses.clinic_cleanliness)}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Waiting Time Acceptable:</label>
-                                            <span>${formatYesNo(survey.waiting_time_acceptable)}</span>
+                                            <span>${formatYesNo(responses.waiting_time_acceptable)}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Recommendation Likelihood:</label>
-                                            <span class="satisfaction-rating">${formatSatisfaction(survey.recommendation_likelihood)}</span>
+                                            <span class="satisfaction-rating">${formatSatisfaction(responses.recommendation_likelihood)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -3664,56 +3685,56 @@
                                 <div class="detail-section">
                                     <h3 class="section-title">💬 Comments & Feedback</h3>
                                     <div class="comments-section">
-                                        ${survey.reception_comments ? `
+                                        ${responses.reception_comments ? `
                                             <div class="comment-item">
                                                 <h4>🏢 Reception Staff Comments:</h4>
-                                                <p class="comment-text">${survey.reception_comments}</p>
+                                                <p class="comment-text">${responses.reception_comments}</p>
                                             </div>
                                         ` : ''}
                                         
-                                        ${survey.nursing_comments ? `
+                                        ${responses.nursing_comments ? `
                                             <div class="comment-item">
                                                 <h4>👩‍⚕️ Nursing Staff Comments:</h4>
-                                                <p class="comment-text">${survey.nursing_comments}</p>
+                                                <p class="comment-text">${responses.nursing_comments}</p>
                                             </div>
                                         ` : ''}
                                         
-                                        ${survey.doctor_comments ? `
+                                        ${responses.doctor_comments ? `
                                             <div class="comment-item">
                                                 <h4>👨‍⚕️ Doctor Comments:</h4>
-                                                <p class="comment-text">${survey.doctor_comments}</p>
+                                                <p class="comment-text">${responses.doctor_comments}</p>
                                             </div>
                                         ` : ''}
                                         
-                                        ${survey.environment_comments ? `
+                                        ${responses.environment_comments ? `
                                             <div class="comment-item">
                                                 <h4>🏥 Environment Comments:</h4>
-                                                <p class="comment-text">${survey.environment_comments}</p>
+                                                <p class="comment-text">${responses.environment_comments}</p>
                                             </div>
                                         ` : ''}
                                         
-                                        ${survey.liked_most ? `
+                                        ${responses.liked_most ? `
                                             <div class="comment-item">
                                                 <h4>👍 What They Liked Most:</h4>
-                                                <p class="comment-text positive">${survey.liked_most}</p>
+                                                <p class="comment-text positive">${responses.liked_most}</p>
                                             </div>
                                         ` : ''}
                                         
-                                        ${survey.areas_improve ? `
+                                        ${responses.areas_improve ? `
                                             <div class="comment-item">
                                                 <h4>📈 Areas for Improvement:</h4>
-                                                <p class="comment-text improvement">${survey.areas_improve}</p>
+                                                <p class="comment-text improvement">${responses.areas_improve}</p>
                                             </div>
                                         ` : ''}
                                         
-                                        ${survey.recommendation_comments ? `
+                                        ${responses.recommendation_comments ? `
                                             <div class="comment-item">
                                                 <h4>💡 Recommendation Comments:</h4>
-                                                <p class="comment-text">${survey.recommendation_comments}</p>
+                                                <p class="comment-text">${responses.recommendation_comments}</p>
                                             </div>
                                         ` : ''}
                                         
-                                        ${!survey.reception_comments && !survey.nursing_comments && !survey.doctor_comments && !survey.environment_comments && !survey.liked_most && !survey.areas_improve && !survey.recommendation_comments ? `
+                                        ${!responses.reception_comments && !responses.nursing_comments && !responses.doctor_comments && !responses.environment_comments && !responses.liked_most && !responses.areas_improve && !responses.recommendation_comments ? `
                                             <p style="color: #64748b; font-style: italic; text-align: center; padding: 20px;">No additional comments provided</p>
                                         ` : ''}
                                     </div>
@@ -3725,15 +3746,15 @@
                                     <div class="detail-grid">
                                         <div class="detail-item">
                                             <label>Wants Follow-up Contact:</label>
-                                            <span>${formatYesNo(survey.wants_contact)}</span>
+                                            <span>${formatYesNo(contactPrefs.wants_contact || responses.want_contact)}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Preferred Contact Method:</label>
-                                            <span>${survey.contact_method || 'N/A'}</span>
+                                            <span>${contactPrefs.contact_methods ? contactPrefs.contact_methods.join(', ') : responses.contact_method || 'N/A'}</span>
                                         </div>
                                         <div class="detail-item full-width">
                                             <label>Best Time to Contact:</label>
-                                            <span>${survey.best_time_contact || 'N/A'}</span>
+                                            <span>${responses.best_time_contact || 'N/A'}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -3752,11 +3773,11 @@
                                         </div>
                                         <div class="detail-item">
                                             <label>Privacy Consent:</label>
-                                            <span>${formatYesNo(survey.privacy_consent)}</span>
+                                            <span>${formatYesNo(responses.privacy_consent)}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>Follow-up Consent:</label>
-                                            <span>${formatYesNo(survey.followup_consent)}</span>
+                                            <span>${formatYesNo(responses.followup_consent)}</span>
                                         </div>
                                     </div>
                                 </div>
