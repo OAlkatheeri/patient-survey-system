@@ -517,12 +517,12 @@
 
         .modal-content {
             background-color: white;
-            margin: 5% auto;
+            margin: 2% auto;
             padding: 20px;
             border-radius: 12px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
+            width: 95%;
+            max-width: 1200px;
+            max-height: 90vh;
             overflow-y: auto;
         }
 
@@ -536,6 +536,158 @@
 
         .close:hover {
             color: #000;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #1e293b;
+            font-size: 1.25rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* Survey Detail Modal Styles */
+        .survey-detail-container {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .detail-section {
+            margin-bottom: 25px;
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .section-title {
+            margin: 0 0 15px 0;
+            color: #1e293b;
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .detail-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .detail-item label {
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.9rem;
+        }
+
+        .detail-item span {
+            color: #1e293b;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            min-height: 38px;
+            display: flex;
+            align-items: center;
+        }
+
+        .satisfaction-rating {
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .comments-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .comment-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .comment-item h4 {
+            margin: 0 0 10px 0;
+            color: #1e293b;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .comment-text {
+            margin: 0;
+            color: #374151;
+            line-height: 1.6;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid #e2e8f0;
+        }
+
+        .comment-text.positive {
+            border-left-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .comment-text.improvement {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        /* Mobile responsiveness for survey details */
+        @media (max-width: 768px) {
+            .survey-detail-container {
+                max-height: 60vh;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-section {
+                padding: 15px;
+            }
+
+            .section-title {
+                font-size: 1rem;
+            }
         }
 
         /* Alert styles */
@@ -848,6 +1000,7 @@
                 <button class="nav-tab" data-tab="surveys">📋 All Surveys</button>
                 <button class="nav-tab" data-tab="analytics">📊 Analytics</button>
                 <button class="nav-tab" data-tab="follow-ups">📞 Follow-ups</button>
+                <button class="nav-tab" data-tab="clinics">🏥 Clinics</button>
                 <button class="nav-tab" data-tab="users">👥 Users</button>
                 <button class="nav-tab" data-tab="settings">⚙️ Settings</button>
             </div>
@@ -898,9 +1051,6 @@
                             <tr>
                                 <th>Patient Name</th>
                                 <th>Contact Info</th>
-                                <th>Patient ID</th>
-                                <th>Department</th>
-                                <th>Doctor</th>
                                 <th>Clinic</th>
                                 <th>Overall Rating</th>
                                 <th>Visit Date</th>
@@ -910,7 +1060,7 @@
                         </thead>
                         <tbody id="recentSurveysTable">
                             <tr>
-                                <td colspan="10" class="loading">
+                                <td colspan="7" class="loading">
                                     <div class="spinner"></div>
                                 </td>
                             </tr>
@@ -989,9 +1139,6 @@
                                 <th>Survey ID</th>
                                 <th>Patient Name</th>
                                 <th>Contact Info</th>
-                                <th>Patient ID</th>
-                                <th>Department</th>
-                                <th>Doctor</th>
                                 <th>Clinic</th>
                                 <th>Overall Rating</th>
                                 <th>Visit Date</th>
@@ -1001,7 +1148,7 @@
                         </thead>
                         <tbody id="allSurveysTable">
                             <tr>
-                                <td colspan="11" class="loading">
+                                <td colspan="8" class="loading">
                                     <div class="spinner"></div>
                                 </td>
                             </tr>
@@ -1091,6 +1238,100 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- Clinics Tab -->
+            <div id="clinics" class="tab-content">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Clinic Management</h3>
+                        <div class="table-actions">
+                            <button class="btn btn-primary btn-sm" onclick="addNewClinic()">➕ Add Clinic</button>
+                            <button class="btn btn-secondary btn-sm" onclick="loadClinicsData()">🔄 Refresh</button>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Clinic Name</th>
+                                <th>Location</th>
+                                <th>Contact Info</th>
+                                <th>Manager/Responsible</th>
+                                <th>Department Count</th>
+                                <th>Survey Count</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clinicsTable">
+                            <tr>
+                                <td colspan="8" class="loading">
+                                    <div class="spinner"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Add/Edit Clinic Modal -->
+                <div id="clinicModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 id="clinicModalTitle">Add New Clinic</h3>
+                            <span class="close" onclick="closeClinicModal()">&times;</span>
+                        </div>
+                        <form id="clinicForm">
+                            <div class="form-group">
+                                <label for="clinicName">Clinic Name *</label>
+                                <input type="text" id="clinicName" required 
+                                       placeholder="Enter clinic name">
+                            </div>
+                            <div class="form-group">
+                                <label for="clinicLocation">Location *</label>
+                                <input type="text" id="clinicLocation" required 
+                                       placeholder="Enter clinic location/address">
+                            </div>
+                            <div class="form-group">
+                                <label for="clinicPhone">Phone Number</label>
+                                <input type="tel" id="clinicPhone" 
+                                       placeholder="+971-XX-XXXXXXX">
+                            </div>
+                            <div class="form-group">
+                                <label for="clinicEmail">Email Address</label>
+                                <input type="email" id="clinicEmail" 
+                                       placeholder="clinic@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="clinicManager">Manager/Responsible Person *</label>
+                                <select id="clinicManager" required>
+                                    <option value="">Select Manager</option>
+                                    <!-- Options will be populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="clinicDepartments">Departments (comma-separated)</label>
+                                <textarea id="clinicDepartments" rows="3" 
+                                          placeholder="General Medicine, Cardiology, Pediatrics..."></textarea>
+                                <small>Enter department names separated by commas</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="clinicDescription">Description</label>
+                                <textarea id="clinicDescription" rows="3" 
+                                          placeholder="Brief description of the clinic..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="clinicActive" checked>
+                                    Active (visible in surveys)
+                                </label>
+                            </div>
+                            <div class="modal-actions">
+                                <button type="button" class="btn btn-secondary" onclick="closeClinicModal()">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Clinic</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
 
@@ -1250,6 +1491,23 @@
                 // Tab navigation
                 document.querySelectorAll('.nav-tab').forEach(tab => {
                     tab.addEventListener('click', () => this.switchTab(tab.dataset.tab));
+                });
+
+                // Clinic form
+                const clinicForm = document.getElementById('clinicForm');
+                if (clinicForm) {
+                    clinicForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.handleClinicSubmit();
+                    });
+                }
+
+                // Close modal when clicking outside
+                window.addEventListener('click', (e) => {
+                    const clinicModal = document.getElementById('clinicModal');
+                    if (e.target === clinicModal) {
+                        this.closeClinicModal();
+                    }
                 });
 
                 // Filter change handlers
@@ -1489,6 +1747,9 @@
                         case 'follow-ups':
                             await this.loadFollowUpsData();
                             break;
+                        case 'clinics':
+                            await this.loadClinicsData();
+                            break;
                         case 'users':
                             await this.loadUsersData();
                             break;
@@ -1658,7 +1919,7 @@
                     const tableBody = document.getElementById('recentSurveysTable');
                     
                     if (!surveys || surveys.length === 0) {
-                        tableBody.innerHTML = '<tr><td colspan="10" style="text-align: center; color: #64748b;">No surveys found</td></tr>';
+                        tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #64748b;">No surveys found</td></tr>';
                         return;
                     }
 
@@ -1674,9 +1935,6 @@
                                         <div style="color: #64748b;">${survey.patient_phone || 'N/A'}</div>
                                     </div>
                                 </td>
-                                <td data-label="Patient ID">${survey.patient_id || 'N/A'}</td>
-                                <td data-label="Department">${survey.department || 'N/A'}</td>
-                                <td data-label="Doctor">${survey.doctor_name || 'N/A'}</td>
                                 <td data-label="Clinic">${survey.clinic_name || 'N/A'}</td>
                                 <td data-label="Satisfaction">
                                     <span class="status-badge ${this.getSatisfactionClass(overallRating)}">
@@ -1695,7 +1953,7 @@
                 } catch (error) {
                     console.error('❌ Error loading recent surveys:', error);
                     document.getElementById('recentSurveysTable').innerHTML = 
-                        '<tr><td colspan="10" style="text-align: center; color: #dc2626;">Error loading surveys</td></tr>';
+                        '<tr><td colspan="7" style="text-align: center; color: #dc2626;">Error loading surveys</td></tr>';
                 }
             }
 
@@ -1794,7 +2052,7 @@
                 const tableBody = document.getElementById('allSurveysTable');
                 
                 if (surveys.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: #64748b;">No surveys found matching current filters</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #64748b;">No surveys found matching current filters</td></tr>';
                     return;
                 }
 
@@ -1808,9 +2066,6 @@
                                 <div style="color: #64748b;">${survey.patient_phone || 'N/A'}</div>
                             </div>
                         </td>
-                        <td data-label="Patient ID">${survey.patient_id || 'N/A'}</td>
-                        <td data-label="Department">${survey.department || 'N/A'}</td>
-                        <td data-label="Doctor">${survey.doctor_name || 'N/A'}</td>
                         <td data-label="Clinic">${survey.clinic_name || 'N/A'}</td>
                         <td data-label="Overall Rating">
                             <span class="status-badge ${this.getSatisfactionClass(this.mapSatisfactionToNumber(survey.overall_satisfaction))}">
@@ -2400,6 +2655,227 @@
                 }).join('');
             }
 
+            // ===== CLINIC MANAGEMENT FUNCTIONS =====
+            async loadClinicsData() {
+                try {
+                    // Load clinics with manager information and survey counts
+                    const { data: clinics, error } = await this.supabase
+                        .from('clinics')
+                        .select(`
+                            *,
+                            manager:users!clinics_manager_id_fkey(full_name, email),
+                            survey_count:clinic_survey_responses(count)
+                        `)
+                        .order('name');
+
+                    if (error) throw error;
+
+                    this.renderClinicsTable(clinics || []);
+
+                } catch (error) {
+                    console.error('❌ Error loading clinics data:', error);
+                    this.showError('Failed to load clinics data: ' + error.message);
+                    document.getElementById('clinicsTable').innerHTML = 
+                        '<tr><td colspan="8" style="text-align: center; color: #dc2626;">Failed to load clinics</td></tr>';
+                }
+            }
+
+            renderClinicsTable(clinics) {
+                const tableBody = document.getElementById('clinicsTable');
+                
+                if (!clinics || clinics.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #64748b;">No clinics found</td></tr>';
+                    return;
+                }
+
+                tableBody.innerHTML = clinics.map(clinic => {
+                    const canManageClinic = ['admin', 'super_admin'].includes(this.currentSystemUser?.role);
+                    const departmentCount = clinic.departments ? clinic.departments.split(',').length : 0;
+                    const surveyCount = clinic.survey_count?.[0]?.count || 0;
+                    
+                    return `
+                        <tr>
+                            <td data-label="Clinic Name">
+                                <div style="font-weight: 600;">${clinic.name}</div>
+                                <div style="font-size: 0.8em; color: #64748b;">${clinic.description || 'No description'}</div>
+                            </td>
+                            <td data-label="Location">${clinic.location}</td>
+                            <td data-label="Contact Info">
+                                <div style="font-size: 0.9em;">
+                                    <div>${clinic.email || 'N/A'}</div>
+                                    <div style="color: #64748b;">${clinic.phone || 'N/A'}</div>
+                                </div>
+                            </td>
+                            <td data-label="Manager">
+                                <div style="font-weight: 600;">${clinic.manager?.full_name || 'Not Assigned'}</div>
+                                <div style="font-size: 0.8em; color: #64748b;">${clinic.manager?.email || ''}</div>
+                            </td>
+                            <td data-label="Departments">
+                                <span class="status-badge status-medium">${departmentCount} departments</span>
+                            </td>
+                            <td data-label="Surveys">
+                                <span class="status-badge status-high">${surveyCount} surveys</span>
+                            </td>
+                            <td data-label="Status">
+                                <span class="status-badge ${clinic.is_active ? 'status-high' : 'status-low'}">
+                                    ${clinic.is_active ? 'Active' : 'Inactive'}
+                                </span>
+                            </td>
+                            <td data-label="Actions">
+                                ${canManageClinic ? `
+                                    <button class="btn btn-primary btn-sm" onclick="editClinic('${clinic.id}')" title="Edit Clinic">
+                                        ✏️ Edit
+                                    </button>
+                                    <button class="btn ${clinic.is_active ? 'btn-danger' : 'btn-success'} btn-sm" 
+                                            onclick="toggleClinicStatus('${clinic.id}', ${!clinic.is_active})" 
+                                            title="${clinic.is_active ? 'Deactivate' : 'Activate'} Clinic">
+                                        ${clinic.is_active ? '🚫' : '✅'}
+                                    </button>
+                                ` : '<span style="color: #64748b; font-size: 12px;">View Only</span>'}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            async addNewClinic() {
+                await this.loadManagerOptions();
+                document.getElementById('clinicModalTitle').textContent = 'Add New Clinic';
+                document.getElementById('clinicForm').reset();
+                document.getElementById('clinicActive').checked = true;
+                document.getElementById('clinicModal').style.display = 'block';
+            }
+
+            async editClinic(clinicId) {
+                try {
+                    const { data: clinic, error } = await this.supabase
+                        .from('clinics')
+                        .select('*')
+                        .eq('id', clinicId)
+                        .single();
+
+                    if (error) throw error;
+
+                    await this.loadManagerOptions();
+                    
+                    document.getElementById('clinicModalTitle').textContent = 'Edit Clinic';
+                    document.getElementById('clinicName').value = clinic.name || '';
+                    document.getElementById('clinicLocation').value = clinic.location || '';
+                    document.getElementById('clinicPhone').value = clinic.phone || '';
+                    document.getElementById('clinicEmail').value = clinic.email || '';
+                    document.getElementById('clinicManager').value = clinic.manager_id || '';
+                    document.getElementById('clinicDepartments').value = clinic.departments || '';
+                    document.getElementById('clinicDescription').value = clinic.description || '';
+                    document.getElementById('clinicActive').checked = clinic.is_active;
+                    
+                    // Store clinic ID for update
+                    document.getElementById('clinicForm').dataset.clinicId = clinicId;
+                    document.getElementById('clinicModal').style.display = 'block';
+
+                } catch (error) {
+                    console.error('❌ Error loading clinic:', error);
+                    this.showError('Failed to load clinic data');
+                }
+            }
+
+            async loadManagerOptions() {
+                try {
+                    const { data: users, error } = await this.supabase
+                        .from('users')
+                        .select('id, full_name, email')
+                        .eq('is_active', true)
+                        .in('role', ['admin', 'super_admin'])
+                        .order('full_name');
+
+                    if (error) throw error;
+
+                    const managerSelect = document.getElementById('clinicManager');
+                    managerSelect.innerHTML = '<option value="">Select Manager</option>';
+                    
+                    users.forEach(user => {
+                        const option = document.createElement('option');
+                        option.value = user.id;
+                        option.textContent = `${user.full_name} (${user.email})`;
+                        managerSelect.appendChild(option);
+                    });
+
+                } catch (error) {
+                    console.error('❌ Error loading managers:', error);
+                    this.showError('Failed to load manager options');
+                }
+            }
+
+            async toggleClinicStatus(clinicId, newStatus) {
+                try {
+                    const { error } = await this.supabase
+                        .from('clinics')
+                        .update({ is_active: newStatus })
+                        .eq('id', clinicId);
+
+                    if (error) throw error;
+
+                    this.showSuccess(`Clinic ${newStatus ? 'activated' : 'deactivated'} successfully`);
+                    await this.loadClinicsData();
+
+                } catch (error) {
+                    console.error('❌ Error updating clinic status:', error);
+                    this.showError('Failed to update clinic status');
+                }
+            }
+
+            async handleClinicSubmit() {
+                try {
+                    const form = document.getElementById('clinicForm');
+                    const clinicId = form.dataset.clinicId;
+                    const isEdit = !!clinicId;
+
+                    const clinicData = {
+                        name: document.getElementById('clinicName').value.trim(),
+                        location: document.getElementById('clinicLocation').value.trim(),
+                        phone: document.getElementById('clinicPhone').value.trim() || null,
+                        email: document.getElementById('clinicEmail').value.trim() || null,
+                        manager_id: document.getElementById('clinicManager').value || null,
+                        departments: document.getElementById('clinicDepartments').value.trim() || null,
+                        description: document.getElementById('clinicDescription').value.trim() || null,
+                        is_active: document.getElementById('clinicActive').checked
+                    };
+
+                    // Validate required fields
+                    if (!clinicData.name || !clinicData.location) {
+                        this.showError('Please fill in all required fields');
+                        return;
+                    }
+
+                    let result;
+                    if (isEdit) {
+                        result = await this.supabase
+                            .from('clinics')
+                            .update(clinicData)
+                            .eq('id', clinicId);
+                    } else {
+                        result = await this.supabase
+                            .from('clinics')
+                            .insert([clinicData]);
+                    }
+
+                    if (result.error) throw result.error;
+
+                    this.showSuccess(`Clinic ${isEdit ? 'updated' : 'created'} successfully`);
+                    this.closeClinicModal();
+                    await this.loadClinicsData();
+
+                } catch (error) {
+                    console.error('❌ Error saving clinic:', error);
+                    this.showError('Failed to save clinic: ' + error.message);
+                }
+            }
+
+            closeClinicModal() {
+                document.getElementById('clinicModal').style.display = 'none';
+                document.getElementById('clinicForm').reset();
+                delete document.getElementById('clinicForm').dataset.clinicId;
+            }
+
             handleDateRangeChange() {
                 const dateRange = document.getElementById('dateRangeFilter')?.value;
                 const customDateGroup = document.getElementById('customDateGroup');
@@ -2599,13 +3075,10 @@
                     'Date of Birth': survey.date_of_birth || '',
                     'Gender': survey.gender || '',
                     'Nationality': survey.nationality || '',
-                    'Patient ID': survey.patient_id || '',
                     'Emergency Contact Name': survey.emergency_contact_name || '',
                     'Emergency Contact Phone': survey.emergency_contact_phone || '',
                     'Visit Date': survey.visit_date || '',
                     'Clinic': survey.clinic_name || '',
-                    'Department': survey.department || '',
-                    'Doctor Name': survey.doctor_name || '',
                     'Appointment Type': survey.appointment_type || '',
                     'Visit Type': survey.visit_type || '',
                     'Insurance Provider': survey.insurance_provider || '',
@@ -2639,13 +3112,10 @@
                     'date_of_birth': survey.date_of_birth || '',
                     'gender': survey.gender || '',
                     'nationality': survey.nationality || '',
-                    'patient_id': survey.patient_id || '',
                     'emergency_contact_name': survey.emergency_contact_name || '',
                     'emergency_contact_phone': survey.emergency_contact_phone || '',
                     'visit_date': survey.visit_date || '',
                     'clinic': survey.clinic_name || '',
-                    'department': survey.department || '',
-                    'doctor_name': survey.doctor_name || '',
                     'appointment_type': survey.appointment_type || '',
                     'visit_type': survey.visit_type || '',
                     'insurance_provider': survey.insurance_provider || '',
@@ -3058,52 +3528,238 @@
                         const modal = document.getElementById('surveyModal');
                         const details = document.getElementById('surveyDetails');
                         
-                        // Extract data from JSONB fields
-                        const patient = survey.patient_info || {};
-                        const responses = survey.responses || {};
-                        const contact = survey.contact_preferences || {};
-                        
+                        // Helper function to format satisfaction ratings
+                        const formatSatisfaction = (value) => {
+                            if (!value) return 'N/A';
+                            return value.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                        };
+
+                        // Helper function to format yes/no values
+                        const formatYesNo = (value) => {
+                            if (value === 'yes' || value === true) return '✅ Yes';
+                            if (value === 'no' || value === false) return '❌ No';
+                            return 'N/A';
+                        };
+
                         details.innerHTML = `
-                            <h3>Survey Details</h3>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;">
-                                <div>
-                                    <h4>Patient Information</h4>
-                                    <p><strong>Name:</strong> ${patient.full_name || 'N/A'}</p>
-                                    <p><strong>Email:</strong> ${patient.email || 'N/A'}</p>
-                                    <p><strong>Phone:</strong> ${patient.phone || 'N/A'}</p>
-                                    <p><strong>Visit Date:</strong> ${patient.visit_date || 'N/A'}</p>
-                                    <p><strong>Clinic:</strong> ${patient.clinic_location || 'N/A'}</p>
+                            <div class="survey-detail-container">
+                                <!-- Patient Information Section -->
+                                <div class="detail-section">
+                                    <h3 class="section-title">👤 Patient Information</h3>
+                                    <div class="detail-grid">
+                                        <div class="detail-item">
+                                            <label>Full Name:</label>
+                                            <span>${survey.patient_name || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Email:</label>
+                                            <span>${survey.patient_email || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Phone:</label>
+                                            <span>${survey.patient_phone || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Date of Birth:</label>
+                                            <span>${survey.date_of_birth || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Gender:</label>
+                                            <span>${formatSatisfaction(survey.gender) || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Nationality:</label>
+                                            <span>${formatSatisfaction(survey.nationality) || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Emergency Contact:</label>
+                                            <span>${survey.emergency_contact_name || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Emergency Phone:</label>
+                                            <span>${survey.emergency_contact_phone || 'N/A'}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h4>Satisfaction Ratings</h4>
-                                    <p><strong>Overall:</strong> ${responses.overall_satisfaction || 'N/A'}</p>
-                                    <p><strong>Reception:</strong> ${responses.reception_satisfaction || 'N/A'}</p>
-                                    <p><strong>Doctor:</strong> ${responses.doctor_satisfaction || 'N/A'}</p>
-                                    <p><strong>Nursing:</strong> ${responses.nursing_professionalism || 'N/A'}</p>
-                                    <p><strong>Cleanliness:</strong> ${responses.clinic_cleanliness || 'N/A'}</p>
+
+                                <!-- Visit Information Section -->
+                                <div class="detail-section">
+                                    <h3 class="section-title">🏥 Visit Information</h3>
+                                    <div class="detail-grid">
+                                        <div class="detail-item">
+                                            <label>Visit Date:</label>
+                                            <span>${survey.visit_date || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Clinic:</label>
+                                            <span>${survey.clinic_name || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Appointment Type:</label>
+                                            <span>${formatSatisfaction(survey.appointment_type) || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Visit Type:</label>
+                                            <span>${formatSatisfaction(survey.visit_type) || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Insurance Provider:</label>
+                                            <span>${formatSatisfaction(survey.insurance_provider) || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item full-width">
+                                            <label>Reason for Visit:</label>
+                                            <span>${survey.visit_reason || 'N/A'}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h4>Experience Details</h4>
-                                    <p><strong>Visit Type:</strong> ${responses.visit_type || 'N/A'}</p>
-                                    <p><strong>Wait Time Acceptable:</strong> ${responses.waiting_time_acceptable || 'N/A'}</p>
-                                    <p><strong>Would Recommend:</strong> ${responses.recommendation_likelihood || 'N/A'}</p>
+
+                                <!-- Satisfaction Ratings Section -->
+                                <div class="detail-section">
+                                    <h3 class="section-title">⭐ Satisfaction Ratings</h3>
+                                    <div class="detail-grid">
+                                        <div class="detail-item">
+                                            <label>Overall Experience:</label>
+                                            <span class="satisfaction-rating">${formatSatisfaction(survey.overall_satisfaction)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Reception Staff:</label>
+                                            <span class="satisfaction-rating">${formatSatisfaction(survey.reception_satisfaction)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Registration Process:</label>
+                                            <span>${formatYesNo(survey.registration_smooth)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Nursing Staff:</label>
+                                            <span class="satisfaction-rating">${formatSatisfaction(survey.nursing_professionalism)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Prompt Medical Attention:</label>
+                                            <span>${formatYesNo(survey.nursing_prompt)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Doctor Consultation:</label>
+                                            <span class="satisfaction-rating">${formatSatisfaction(survey.doctor_satisfaction)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Doctor Listened to Concerns:</label>
+                                            <span>${formatYesNo(survey.doctor_listening)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Clinic Cleanliness:</label>
+                                            <span class="satisfaction-rating">${formatSatisfaction(survey.clinic_cleanliness)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Waiting Time Acceptable:</label>
+                                            <span>${formatYesNo(survey.waiting_time_acceptable)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Recommendation Likelihood:</label>
+                                            <span class="satisfaction-rating">${formatSatisfaction(survey.recommendation_likelihood)}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h4>Contact Preferences</h4>
-                                    <p><strong>Wants Contact:</strong> ${contact.wants_contact === 'yes' ? 'Yes' : 'No'}</p>
-                                    <p><strong>Methods:</strong> ${contact.contact_methods?.join(', ') || 'None'}</p>
+
+                                <!-- Comments and Feedback Section -->
+                                <div class="detail-section">
+                                    <h3 class="section-title">💬 Comments & Feedback</h3>
+                                    <div class="comments-section">
+                                        ${survey.reception_comments ? `
+                                            <div class="comment-item">
+                                                <h4>🏢 Reception Staff Comments:</h4>
+                                                <p class="comment-text">${survey.reception_comments}</p>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        ${survey.nursing_comments ? `
+                                            <div class="comment-item">
+                                                <h4>👩‍⚕️ Nursing Staff Comments:</h4>
+                                                <p class="comment-text">${survey.nursing_comments}</p>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        ${survey.doctor_comments ? `
+                                            <div class="comment-item">
+                                                <h4>👨‍⚕️ Doctor Comments:</h4>
+                                                <p class="comment-text">${survey.doctor_comments}</p>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        ${survey.environment_comments ? `
+                                            <div class="comment-item">
+                                                <h4>🏥 Environment Comments:</h4>
+                                                <p class="comment-text">${survey.environment_comments}</p>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        ${survey.liked_most ? `
+                                            <div class="comment-item">
+                                                <h4>👍 What They Liked Most:</h4>
+                                                <p class="comment-text positive">${survey.liked_most}</p>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        ${survey.areas_improve ? `
+                                            <div class="comment-item">
+                                                <h4>📈 Areas for Improvement:</h4>
+                                                <p class="comment-text improvement">${survey.areas_improve}</p>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        ${survey.recommendation_comments ? `
+                                            <div class="comment-item">
+                                                <h4>💡 Recommendation Comments:</h4>
+                                                <p class="comment-text">${survey.recommendation_comments}</p>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        ${!survey.reception_comments && !survey.nursing_comments && !survey.doctor_comments && !survey.environment_comments && !survey.liked_most && !survey.areas_improve && !survey.recommendation_comments ? `
+                                            <p style="color: #64748b; font-style: italic; text-align: center; padding: 20px;">No additional comments provided</p>
+                                        ` : ''}
+                                    </div>
                                 </div>
-                            </div>
-                            ${responses.liked_most || responses.areas_improve ? `
-                                <div style="margin-top: 20px;">
-                                    <h4>Feedback Comments</h4>
-                                    ${responses.liked_most ? `<p><strong>Liked Most:</strong> ${responses.liked_most}</p>` : ''}
-                                    ${responses.areas_improve ? `<p><strong>Areas to Improve:</strong> ${responses.areas_improve}</p>` : ''}
+
+                                <!-- Contact Preferences Section -->
+                                <div class="detail-section">
+                                    <h3 class="section-title">📞 Contact Preferences</h3>
+                                    <div class="detail-grid">
+                                        <div class="detail-item">
+                                            <label>Wants Follow-up Contact:</label>
+                                            <span>${formatYesNo(survey.wants_contact)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Preferred Contact Method:</label>
+                                            <span>${survey.contact_method || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item full-width">
+                                            <label>Best Time to Contact:</label>
+                                            <span>${survey.best_time_contact || 'N/A'}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                            ` : ''}
-                            <div style="margin-top: 20px; font-size: 12px; color: #666;">
-                                <p><strong>Survey ID:</strong> ${survey.response_id}</p>
-                                <p><strong>Submitted:</strong> ${new Date(survey.created_at).toLocaleString()}</p>
+
+                                <!-- Survey Metadata Section -->
+                                <div class="detail-section">
+                                    <h3 class="section-title">📋 Survey Information</h3>
+                                    <div class="detail-grid">
+                                        <div class="detail-item">
+                                            <label>Survey ID:</label>
+                                            <span style="font-family: monospace; font-size: 0.9em;">${survey.response_id}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Submitted Date:</label>
+                                            <span>${new Date(survey.created_at).toLocaleString()}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Privacy Consent:</label>
+                                            <span>${formatYesNo(survey.privacy_consent)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Follow-up Consent:</label>
+                                            <span>${formatYesNo(survey.followup_consent)}</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         `;
                         
@@ -3432,6 +4088,37 @@
         function toggleUserStatus(userId, newStatus) {
             if (window.adminDashboard) {
                 window.adminDashboard.toggleUserStatus(userId, newStatus);
+            }
+        }
+
+        // Global clinic management functions
+        function addNewClinic() {
+            if (window.adminDashboard) {
+                window.adminDashboard.addNewClinic();
+            }
+        }
+
+        function editClinic(clinicId) {
+            if (window.adminDashboard) {
+                window.adminDashboard.editClinic(clinicId);
+            }
+        }
+
+        function toggleClinicStatus(clinicId, newStatus) {
+            if (window.adminDashboard) {
+                window.adminDashboard.toggleClinicStatus(clinicId, newStatus);
+            }
+        }
+
+        function closeClinicModal() {
+            if (window.adminDashboard) {
+                window.adminDashboard.closeClinicModal();
+            }
+        }
+
+        function loadClinicsData() {
+            if (window.adminDashboard) {
+                window.adminDashboard.loadClinicsData();
             }
         }
 
