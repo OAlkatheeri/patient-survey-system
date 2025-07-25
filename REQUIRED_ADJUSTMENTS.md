@@ -2,8 +2,8 @@
 
 ## 📋 **Database Schema Requirements**
 
-### **1. Execute the Complete Database Schema**
-Run the `database_schema.sql` file in your PostgreSQL database. This includes:
+### **1. Execute the Safe Database Schema**
+Run the `database_schema_safe.sql` file in your PostgreSQL database. This safely handles existing components and includes:
 
 #### **Custom Types (MUST be created first):**
 ```sql
@@ -84,8 +84,8 @@ createdb your_clinic_survey_db
 # 2. Connect to your database
 psql -d your_clinic_survey_db
 
-# 3. Execute the complete schema
-\i database_schema.sql
+# 3. Execute the safe schema (handles existing components)
+\i database_schema_safe.sql
 ```
 
 ### **2. Supabase Configuration:**
