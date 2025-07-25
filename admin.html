@@ -3607,26 +3607,7 @@
                                             <label>Phone:</label>
                                             <span>${patientInfo.phone || responses.patient_phone || 'N/A'}</span>
                                         </div>
-                                        <div class="detail-item">
-                                            <label>Date of Birth:</label>
-                                            <span>${responses.date_of_birth || 'N/A'}</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <label>Gender:</label>
-                                            <span>${formatSatisfaction(responses.gender) || 'N/A'}</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <label>Nationality:</label>
-                                            <span>${formatSatisfaction(responses.nationality) || 'N/A'}</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <label>Emergency Contact:</label>
-                                            <span>${responses.emergency_contact_name || 'N/A'}</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <label>Emergency Phone:</label>
-                                            <span>${responses.emergency_contact_phone || 'N/A'}</span>
-                                        </div>
+
                                     </div>
                                 </div>
 
@@ -3643,20 +3624,8 @@
                                             <span>${patientInfo.clinic_location || responses.clinic_location || 'N/A'}</span>
                                         </div>
                                         <div class="detail-item">
-                                            <label>Appointment Type:</label>
-                                            <span>${formatSatisfaction(responses.appointment_type) || 'N/A'}</span>
-                                        </div>
-                                        <div class="detail-item">
                                             <label>Visit Type:</label>
                                             <span>${formatSatisfaction(responses.visit_type) || 'N/A'}</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <label>Insurance Provider:</label>
-                                            <span>${formatSatisfaction(responses.insurance_provider) || 'N/A'}</span>
-                                        </div>
-                                        <div class="detail-item full-width">
-                                            <label>Reason for Visit:</label>
-                                            <span>${responses.visit_reason || 'N/A'}</span>
                                         </div>
                                     </div>
                                 </div>

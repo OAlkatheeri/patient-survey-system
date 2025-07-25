@@ -1302,43 +1302,7 @@
                                pattern="[A-Za-z\s]{2,50}"
                                autocomplete="name">
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Date of Birth *</label>
-                        <input type="date" name="date_of_birth" class="form-input" required
-                               autocomplete="bday">
-                        <small style="color: var(--text-light); margin-top: 0.3rem; display: block; font-size: 0.8rem;">
-                            📅 Required for patient identification
-                        </small>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Gender *</label>
-                        <select name="gender" class="form-select" required>
-                            <option value="">Select Gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                            <option value="prefer_not_to_say">Prefer not to say</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Nationality</label>
-                        <select name="nationality" class="form-select">
-                            <option value="">Select Nationality</option>
-                            <option value="uae">United Arab Emirates</option>
-                            <option value="saudi">Saudi Arabia</option>
-                            <option value="egypt">Egypt</option>
-                            <option value="india">India</option>
-                            <option value="pakistan">Pakistan</option>
-                            <option value="philippines">Philippines</option>
-                            <option value="bangladesh">Bangladesh</option>
-                            <option value="jordan">Jordan</option>
-                            <option value="lebanon">Lebanon</option>
-                            <option value="syria">Syria</option>
-                            <option value="yemen">Yemen</option>
-                            <option value="sudan">Sudan</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
+
 
                     <div class="form-group">
                         <label class="form-label">Email Address *</label>
@@ -1353,19 +1317,7 @@
                                placeholder="+971, 05xxxxxxxx, or international"
                                autocomplete="tel">
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Emergency Contact Name</label>
-                        <input type="text" name="emergency_contact_name" class="form-input" 
-                               placeholder="Emergency contact full name"
-                               autocomplete="name">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Emergency Contact Phone</label>
-                        <input type="tel" name="emergency_contact_phone" class="form-input" 
-                               pattern="^(\+971[0-9]{8,9}|\+[0-9]{10,15}|05[0-9]{8}|)$"
-                               placeholder="+971, 05xxxxxxxx, or international"
-                               autocomplete="tel">
-                    </div>
+
                 </div>
             </div>
 
@@ -1390,23 +1342,7 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Appointment Type *</label>
-                        <div class="rating-group" role="radiogroup" aria-required="true">
-                            <label class="rating-option">
-                                <input type="radio" name="appointment_type" value="scheduled" required>
-                                <span class="rating-label">📅 Scheduled Appointment</span>
-                            </label>
-                            <label class="rating-option">
-                                <input type="radio" name="appointment_type" value="walk_in" required>
-                                <span class="rating-label">🚶 Walk-in</span>
-                            </label>
-                            <label class="rating-option">
-                                <input type="radio" name="appointment_type" value="emergency" required>
-                                <span class="rating-label">🚨 Emergency</span>
-                            </label>
-                        </div>
-                    </div>
+
                     <div class="form-group">
                         <label class="form-label">Visit Type *</label>
                         <div class="rating-group" role="radiogroup" aria-required="true">
@@ -1424,31 +1360,7 @@
                             </label>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Insurance Provider</label>
-                        <select name="insurance_provider" class="form-select">
-                            <option value="">Select Insurance Provider</option>
-                            <option value="adnic">ADNIC</option>
-                            <option value="daman">Daman</option>
-                            <option value="thiqa">Thiqa</option>
-                            <option value="cigna">Cigna</option>
-                            <option value="axa">AXA</option>
-                            <option value="oman_insurance">Oman Insurance</option>
-                            <option value="dubai_insurance">Dubai Insurance</option>
-                            <option value="abu_dhabi_national">Abu Dhabi National Insurance</option>
-                            <option value="self_pay">Self Pay</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Reason for Visit</label>
-                        <textarea name="visit_reason" class="form-input" rows="3" 
-                                  placeholder="Brief description of your visit reason (optional)"
-                                  maxlength="500"></textarea>
-                        <small style="color: var(--text-light); margin-top: 0.3rem; display: block; font-size: 0.8rem;">
-                            💬 Optional - helps us understand your healthcare needs better
-                        </small>
-                    </div>
+
                 </div>
             </div>
 
