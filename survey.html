@@ -2551,9 +2551,22 @@
                                         if (error) throw error;
                                         console.log('✅ Survey saved:', data[0]);
                                         
-                                        // Create follow-up if dissatisfied
-                                        if (surveyData.responses.overall_satisfaction === 'dissatisfied') {
+                                        // Create follow-up if dissatisfied OR if patient wants contact
+                                        if (surveyData.responses.overall_satisfaction === 'dissatisfied' || 
+                                            surveyData.contact_preferences.wants_contact === 'yes') {
                                             try {
+                                                // Determine priority based on satisfaction level
+                                                let priority = 'medium';
+                                                let notes = '';
+                                                
+                                                if (surveyData.responses.overall_satisfaction === 'dissatisfied') {
+                                                    priority = 'high';
+                                                    notes = 'Auto-generated: Dissatisfied patient requires immediate attention';
+                                                } else if (surveyData.contact_preferences.wants_contact === 'yes') {
+                                                    priority = 'medium';
+                                                    notes = `Auto-generated: Patient requested contact via ${surveyData.contact_preferences.contact_methods.join(', ')}`;
+                                                }
+                                                
                                                 await supabaseClient
                                                     .from('follow_up_tasks')
                                                     .insert([{
@@ -2562,13 +2575,18 @@
                                                         patient_email: surveyData.patient_info.email,
                                                         patient_phone: surveyData.patient_info.phone,
                                                         clinic_id: surveyData.patient_info.clinic_location,
-                                                        priority: 'high',
+                                                        priority: priority,
                                                         status: 'pending',
                                                         survey_type: 'clinic_satisfaction',
                                                         overall_satisfaction: surveyData.responses.overall_satisfaction,
-                                                        notes: 'Auto-generated follow-up task for dissatisfied patient',
+                                                        title: `Follow-up: ${surveyData.patient_info.full_name} - ${priority === 'high' ? 'Dissatisfied' : 'Contact Requested'}`,
+                                                        notes: notes,
+                                                        contact_method_preferences: surveyData.contact_preferences.contact_methods,
+                                                        due_date: new Date(Date.now() + (priority === 'high' ? 24 : 48) * 60 * 60 * 1000).toISOString(), // 24h for high, 48h for medium
                                                         created_at: new Date().toISOString()
                                                     }]);
+                                                    
+                                                console.log('✅ Follow-up task created for contact request');
                                             } catch (followUpError) {
                                                 console.warn('Follow-up creation failed:', followUpError);
                                             }
