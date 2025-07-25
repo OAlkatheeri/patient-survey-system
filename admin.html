@@ -517,12 +517,12 @@
 
         .modal-content {
             background-color: white;
-            margin: 5% auto;
+            margin: 2% auto;
             padding: 20px;
             border-radius: 12px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
+            width: 95%;
+            max-width: 1200px;
+            max-height: 90vh;
             overflow-y: auto;
         }
 
@@ -560,6 +560,134 @@
             margin-top: 20px;
             padding-top: 15px;
             border-top: 1px solid #e2e8f0;
+        }
+
+        /* Survey Detail Modal Styles */
+        .survey-detail-container {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .detail-section {
+            margin-bottom: 25px;
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .section-title {
+            margin: 0 0 15px 0;
+            color: #1e293b;
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .detail-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .detail-item label {
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.9rem;
+        }
+
+        .detail-item span {
+            color: #1e293b;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            min-height: 38px;
+            display: flex;
+            align-items: center;
+        }
+
+        .satisfaction-rating {
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .comments-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .comment-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .comment-item h4 {
+            margin: 0 0 10px 0;
+            color: #1e293b;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .comment-text {
+            margin: 0;
+            color: #374151;
+            line-height: 1.6;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid #e2e8f0;
+        }
+
+        .comment-text.positive {
+            border-left-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .comment-text.improvement {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        /* Mobile responsiveness for survey details */
+        @media (max-width: 768px) {
+            .survey-detail-container {
+                max-height: 60vh;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-section {
+                padding: 15px;
+            }
+
+            .section-title {
+                font-size: 1rem;
+            }
         }
 
         /* Alert styles */
@@ -3400,52 +3528,238 @@
                         const modal = document.getElementById('surveyModal');
                         const details = document.getElementById('surveyDetails');
                         
-                        // Extract data from JSONB fields
-                        const patient = survey.patient_info || {};
-                        const responses = survey.responses || {};
-                        const contact = survey.contact_preferences || {};
-                        
+                        // Helper function to format satisfaction ratings
+                        const formatSatisfaction = (value) => {
+                            if (!value) return 'N/A';
+                            return value.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                        };
+
+                        // Helper function to format yes/no values
+                        const formatYesNo = (value) => {
+                            if (value === 'yes' || value === true) return '✅ Yes';
+                            if (value === 'no' || value === false) return '❌ No';
+                            return 'N/A';
+                        };
+
                         details.innerHTML = `
-                            <h3>Survey Details</h3>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;">
-                                <div>
-                                    <h4>Patient Information</h4>
-                                    <p><strong>Name:</strong> ${patient.full_name || 'N/A'}</p>
-                                    <p><strong>Email:</strong> ${patient.email || 'N/A'}</p>
-                                    <p><strong>Phone:</strong> ${patient.phone || 'N/A'}</p>
-                                    <p><strong>Visit Date:</strong> ${patient.visit_date || 'N/A'}</p>
-                                    <p><strong>Clinic:</strong> ${patient.clinic_location || 'N/A'}</p>
+                            <div class="survey-detail-container">
+                                <!-- Patient Information Section -->
+                                <div class="detail-section">
+                                    <h3 class="section-title">👤 Patient Information</h3>
+                                    <div class="detail-grid">
+                                        <div class="detail-item">
+                                            <label>Full Name:</label>
+                                            <span>${survey.patient_name || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Email:</label>
+                                            <span>${survey.patient_email || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Phone:</label>
+                                            <span>${survey.patient_phone || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Date of Birth:</label>
+                                            <span>${survey.date_of_birth || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Gender:</label>
+                                            <span>${formatSatisfaction(survey.gender) || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Nationality:</label>
+                                            <span>${formatSatisfaction(survey.nationality) || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Emergency Contact:</label>
+                                            <span>${survey.emergency_contact_name || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Emergency Phone:</label>
+                                            <span>${survey.emergency_contact_phone || 'N/A'}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h4>Satisfaction Ratings</h4>
-                                    <p><strong>Overall:</strong> ${responses.overall_satisfaction || 'N/A'}</p>
-                                    <p><strong>Reception:</strong> ${responses.reception_satisfaction || 'N/A'}</p>
-                                    <p><strong>Doctor:</strong> ${responses.doctor_satisfaction || 'N/A'}</p>
-                                    <p><strong>Nursing:</strong> ${responses.nursing_professionalism || 'N/A'}</p>
-                                    <p><strong>Cleanliness:</strong> ${responses.clinic_cleanliness || 'N/A'}</p>
+
+                                <!-- Visit Information Section -->
+                                <div class="detail-section">
+                                    <h3 class="section-title">🏥 Visit Information</h3>
+                                    <div class="detail-grid">
+                                        <div class="detail-item">
+                                            <label>Visit Date:</label>
+                                            <span>${survey.visit_date || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Clinic:</label>
+                                            <span>${survey.clinic_name || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Appointment Type:</label>
+                                            <span>${formatSatisfaction(survey.appointment_type) || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Visit Type:</label>
+                                            <span>${formatSatisfaction(survey.visit_type) || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Insurance Provider:</label>
+                                            <span>${formatSatisfaction(survey.insurance_provider) || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item full-width">
+                                            <label>Reason for Visit:</label>
+                                            <span>${survey.visit_reason || 'N/A'}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h4>Experience Details</h4>
-                                    <p><strong>Visit Type:</strong> ${responses.visit_type || 'N/A'}</p>
-                                    <p><strong>Wait Time Acceptable:</strong> ${responses.waiting_time_acceptable || 'N/A'}</p>
-                                    <p><strong>Would Recommend:</strong> ${responses.recommendation_likelihood || 'N/A'}</p>
+
+                                <!-- Satisfaction Ratings Section -->
+                                <div class="detail-section">
+                                    <h3 class="section-title">⭐ Satisfaction Ratings</h3>
+                                    <div class="detail-grid">
+                                        <div class="detail-item">
+                                            <label>Overall Experience:</label>
+                                            <span class="satisfaction-rating">${formatSatisfaction(survey.overall_satisfaction)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Reception Staff:</label>
+                                            <span class="satisfaction-rating">${formatSatisfaction(survey.reception_satisfaction)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Registration Process:</label>
+                                            <span>${formatYesNo(survey.registration_smooth)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Nursing Staff:</label>
+                                            <span class="satisfaction-rating">${formatSatisfaction(survey.nursing_professionalism)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Prompt Medical Attention:</label>
+                                            <span>${formatYesNo(survey.nursing_prompt)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Doctor Consultation:</label>
+                                            <span class="satisfaction-rating">${formatSatisfaction(survey.doctor_satisfaction)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Doctor Listened to Concerns:</label>
+                                            <span>${formatYesNo(survey.doctor_listening)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Clinic Cleanliness:</label>
+                                            <span class="satisfaction-rating">${formatSatisfaction(survey.clinic_cleanliness)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Waiting Time Acceptable:</label>
+                                            <span>${formatYesNo(survey.waiting_time_acceptable)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Recommendation Likelihood:</label>
+                                            <span class="satisfaction-rating">${formatSatisfaction(survey.recommendation_likelihood)}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h4>Contact Preferences</h4>
-                                    <p><strong>Wants Contact:</strong> ${contact.wants_contact === 'yes' ? 'Yes' : 'No'}</p>
-                                    <p><strong>Methods:</strong> ${contact.contact_methods?.join(', ') || 'None'}</p>
+
+                                <!-- Comments and Feedback Section -->
+                                <div class="detail-section">
+                                    <h3 class="section-title">💬 Comments & Feedback</h3>
+                                    <div class="comments-section">
+                                        ${survey.reception_comments ? `
+                                            <div class="comment-item">
+                                                <h4>🏢 Reception Staff Comments:</h4>
+                                                <p class="comment-text">${survey.reception_comments}</p>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        ${survey.nursing_comments ? `
+                                            <div class="comment-item">
+                                                <h4>👩‍⚕️ Nursing Staff Comments:</h4>
+                                                <p class="comment-text">${survey.nursing_comments}</p>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        ${survey.doctor_comments ? `
+                                            <div class="comment-item">
+                                                <h4>👨‍⚕️ Doctor Comments:</h4>
+                                                <p class="comment-text">${survey.doctor_comments}</p>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        ${survey.environment_comments ? `
+                                            <div class="comment-item">
+                                                <h4>🏥 Environment Comments:</h4>
+                                                <p class="comment-text">${survey.environment_comments}</p>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        ${survey.liked_most ? `
+                                            <div class="comment-item">
+                                                <h4>👍 What They Liked Most:</h4>
+                                                <p class="comment-text positive">${survey.liked_most}</p>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        ${survey.areas_improve ? `
+                                            <div class="comment-item">
+                                                <h4>📈 Areas for Improvement:</h4>
+                                                <p class="comment-text improvement">${survey.areas_improve}</p>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        ${survey.recommendation_comments ? `
+                                            <div class="comment-item">
+                                                <h4>💡 Recommendation Comments:</h4>
+                                                <p class="comment-text">${survey.recommendation_comments}</p>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        ${!survey.reception_comments && !survey.nursing_comments && !survey.doctor_comments && !survey.environment_comments && !survey.liked_most && !survey.areas_improve && !survey.recommendation_comments ? `
+                                            <p style="color: #64748b; font-style: italic; text-align: center; padding: 20px;">No additional comments provided</p>
+                                        ` : ''}
+                                    </div>
                                 </div>
-                            </div>
-                            ${responses.liked_most || responses.areas_improve ? `
-                                <div style="margin-top: 20px;">
-                                    <h4>Feedback Comments</h4>
-                                    ${responses.liked_most ? `<p><strong>Liked Most:</strong> ${responses.liked_most}</p>` : ''}
-                                    ${responses.areas_improve ? `<p><strong>Areas to Improve:</strong> ${responses.areas_improve}</p>` : ''}
+
+                                <!-- Contact Preferences Section -->
+                                <div class="detail-section">
+                                    <h3 class="section-title">📞 Contact Preferences</h3>
+                                    <div class="detail-grid">
+                                        <div class="detail-item">
+                                            <label>Wants Follow-up Contact:</label>
+                                            <span>${formatYesNo(survey.wants_contact)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Preferred Contact Method:</label>
+                                            <span>${survey.contact_method || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item full-width">
+                                            <label>Best Time to Contact:</label>
+                                            <span>${survey.best_time_contact || 'N/A'}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                            ` : ''}
-                            <div style="margin-top: 20px; font-size: 12px; color: #666;">
-                                <p><strong>Survey ID:</strong> ${survey.response_id}</p>
-                                <p><strong>Submitted:</strong> ${new Date(survey.created_at).toLocaleString()}</p>
+
+                                <!-- Survey Metadata Section -->
+                                <div class="detail-section">
+                                    <h3 class="section-title">📋 Survey Information</h3>
+                                    <div class="detail-grid">
+                                        <div class="detail-item">
+                                            <label>Survey ID:</label>
+                                            <span style="font-family: monospace; font-size: 0.9em;">${survey.response_id}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Submitted Date:</label>
+                                            <span>${new Date(survey.created_at).toLocaleString()}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Privacy Consent:</label>
+                                            <span>${formatYesNo(survey.privacy_consent)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Follow-up Consent:</label>
+                                            <span>${formatYesNo(survey.followup_consent)}</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         `;
                         
