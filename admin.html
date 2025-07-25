@@ -1903,14 +1903,23 @@
                     const clinicIds = userClinics?.map(c => c.clinic_id) || [];
                     
                     let query = this.supabase
-                        .from('survey_responses_view')
-                        .select('*')
+                        .from('clinic_survey_responses')
+                        .select(`
+                            *,
+                            patient_name: patient_info->>'full_name',
+                            patient_email: patient_info->>'email',
+                            patient_phone: patient_info->>'phone',
+                            clinic_name: patient_info->>'clinic_location',
+                            overall_satisfaction: responses->>'overall_satisfaction',
+                            visit_date: patient_info->>'visit_date',
+                            wants_contact: contact_preferences->>'wants_contact'
+                        `)
                         .order('created_at', { ascending: false })
                         .limit(10);
 
                     // Apply clinic filter for non-super admins
                     if (this.currentSystemUser.role !== 'super_admin' && clinicIds.length > 0) {
-                        query = query.in('clinic_id', clinicIds);
+                        query = query.in('patient_info->>clinic_location', clinicIds);
                     }
 
                     const { data: surveys, error } = await query;
@@ -2024,13 +2033,22 @@
                     const clinicIds = userClinics?.map(c => c.clinic_id) || [];
                     
                     let query = this.supabase
-                        .from('survey_responses_view')
-                        .select('*')
+                        .from('clinic_survey_responses')
+                        .select(`
+                            *,
+                            patient_name: patient_info->>'full_name',
+                            patient_email: patient_info->>'email',
+                            patient_phone: patient_info->>'phone',
+                            clinic_name: patient_info->>'clinic_location',
+                            overall_satisfaction: responses->>'overall_satisfaction',
+                            visit_date: patient_info->>'visit_date',
+                            wants_contact: contact_preferences->>'wants_contact'
+                        `)
                         .order('created_at', { ascending: false });
 
                     // Apply clinic access filter
                     if (this.currentSystemUser.role !== 'super_admin' && clinicIds.length > 0) {
-                        query = query.in('clinic_id', clinicIds);
+                        query = query.in('patient_info->>clinic_location', clinicIds);
                     }
 
                     // Apply user filters
@@ -2089,7 +2107,7 @@
             applyFiltersToQuery(query) {
                 // Apply clinic filter
                 if (this.currentFilters.clinic) {
-                    query = query.eq('clinic_id', this.currentFilters.clinic);
+                    query = query.eq('patient_info->>clinic_location', this.currentFilters.clinic);
                 }
 
                 // Apply date range filter
@@ -2117,13 +2135,13 @@
                 if (this.currentFilters.satisfaction) {
                     switch (this.currentFilters.satisfaction) {
                         case 'low':
-                            query = query.in('overall_satisfaction', ['dissatisfied', 'very_dissatisfied']);
+                            query = query.in('responses->>overall_satisfaction', ['dissatisfied', 'very_dissatisfied']);
                             break;
                         case 'medium':
-                            query = query.eq('overall_satisfaction', 'satisfied');
+                            query = query.eq('responses->>overall_satisfaction', 'satisfied');
                             break;
                         case 'high':
-                            query = query.eq('overall_satisfaction', 'very_satisfied');
+                            query = query.eq('responses->>overall_satisfaction', 'very_satisfied');
                             break;
                     }
                 }
@@ -3025,12 +3043,21 @@
                         const clinicIds = userClinics?.map(c => c.clinic_id) || [];
                         
                         let query = this.supabase
-                            .from('survey_responses_view')
-                            .select('*')
+                            .from('clinic_survey_responses')
+                            .select(`
+                                *,
+                                patient_name: patient_info->>'full_name',
+                                patient_email: patient_info->>'email',
+                                patient_phone: patient_info->>'phone',
+                                clinic_name: patient_info->>'clinic_location',
+                                overall_satisfaction: responses->>'overall_satisfaction',
+                                visit_date: patient_info->>'visit_date',
+                                wants_contact: contact_preferences->>'wants_contact'
+                            `)
                             .order('created_at', { ascending: false });
 
                         if (this.dashboard.currentSystemUser.role !== 'super_admin' && clinicIds.length > 0) {
-                            query = query.in('clinic_id', clinicIds);
+                            query = query.in('patient_info->>clinic_location', clinicIds);
                         }
 
                         const { data: allSurveys, error } = await query;
