@@ -84,8 +84,8 @@ createdb your_clinic_survey_db
 # 2. Connect to your database
 psql -d your_clinic_survey_db
 
-# 3. Execute the safe schema (handles existing components)
-\i database_schema_safe.sql
+# 3. Execute the complete schema (creates everything from scratch)
+\i complete_database_schema.sql
 ```
 
 ### **2. Supabase Configuration:**
